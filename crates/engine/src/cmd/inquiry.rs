@@ -32,6 +32,16 @@ pub fn specs() -> Vec<CommandSpec> {
             .params("{handles?}")
             .noundo()
             .interactive(|_| Ok(Box::new(ListM::default()))),
+        CommandSpec::new("xdlist", "List Xdata", run_xdlist)
+            .menu(&["Tools", "Inquiry", "List Xdata"])
+            .alias(&["xdl", "xdata"])
+            .params("{handles?, app?}")
+            .noundo()
+            .interactive(|_| Ok(Box::new(XdListM::default()))),        CommandSpec::new("xdedit", "Edit Xdata", run_xdedit)
+            .menu(&["Tools", "Inquiry", "Edit Xdata (XDEDIT)"])
+            .alias(&["xde"])
+            .params("{handle?, xdata?: [{code, value}]}")
+            .interactive(|_| Ok(Box::new(XdEditM::default()))),
         CommandSpec::new("area", "Area", run_area)
             .menu(&["Tools", "Inquiry", "Area"])
             .alias(&["aa"])
@@ -273,6 +283,22 @@ fn list_text(s: &Session, h: Handle) -> String {
             }
         }
     }
+    if !e.common.xdata.is_empty() {
+        let mut cur_app = String::new();
+        for tag in &e.common.xdata {
+            if tag.code == 1001 {
+                cur_app = tag.value.trim().to_string();
+                if !cur_app.eq_ignore_ascii_case("ACAD") && !cur_app.eq_ignore_ascii_case("CADCRAFT") && !cur_app.starts_with("AcDb") {
+                    t.push_str(&format!("\n  Extended Data ({cur_app}):"));
+                }
+                continue;
+            }
+            if cur_app.eq_ignore_ascii_case("ACAD") || cur_app.eq_ignore_ascii_case("CADCRAFT") || cur_app.starts_with("AcDb") || tag.code == 1002 {
+                continue;
+            }
+            t.push_str(&format!("\n    [{}] {}", tag.code, tag.value.trim()));
+        }
+    }
     t
 }
 
@@ -280,6 +306,71 @@ fn run_list(s: &mut Session, p: &Value) -> Result<Value> {
     let hs = targets(s, p)?;
     let texts: Vec<String> = hs.iter().map(|h| list_text(s, *h)).collect();
     Ok(json!({ "message": texts.join("\n\n") }))
+}
+
+fn xdlist_app_matches(app_name: &str, filter: &str) -> bool {
+    let f = filter.trim();
+    if f.is_empty() || f == "*" {
+        return !app_name.eq_ignore_ascii_case("ACAD") && !app_name.eq_ignore_ascii_case("CADCRAFT") && !app_name.starts_with("AcDb");
+    }
+    let a_low = app_name.to_ascii_lowercase();
+    let f_low = f.to_ascii_lowercase();
+    if let Some(prefix) = f_low.strip_suffix('*') {
+        a_low.starts_with(prefix)
+    } else {
+        a_low == f_low || a_low.contains(&f_low)
+    }
+}
+
+fn xdata_code_label(code: i32) -> &'static str {
+    match code {
+        1000 => "ASCII string",
+        1002 => "Control string",
+        1003 => "Layer name",
+        1004 => "Binary data",
+        1005 => "Database handle",
+        1010..=1033 => "3D point",
+        1040 => "Real",
+        1041 => "Distance",
+        1042 => "Scale factor",
+        1070 => "16-bit integer",
+        1071 => "32-bit signed long",
+        _ => "Value",
+    }
+}
+
+fn xdlist_text(s: &Session, h: Handle, filter: &str) -> String {
+    let Ok(d) = s.doc() else { return String::new() };
+    let Some(e) = d.entity(h) else { return String::new() };
+    let mut out = format!("Object: {}   Layer: \"{}\"   Handle: {}", e.kind.dxf_name(), e.common.layer, h.hex());
+    let mut cur_app;
+    let mut show_cur = false;
+    let mut found_any = false;
+    for tag in &e.common.xdata {
+        if tag.code == 1001 {
+            cur_app = tag.value.trim().to_string();
+            show_cur = xdlist_app_matches(&cur_app, filter);
+            if show_cur {
+                found_any = true;
+                out.push_str(&format!("\n* Registered Application Name: {cur_app}"));
+            }
+            continue;
+        }
+        if show_cur {
+            out.push_str(&format!("\n  * Code {}, {}: {}", tag.code, xdata_code_label(tag.code), tag.value.trim()));
+        }
+    }
+    if !found_any {
+        out.push_str("\nNo Xdata associated with Application Name(s).");
+    }
+    out
+}
+
+fn run_xdlist(s: &mut Session, p: &Value) -> Result<Value> {
+    let hs = targets(s, p)?;
+    let app = p.get("app").and_then(Value::as_str).unwrap_or("*");
+    let texts: Vec<String> = hs.iter().map(|h| xdlist_text(s, *h, app)).collect();
+    Ok(json!({ "app": app, "message": texts.join("\n\n") }))
 }
 
 pub(super) fn area_of(pts: &[Vec2]) -> (f64, f64) {
@@ -751,6 +842,144 @@ impl Interactive for ListM {
                         s.echo(l.to_string());
                     }
                 }
+                Ok(Step::Done)
+            }
+        }
+    }
+}
+
+#[derive(Default)]
+struct XdListM {
+    sel: super::machines::SelectPhase,
+}
+
+impl XdListM {
+    fn report(&self, s: &mut Session, app_filter: &str) -> Step {
+        let f = if app_filter.trim().is_empty() { "*" } else { app_filter.trim() };
+        for h in &self.sel.picked {
+            let t = xdlist_text(s, *h, f);
+            for l in t.lines() {
+                s.echo(l.to_string());
+            }
+        }
+        Step::Done
+    }
+}
+
+impl Interactive for XdListM {
+    fn name(&self) -> &'static str {
+        "XDLIST"
+    }
+    fn begin(&mut self, s: &mut Session) -> Result<Step> {
+        self.sel = super::machines::SelectPhase::begin(s);
+        if !self.sel.done {
+            self.sel.single = true;
+        }
+        Ok(Step::Continue)
+    }
+    fn prompt(&self, _s: &Session) -> Prompt {
+        if !self.sel.done {
+            self.sel.prompt()
+        } else {
+            Prompt::new("Application name", Accept::TEXT).default("*")
+        }
+    }
+    fn input(&mut self, s: &mut Session, i: Input) -> Result<Step> {
+        if !self.sel.done {
+            return match self.sel.feed(s, &i)? {
+                super::machines::SelOutcome::More => Ok(Step::Continue),
+                super::machines::SelOutcome::Empty => Ok(Step::Done),
+                super::machines::SelOutcome::Done(hs) => {
+                    self.sel.picked = hs;
+                    self.sel.done = true;
+                    Ok(Step::Continue)
+                }
+            };
+        }
+        match i {
+            Input::Enter => Ok(self.report(s, "*")),
+            Input::Text(app) | Input::Keyword(app) => Ok(self.report(s, &app)),
+            Input::Cancel => Ok(Step::Cancel),
+            _ => Ok(Step::Continue),
+        }
+    }
+}
+
+fn is_system_xdata_app(app: &str) -> bool {
+    app.eq_ignore_ascii_case("ACAD") || app.eq_ignore_ascii_case("CADCRAFT") || app.starts_with("AcDb")
+}
+
+fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
+    let hs = targets(s, p)?;
+    let Some(&h) = hs.first() else {
+        return Err(bad("xdedit", "nothing selected"));
+    };
+    let Some(arr) = p.get("xdata").and_then(Value::as_array) else {
+        return Ok(json!({ "handle": h.hex() }));
+    };
+    let mut new_user_tags: Vec<cadcraft_doc::RawTag> = Vec::new();
+    let mut apps: Vec<String> = Vec::new();
+    for item in arr {
+        let Some(code) = item.get("code").and_then(Value::as_i64).map(|c| c as i32) else { continue };
+        let Some(val) = item.get("value").and_then(Value::as_str) else { continue };
+        if code == 1001 {
+            let app_name = val.trim().to_string();
+            if !app_name.is_empty() && !apps.iter().any(|a| a.eq_ignore_ascii_case(&app_name)) {
+                apps.push(app_name);
+            }
+        }
+        new_user_tags.push(cadcraft_doc::RawTag { code, value: val.to_string() });
+    }
+    let d = s.doc_mut()?;
+    for app_name in apps {
+        std::sync::Arc::make_mut(&mut d.foreign)
+            .records
+            .entry(("APPID".to_string(), app_name.to_ascii_uppercase()))
+            .or_default();
+    }
+    let _ = d.modify_entity(h, |e| {
+        let mut kept: Vec<cadcraft_doc::RawTag> = Vec::new();
+        let mut sys = false;
+        for t in &e.common.xdata {
+            if t.code == 1001 {
+                sys = is_system_xdata_app(t.value.trim());
+            }
+            if sys {
+                kept.push(t.clone());
+            }
+        }
+        kept.extend(new_user_tags);
+        e.common.xdata = kept;
+    });
+    Ok(json!({ "handle": h.hex(), "updated": true }))
+}
+
+#[derive(Default)]
+struct XdEditM {
+    sel: super::machines::SelectPhase,
+}
+
+impl Interactive for XdEditM {
+    fn name(&self) -> &'static str {
+        "XDEDIT"
+    }
+    fn begin(&mut self, s: &mut Session) -> Result<Step> {
+        self.sel = super::machines::SelectPhase::begin(s);
+        if self.sel.done {
+            return Ok(Step::Done);
+        }
+        self.sel.single = true;
+        Ok(Step::Continue)
+    }
+    fn prompt(&self, _s: &Session) -> Prompt {
+        self.sel.prompt()
+    }
+    fn input(&mut self, s: &mut Session, i: Input) -> Result<Step> {
+        match self.sel.feed(s, &i)? {
+            super::machines::SelOutcome::More => Ok(Step::Continue),
+            super::machines::SelOutcome::Empty => Ok(Step::Done),
+            super::machines::SelOutcome::Done(hs) => {
+                s.set_selection(hs);
                 Ok(Step::Done)
             }
         }

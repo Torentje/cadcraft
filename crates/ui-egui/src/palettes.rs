@@ -1135,8 +1135,74 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                         });
                     }
                 }
+                if !i.attribs.is_empty() {
+                    group(ui, "Attributes");
+                    for a in &i.attribs {
+                        prop_row(ui, &a.tag, |ui| read_only(ui, &a.text.value));
+                    }
+                }
             }
             _ => {}
+        }
+        if !e.common.xdata.is_empty() {
+            let mut cur_app = String::new();
+            let mut app_header_shown = false;
+            let mut open_xdedit = false;
+            let mut copied_xdata = false;
+            for tag in &e.common.xdata {
+                if tag.code == 1001 {
+                    cur_app = tag.value.trim().to_string();
+                    app_header_shown = false;
+                    continue;
+                }
+                if cur_app.eq_ignore_ascii_case("ACAD") || cur_app.eq_ignore_ascii_case("CADCRAFT") || cur_app.starts_with("AcDb") {
+                    continue;
+                }
+                if tag.code == 1002 {
+                    continue;
+                }
+                if !app_header_shown {
+                    let hdr = if cur_app.is_empty() { "XData".to_string() } else { format!("XData ({cur_app})") };
+                    group(ui, &hdr);
+                    ui.horizontal(|ui| {
+                        ui.add_space(12.0);
+                        if ui.small_button("✏ Edit XData (XDEDIT)").on_hover_text("Open visual XData Editor dialog").clicked() {
+                            open_xdedit = true;
+                        }
+                        if ui.small_button("📋 Copy Values").on_hover_text("Copy XData values (Key,Value) to clipboard").clicked() {
+                            let text = crate::xdedit::XdEditState::from_entity(&e).format_plain_text();
+                            ui.ctx().copy_text(text);
+                            copied_xdata = true;
+                        }
+                    });
+                    app_header_shown = true;
+                }
+                let val_str = tag.value.trim();
+                if let Some((k, v)) = val_str.split_once(": ").or_else(|| val_str.split_once('=')) {
+                    let v_clean = v.trim();
+                    prop_row(ui, k.trim(), |ui| {
+                        if value_box(ui, v_clean, false, false).on_hover_text("Click to copy value to clipboard").clicked() {
+                            ui.ctx().copy_text(v_clean.to_string());
+                        }
+                    });
+                } else {
+                    prop_row(ui, &format!("Code {}", tag.code), |ui| {
+                        if value_box(ui, val_str, false, false).on_hover_text("Click to copy value to clipboard").clicked() {
+                            ui.ctx().copy_text(val_str.to_string());
+                        }
+                    });
+                }
+            }
+            if copied_xdata {
+                let _ = d;
+                app.set_status("✓ XData values copied to clipboard");
+                return;
+            }
+            if open_xdedit {
+                let _ = d;
+                crate::xdedit::open_for_handle(app, e.handle);
+                return;
+            }
         }
     }
     if let Some(mut p) = set {

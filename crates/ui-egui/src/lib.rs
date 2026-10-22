@@ -26,6 +26,7 @@ pub mod hatchdlg;
 mod mtext_editor;
 pub mod spacemouse;
 // The External References palette.
+pub mod xdedit;
 pub mod xrefs;
 
 pub mod dyngrips;
@@ -121,12 +122,12 @@ pub use cadcraft_engine::cmd::file::Version as SaveVersion;
 pub enum SaveFormat {
     /// CADCraft's native format, and the default.
     #[default]
-    Dxf,
     Dwg,
+    Dxf,
 }
 
 impl SaveFormat {
-    pub const ALL: [SaveFormat; 2] = [SaveFormat::Dxf, SaveFormat::Dwg];
+    pub const ALL: [SaveFormat; 2] = [SaveFormat::Dwg, SaveFormat::Dxf];
 
     /// The file extension, which is also the saved name ("dxf" or "dwg").
     pub fn as_str(self) -> &'static str {
@@ -144,7 +145,7 @@ impl SaveFormat {
     /// file) keeps it; an untitled drawing gets this format's extension.
     pub fn suggested_name(self, title: Option<&str>) -> String {
         match title.map(str::trim).filter(|t| !t.is_empty()) {
-            Some(t) if std::path::Path::new(t).extension().is_some() => t.to_owned(),
+            Some(t) if std::path::Path::new(t).extension().is_some() => format!("{}.{}", std::path::Path::new(t).file_stem().and_then(|s| s.to_str()).unwrap_or(t), self.as_str()),
             Some(t) => format!("{t}.{}", self.as_str()),
             None => format!("Drawing.{}", self.as_str()),
         }
@@ -248,6 +249,7 @@ pub struct CadApp {
     pub hatch_dlg: Option<hatchdlg::HatchDlgState>,
     /// The Edit Block Definition dialog ([`bedit`]).
     pub bedit: bedit::State,
+    pub xdedit_dlg: Option<xdedit::XdEditState>,
 }
 
 impl CadApp {
@@ -288,6 +290,7 @@ impl CadApp {
             alias_dlg: None,
             hatch_dlg: None,
             bedit: bedit::State::default(),
+            xdedit_dlg: None,
         }
     }
 
@@ -586,6 +589,7 @@ impl CadApp {
         self.gpu_fault_tick(ctx);
         managers::plot_window_resume(self, ctx);
         hatchdlg::resume(self);
+        xdedit::resume(self);
         self.autosave_tick(ctx);
         menus::shortcuts(self, ctx);
         #[cfg(not(target_arch = "wasm32"))]
