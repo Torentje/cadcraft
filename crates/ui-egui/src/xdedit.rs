@@ -27,6 +27,7 @@ pub struct XdRow {
     pub key: String,
     pub val: String,
     pub sep: String,
+    pub original_raw: Option<String>,
 }
 
 impl XdRow {
@@ -34,16 +35,37 @@ impl XdRow {
         let raw = tag.value.trim();
         if tag.code == 1000 {
             if let Some((k, v)) = raw.split_once('=') {
-                return Self { code: 1000, key: k.trim().to_string(), val: v.trim().to_string(), sep: "=".to_string() };
+                return Self {
+                    code: 1000,
+                    key: k.trim().to_string(),
+                    val: v.trim().to_string(),
+                    sep: "=".to_string(),
+                    original_raw: Some(tag.value.clone()),
+                };
             }
             if let Some((k, v)) = raw.split_once(": ") {
-                return Self { code: 1000, key: k.trim().to_string(), val: v.trim().to_string(), sep: ": ".to_string() };
+                return Self {
+                    code: 1000,
+                    key: k.trim().to_string(),
+                    val: v.trim().to_string(),
+                    sep: ": ".to_string(),
+                    original_raw: Some(tag.value.clone()),
+                };
             }
         }
-        Self { code: tag.code, key: String::new(), val: raw.to_string(), sep: "=".to_string() }
+        Self {
+            code: tag.code,
+            key: String::new(),
+            val: raw.to_string(),
+            sep: "=".to_string(),
+            original_raw: Some(tag.value.clone()),
+        }
     }
 
     pub fn to_raw_value(&self, smart_kv: bool) -> String {
+        if let Some(raw) = &self.original_raw {
+            return raw.clone();
+        }
         if smart_kv && self.code == 1000 && !self.key.trim().is_empty() {
             let s = if self.sep.is_empty() { "=" } else { self.sep.as_str() };
             format!("{}{s}{}", self.key.trim(), self.val.trim())
@@ -570,10 +592,10 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                         st.groups.push(XdAppGroup {
                             app: "Lumi_KLIC".into(),
                             rows: vec![
-                                XdRow { code: 1000, key: "THEMA".into(), val: String::new(), sep: "=".into() },
-                                XdRow { code: 1000, key: "NETBEHEERDER".into(), val: String::new(), sep: "=".into() },
-                                XdRow { code: 1000, key: "MATERIAAL".into(), val: String::new(), sep: "=".into() },
-                                XdRow { code: 1000, key: "DIEPTE".into(), val: String::new(), sep: "=".into() },
+                                XdRow { code: 1000, key: "THEMA".into(), val: String::new(), sep: "=".into(), original_raw: None },
+                                XdRow { code: 1000, key: "NETBEHEERDER".into(), val: String::new(), sep: "=".into(), original_raw: None },
+                                XdRow { code: 1000, key: "MATERIAAL".into(), val: String::new(), sep: "=".into(), original_raw: None },
+                                XdRow { code: 1000, key: "DIEPTE".into(), val: String::new(), sep: "=".into(), original_raw: None },
                             ],
                         });
                         st.active_app = 0;
@@ -660,6 +682,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                             .show_ui(ui, |ui| {
                                                 for &(c, lbl) in CODES {
                                                     if ui.selectable_value(&mut r.code, c, lbl).changed() {
+                                                        r.original_raw = None;
                                                         row_changed = true;
                                                     }
                                                 }
@@ -676,6 +699,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 )
                                                 .changed()
                                             {
+                                                r.original_raw = None;
                                                 row_changed = true;
                                             }
                                             if ui
@@ -687,6 +711,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 )
                                                 .changed()
                                             {
+                                                r.original_raw = None;
                                                 row_changed = true;
                                             }
                                         } else {
@@ -700,7 +725,9 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 )
                                                 .changed()
                                             {
-                                                *r = XdRow::from_tag(&RawTag { code: r.code, value: combined });
+                                                r.key.clear();
+                                                r.val = combined;
+                                                r.original_raw = None;
                                                 row_changed = true;
                                             }
                                         }
@@ -790,6 +817,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                 key: st.new_key.trim().to_string(),
                                 val: st.new_val.trim().to_string(),
                                 sep: "=".to_string(),
+                                original_raw: None,
                             });
                             st.new_key.clear();
                             st.new_val.clear();
@@ -975,5 +1003,18 @@ mod tests {
 
         let csv = st.format_plain_text();
         assert_eq!(csv, "Object,LINE\nTHEMA,Middenspanning");
+    }
+
+    #[test]
+    fn unchanged_rows_preserve_original_whitespace_until_edited() {
+        let tag = RawTag { code: 1000, value: "  NOTE = padded value  ".into() };
+        let mut row = XdRow::from_tag(&tag);
+        assert_eq!(row.to_raw_value(true), "  NOTE = padded value  ");
+        assert_eq!(row.to_raw_value(false), "  NOTE = padded value  ");
+
+        // Editing in Smart Key=Value mode clears original_raw and formats cleanly.
+        row.val = "updated".into();
+        row.original_raw = None;
+        assert_eq!(row.to_raw_value(true), "NOTE=updated");
     }
 }

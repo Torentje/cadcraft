@@ -515,9 +515,13 @@ pub(crate) fn layers_section(app: &mut CadApp, ui: &mut egui::Ui) {
 }
 
 fn prop_row(ui: &mut egui::Ui, label: &str, add: impl FnOnce(&mut egui::Ui)) {
+    prop_row_raw(ui, crate::i18n::t(label), add);
+}
+
+fn prop_row_raw(ui: &mut egui::Ui, label: &str, add: impl FnOnce(&mut egui::Ui)) {
     let t = Tokens::get();
     ui.horizontal(|ui| {
-        let mut job = egui::text::LayoutJob::simple(crate::i18n::t(label).to_string(), crate::theme::body(), t.text_dim, 106.0);
+        let mut job = egui::text::LayoutJob::simple(label.to_string(), crate::theme::body(), t.text_dim, 106.0);
         job.halign = egui::Align::RIGHT;
         let galley = ui.painter().layout_job(job);
         let (lr, _) = ui.allocate_exact_size(vec2(118.0, galley.size().y.max(22.0)), Sense::hover());
@@ -624,6 +628,11 @@ fn custom_properties(ui: &egui::Ui, app: &CadApp, h: cadcraft_engine::doc::Handl
 /// A greyed value computed from the geometry.
 fn read_only(ui: &mut egui::Ui, text: &str) {
     value_box(ui, crate::i18n::t(text), false, false).on_hover_text(crate::tl!("Read-only"));
+}
+
+/// A greyed drawing-owned value shown verbatim (not translated).
+fn read_only_raw(ui: &mut egui::Ui, text: &str) {
+    value_box(ui, text, false, false).on_hover_text(crate::tl!("Read-only"));
 }
 
 /// The Properties header: All/My, the selection-type filter and the PICKADD / Select Objects /
@@ -1138,7 +1147,7 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                 if !i.attribs.is_empty() {
                     group(ui, "Attributes");
                     for a in &i.attribs {
-                        prop_row(ui, &a.tag, |ui| read_only(ui, &a.text.value));
+                        prop_row_raw(ui, &a.tag, |ui| read_only_raw(ui, &a.text.value));
                     }
                 }
             }
@@ -1180,13 +1189,13 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                 let val_str = tag.value.trim();
                 if let Some((k, v)) = val_str.split_once(": ").or_else(|| val_str.split_once('=')) {
                     let v_clean = v.trim();
-                    prop_row(ui, k.trim(), |ui| {
+                    prop_row_raw(ui, k.trim(), |ui| {
                         if value_box(ui, v_clean, false, false).on_hover_text(crate::tl!("Click to copy value to clipboard")).clicked() {
                             ui.ctx().copy_text(v_clean.to_string());
                         }
                     });
                 } else {
-                    prop_row(ui, &format!("Code {}", tag.code), |ui| {
+                    prop_row_raw(ui, &format!("Code {}", tag.code), |ui| {
                         if value_box(ui, val_str, false, false).on_hover_text(crate::tl!("Click to copy value to clipboard")).clicked() {
                             ui.ctx().copy_text(val_str.to_string());
                         }

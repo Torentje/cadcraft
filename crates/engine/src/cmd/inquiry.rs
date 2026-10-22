@@ -924,6 +924,7 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let mut new_user_tags: Vec<cadcraft_doc::RawTag> = Vec::new();
     let mut apps: Vec<String> = Vec::new();
+    let mut in_app = false;
     for (i, item) in arr.iter().enumerate() {
         let code = item
             .get("code")
@@ -936,10 +937,16 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
             _ => return Err(bad("xdedit", format!("xdata[{i}]: `value` must be a string or number"))),
         };
         if code == 1001 {
+            in_app = true;
             let app_name = val.trim().to_string();
+            if is_system_xdata_app(&app_name) {
+                return Err(bad("xdedit", format!("xdata[{i}]: system application `{app_name}` cannot be edited")));
+            }
             if !app_name.is_empty() && !apps.iter().any(|a| a.eq_ignore_ascii_case(&app_name)) {
                 apps.push(app_name);
             }
+        } else if !in_app {
+            return Err(bad("xdedit", format!("xdata[{i}]: tags must follow a 1001 application name")));
         }
         new_user_tags.push(cadcraft_doc::RawTag { code, value: val });
     }
@@ -1157,13 +1164,21 @@ mod tests {
             .and_then(|v| v["handles"][0].as_str().map(str::to_string))
             .unwrap_or_default();
 
-        // Missing or invalid code/value is rejected.
+        // Missing or invalid code/value, system app, or orphan tag before 1001 is rejected.
         assert!(
             s.execute("xdedit", &json!({ "handles": [&h_str], "xdata": [{ "value": "bad" }] }))
                 .is_err()
         );
         assert!(
             s.execute("xdedit", &json!({ "handles": [&h_str], "xdata": [{ "code": 1000, "value": true }] }))
+                .is_err()
+        );
+        assert!(
+            s.execute("xdedit", &json!({ "handles": [&h_str], "xdata": [{ "code": 1001, "value": "ACAD" }] }))
+                .is_err()
+        );
+        assert!(
+            s.execute("xdedit", &json!({ "handles": [&h_str], "xdata": [{ "code": 1000, "value": "ORPHAN=1" }] }))
                 .is_err()
         );
     }
