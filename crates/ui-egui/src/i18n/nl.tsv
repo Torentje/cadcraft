@@ -1365,3 +1365,70 @@ menu	View	Beeld
 menu	Draw	Tekenen
 menu	Dimension	Maatvoering
 menu	Modify	Wijzigen
+	✏ Edit XData (XDEDIT)	✏ XData bewerken (XDEDIT)
+	Open visual XData Editor dialog	Visuele XData-editor openen
+	📋 Copy Values	📋 Waarden kopiëren
+	Copy XData values (Key,Value) to clipboard	Kopieer XData-waarden (Key,Value) naar klembord
+	Click to copy value to clipboard	Klik om waarde te kopiëren naar klembord
+	✓ XData values copied to clipboard	✓ XData-waarden gekopieerd naar klembord
+	Selection canceled — previous object kept.	Selectie geannuleerd — vorig object behouden.
+	Drag left or right to resize this column	Sleep naar links/rechts om deze kolom breder of smaller te maken
+	XDATA Editor (XDEDIT)	XDATA Editor (XDEDIT)
+	No object selected.	Geen object geselecteerd.
+	🎯 Select object in drawing	🎯 Selecteer object in tekening
+	Object: {kind}	Object: {kind}
+	Layer: {layer}	Laag: {layer}
+	Handle: {handle}	Handle: {handle}
+	🎯 Select Another Object	🎯 Selecteer ander object
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Verberg editor tijdelijk, klik een ander object in de tekening aan en open deze direct in XDEDIT
+	Next ▶	Volgend ▶
+	Step to the next object with XData in the selection or drawing	Ga naar het volgende object met XData in de selectie of tekening
+	◀ Previous	◀ Vorig
+	Step to the previous object with XData in the selection or drawing	Ga naar het vorige object met XData in de selectie of tekening
+	📋 Copy JSON	📋 Copy JSON
+	Copy all XData as structured JSON to clipboard	Kopieer alle XData als gestructureerde JSON naar klembord
+	✓ JSON copied to clipboard	✓ JSON gekopieerd naar klembord
+	📋 Copy Text	📋 Copy Text
+	Copy all XData as text to clipboard	Kopieer alle XData als tekst naar klembord
+	✓ XData text copied to clipboard	✓ XData-tekst gekopieerd naar klembord
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	Nieuwe AppID (bijv. Lumi_KLIC)
+	+ Add AppID	+ AppID toevoegen
+	🗑 Delete AppID	🗑 AppID verwijderen
+	Remove this Application and its XData from the entity	Verwijder deze applicatie en bijbehorende XData van het object
+	Application removed (click Apply to save)	Applicatie verwijderd (klik op Opslaan om toe te passen)
+	🔍 Filter:	🔍 Filter:
+	Search key or value (e.g. THEMA, DIEPTE)...	Zoek op key of waarde (bijv. THEMA, DIEPTE)...
+	Key width:	Key breedte:
+	Drag this value or the column divider ⇔ to resize the Key column	Sleep dit getal of de kolomrand ⇔ om de Property / Key kolom breder te maken
+	Value width:	Value breedte:
+	Drag this value or the column divider ⇔ to resize the Value column	Sleep dit getal of de kolomrand ⇔ om de Value kolom breder te maken
+	Smart Key=Value Columns	Slimme Key=Value kolommen
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Splits 'KEY=VALUE' of 'Key: Value' in losse bewerkbare Key- en Value-velden
+	This object currently has no user XData.	Dit object heeft momenteel geen gebruikers-XData.
+	+ Create Lumi_KLIC Application	+ Lumi_KLIC applicatie aanmaken
+	DXF Code	DXF-code
+	Property / Key ⇔	Property / Key ⇔
+	Value (Selectable & Editable) ⇔	Value (Selecteerbaar & Bewerkbaar) ⇔
+	Raw Value (Selectable & Editable) ⇔	Ruwe waarde (Selecteerbaar & Bewerkbaar) ⇔
+	Actions	Acties
+	Copy value to clipboard	Kopieer waarde naar klembord
+	✓ Copied: {val}	✓ Gekopieerd: {val}
+	Move row up	Rij omhoog verplaatsen
+	Move row down	Rij omlaag verplaatsen
+	Delete this XData row	Verwijder deze XData-rij
+	Add Row:	Rij toevoegen:
+	Key (e.g. OPMERKING)	Key (bijv. OPMERKING)
+	+ Add Property	+ Eigenschap toevoegen
+	● Unsaved changes	● Niet-opgeslagen wijzigingen
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Gereed — klik '🎯 Selecteer volgend object' of '◀ Vorig / Volgend ▶' om te wisselen.
+	↺ Revert	↺ Herstellen
+	✔ Apply / Save XData	✔ Toepassen / XData opslaan
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Schrijf gewijzigde XData naar het object (ongedaan maken met Ctrl+Z)
+	✔ Save & Select Next Object	✔ Opslaan & Selecteer volgend object
+	🎯 Select Next Object	🎯 Selecteer volgend object
+	Save any changes and directly pick the next object in the drawing	Sla eventuele wijzigingen op en klik direct een volgend object aan in de tekening
+	Object {idx1}/{total} loaded ({kind} — {handle})	Object {idx1}/{total} geladen ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ Hersteld naar opgeslagen XData van object
+	✔ XData saved to entity (Undoable)	✔ XData opgeslagen op object (Ctrl+Z mogelijk)
+	Error: {err}	Fout: {err}

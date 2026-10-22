@@ -288,12 +288,12 @@ fn list_text(s: &Session, h: Handle) -> String {
         for tag in &e.common.xdata {
             if tag.code == 1001 {
                 cur_app = tag.value.trim().to_string();
-                if !cur_app.eq_ignore_ascii_case("ACAD") && !cur_app.eq_ignore_ascii_case("CADCRAFT") && !cur_app.starts_with("AcDb") {
+                if !is_system_xdata_app(&cur_app) {
                     t.push_str(&format!("\n  Extended Data ({cur_app}):"));
                 }
                 continue;
             }
-            if cur_app.eq_ignore_ascii_case("ACAD") || cur_app.eq_ignore_ascii_case("CADCRAFT") || cur_app.starts_with("AcDb") || tag.code == 1002 {
+            if is_system_xdata_app(&cur_app) || tag.code == 1002 {
                 continue;
             }
             t.push_str(&format!("\n    [{}] {}", tag.code, tag.value.trim()));
@@ -311,7 +311,7 @@ fn run_list(s: &mut Session, p: &Value) -> Result<Value> {
 fn xdlist_app_matches(app_name: &str, filter: &str) -> bool {
     let f = filter.trim();
     if f.is_empty() || f == "*" {
-        return !app_name.eq_ignore_ascii_case("ACAD") && !app_name.eq_ignore_ascii_case("CADCRAFT") && !app_name.starts_with("AcDb");
+        return !is_system_xdata_app(app_name);
     }
     let a_low = app_name.to_ascii_lowercase();
     let f_low = f.to_ascii_lowercase();
@@ -905,8 +905,13 @@ impl Interactive for XdListM {
     }
 }
 
-fn is_system_xdata_app(app: &str) -> bool {
-    app.eq_ignore_ascii_case("ACAD") || app.eq_ignore_ascii_case("CADCRAFT") || app.starts_with("AcDb")
+/// Returns `true` if `app` is an internal AutoCAD or CADCraft system XData application
+/// (`ACAD`, `CADCRAFT`, or `AcDb*`).
+pub fn is_system_xdata_app(app: &str) -> bool {
+    let a = app.trim();
+    a.eq_ignore_ascii_case("ACAD")
+        || a.eq_ignore_ascii_case("CADCRAFT")
+        || a.get(..4).is_some_and(|p| p.eq_ignore_ascii_case("AcDb"))
 }
 
 fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
@@ -919,25 +924,36 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
     };
     let mut new_user_tags: Vec<cadcraft_doc::RawTag> = Vec::new();
     let mut apps: Vec<String> = Vec::new();
-    for item in arr {
-        let Some(code) = item.get("code").and_then(Value::as_i64).map(|c| c as i32) else { continue };
-        let Some(val) = item.get("value").and_then(Value::as_str) else { continue };
+    for (i, item) in arr.iter().enumerate() {
+        let code = item
+            .get("code")
+            .and_then(Value::as_i64)
+            .and_then(|c| i32::try_from(c).ok())
+            .ok_or_else(|| bad("xdedit", format!("xdata[{i}]: `code` must be an integer")))?;
+        let val = match item.get("value") {
+            Some(Value::String(s)) => s.clone(),
+            Some(v @ Value::Number(_)) => v.to_string(),
+            _ => return Err(bad("xdedit", format!("xdata[{i}]: `value` must be a string or number"))),
+        };
         if code == 1001 {
             let app_name = val.trim().to_string();
             if !app_name.is_empty() && !apps.iter().any(|a| a.eq_ignore_ascii_case(&app_name)) {
                 apps.push(app_name);
             }
         }
-        new_user_tags.push(cadcraft_doc::RawTag { code, value: val.to_string() });
+        new_user_tags.push(cadcraft_doc::RawTag { code, value: val });
     }
     let d = s.doc_mut()?;
+    if d.entity(h).is_none() {
+        return Err(bad("xdedit", "no such object"));
+    }
     for app_name in apps {
         std::sync::Arc::make_mut(&mut d.foreign)
             .records
             .entry(("APPID".to_string(), app_name.to_ascii_uppercase()))
             .or_default();
     }
-    let _ = d.modify_entity(h, |e| {
+    d.modify_entity(h, |e| {
         let mut kept: Vec<cadcraft_doc::RawTag> = Vec::new();
         let mut sys = false;
         for t in &e.common.xdata {
@@ -950,7 +966,7 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
         }
         kept.extend(new_user_tags);
         e.common.xdata = kept;
-    });
+    })?;
     Ok(json!({ "handle": h.hex(), "updated": true }))
 }
 
@@ -1123,5 +1139,102 @@ impl Interactive for AreaM {
         let mut v: Vec<cadcraft_geom::PolyVertex> = self.pts.iter().map(|p| cadcraft_geom::PolyVertex::new(*p)).collect();
         v.push(cadcraft_geom::PolyVertex::new(c));
         vec![super::helpers::lwpoly(v, true)]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cadcraft_doc::RawTag;
+
+    #[test]
+    fn xdedit_requires_selection_and_validates_payload() {
+        let mut s = Session::default();
+        assert!(s.execute("xdedit", &json!({})).is_err());
+
+        let line = s.execute("line", &json!({ "points": [[0.0, 0.0], [10.0, 0.0]] })).ok();
+        let h_str = line
+            .and_then(|v| v["handles"][0].as_str().map(str::to_string))
+            .unwrap_or_default();
+
+        // Missing or invalid code/value is rejected.
+        assert!(
+            s.execute("xdedit", &json!({ "handles": [&h_str], "xdata": [{ "value": "bad" }] }))
+                .is_err()
+        );
+        assert!(
+            s.execute("xdedit", &json!({ "handles": [&h_str], "xdata": [{ "code": 1000, "value": true }] }))
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn xdedit_preserves_system_xdata_and_xdlist_filters_by_app() {
+        let mut s = Session::default();
+        let line = s.execute("line", &json!({ "points": [[0.0, 0.0], [10.0, 0.0]] })).ok();
+        let h_str = line
+            .and_then(|v| v["handles"][0].as_str().map(str::to_string))
+            .unwrap_or_default();
+        let h = Handle::parse_hex(&h_str).unwrap_or(Handle(1));
+        if let Ok(d) = s.doc_mut() {
+            let _ = d.modify_entity(h, |e| {
+                e.common.xdata = vec![
+                    RawTag { code: 1001, value: "ACAD".into() },
+                    RawTag { code: 1000, value: "DSTYLE".into() },
+                    RawTag { code: 1001, value: "AcDbBlockRepBTag".into() },
+                    RawTag { code: 1070, value: "1".into() },
+                    RawTag { code: 1001, value: "OLD_USER_APP".into() },
+                    RawTag { code: 1000, value: "OLD=1".into() },
+                ];
+            });
+        }
+
+        let res = s.execute(
+            "xdedit",
+            &json!({
+                "handles": [&h_str],
+                "xdata": [
+                    { "code": 1001, "value": "Lumi_KLIC" },
+                    { "code": 1000, "value": "THEMA=Laagspanning" },
+                    { "code": 1040, "value": 1.25 },
+                    { "code": 1001, "value": "OTHER_APP" },
+                    { "code": 1070, "value": 42 }
+                ]
+            }),
+        );
+        assert!(res.is_ok());
+
+        // Wildcard XDLIST skips system apps (ACAD, AcDb*) and lists user apps.
+        let all_msg = s
+            .execute("xdlist", &json!({ "handles": [&h_str], "app": "*" }))
+            .ok()
+            .and_then(|v| v["message"].as_str().map(str::to_string))
+            .unwrap_or_default();
+        assert!(all_msg.contains("Lumi_KLIC"));
+        assert!(all_msg.contains("OTHER_APP"));
+        assert!(!all_msg.contains("OLD_USER_APP"));
+        assert!(!all_msg.contains("Application Name: ACAD"));
+        assert!(!all_msg.contains("AcDbBlockRepBTag"));
+
+        // Filtered XDLIST only shows the requested application.
+        let filtered_msg = s
+            .execute("xdlist", &json!({ "handles": [&h_str], "app": "Lumi_KLIC" }))
+            .ok()
+            .and_then(|v| v["message"].as_str().map(str::to_string))
+            .unwrap_or_default();
+        assert!(filtered_msg.contains("Lumi_KLIC"));
+        assert!(filtered_msg.contains("THEMA=Laagspanning"));
+        assert!(filtered_msg.contains("1.25"));
+        assert!(!filtered_msg.contains("OTHER_APP"));
+
+        // Verify system XData is still intact on the entity.
+        let xdata = s
+            .doc()
+            .ok()
+            .and_then(|d| d.entity(h))
+            .map(|e| e.common.xdata.clone())
+            .unwrap_or_default();
+        assert!(xdata.iter().any(|t| t.code == 1001 && t.value == "ACAD"));
+        assert!(xdata.iter().any(|t| t.code == 1001 && t.value == "AcDbBlockRepBTag"));
     }
 }

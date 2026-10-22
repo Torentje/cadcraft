@@ -141,11 +141,13 @@ impl SaveFormat {
         SaveFormat::ALL.into_iter().find(|f| f.as_str().eq_ignore_ascii_case(s.trim().trim_start_matches('.')))
     }
 
-    /// The name Save As suggests: a title that already has an extension (a drawing opened from a
-    /// file) keeps it; an untitled drawing gets this format's extension.
+    /// The name Save As suggests: the title's stem with this format's extension.
     pub fn suggested_name(self, title: Option<&str>) -> String {
         match title.map(str::trim).filter(|t| !t.is_empty()) {
-            Some(t) if std::path::Path::new(t).extension().is_some() => format!("{}.{}", std::path::Path::new(t).file_stem().and_then(|s| s.to_str()).unwrap_or(t), self.as_str()),
+            Some(t) if std::path::Path::new(t).extension().is_some() => {
+                let stem = std::path::Path::new(t).file_stem().and_then(|s| s.to_str()).unwrap_or(t);
+                format!("{stem}.{}", self.as_str())
+            }
             Some(t) => format!("{t}.{}", self.as_str()),
             None => format!("Drawing.{}", self.as_str()),
         }
@@ -820,7 +822,7 @@ mod tests {
         frame(&mut a, &ctx, None);
         assert_eq!(Tokens::get(), Tokens::of(theme::SYSTEM_FALLBACK), "no OS appearance: the documented fallback");
         assert_eq!(a.ui.theme, ThemePref::System);
-        assert_eq!(a.prefs_json(), r#"{"animations":"system","interfaceLanguage":"auto","saveFormat":"dxf","saveVersion":"2018","theme":"system"}"#);
+        assert_eq!(a.prefs_json(), r#"{"animations":"system","interfaceLanguage":"auto","saveFormat":"dwg","saveVersion":"2018","theme":"system"}"#);
     }
 
     #[test]
@@ -842,7 +844,7 @@ mod tests {
     #[test]
     fn default_save_format_persists_and_names_new_drawings() {
         let mut a = app();
-        assert_eq!(a.ui.save_format, SaveFormat::Dxf, "default keeps DXF, CADCraft's native format");
+        assert_eq!(a.ui.save_format, SaveFormat::Dwg, "DWG is the default save format");
         assert!(a.run("ui.saveformat", json!({ "format": "pdf" })).is_err());
         assert_eq!(a.run("ui.saveformat", json!({ "format": "DWG" })).ok(), Some(json!({ "saveFormat": "dwg" })));
         assert_eq!(a.run("ui.saveformat", json!({})).ok(), Some(json!({ "saveFormat": "dwg" })), "no format: report it");
@@ -858,11 +860,11 @@ mod tests {
         b.start("ui.saveformat.dwg");
         b.start("ui.resetpalettes");
         assert_eq!(b.ui.save_format, SaveFormat::Dwg);
-        // Untitled drawings get the format's extension; files keep their own.
+        // Both untitled and named drawings get the selected format's extension.
         assert_eq!(SaveFormat::Dwg.suggested_name(Some("Drawing1")), "Drawing1.dwg");
         assert_eq!(SaveFormat::Dxf.suggested_name(Some("Drawing1")), "Drawing1.dxf");
-        assert_eq!(SaveFormat::Dwg.suggested_name(Some("Floorplan.dxf")), "Floorplan.dxf");
-        assert_eq!(SaveFormat::Dxf.suggested_name(Some("Floorplan.DWG")), "Floorplan.DWG");
+        assert_eq!(SaveFormat::Dwg.suggested_name(Some("Floorplan.dxf")), "Floorplan.dwg");
+        assert_eq!(SaveFormat::Dxf.suggested_name(Some("Floorplan.DWG")), "Floorplan.dxf");
         assert_eq!(SaveFormat::Dwg.suggested_name(None), "Drawing.dwg");
         assert_eq!(SaveFormat::Dwg.suggested_name(Some("  ")), "Drawing.dwg");
         let ui: UiState = serde_json::from_value(json!({ "saveFormat": "dwg" })).unwrap_or_default();

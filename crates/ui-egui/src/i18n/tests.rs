@@ -107,6 +107,7 @@ fn missing_marked_ui_literals(language: &str) -> BTreeSet<String> {
         include_str!("../parametric.rs"),
         include_str!("../quick.rs"),
         include_str!("../vpscale.rs"),
+        include_str!("../xdedit.rs"),
         include_str!("../options/dialog.rs"),
     ];
     let mut missing = BTreeSet::new();

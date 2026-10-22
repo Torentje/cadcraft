@@ -1155,7 +1155,7 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                     app_header_shown = false;
                     continue;
                 }
-                if cur_app.eq_ignore_ascii_case("ACAD") || cur_app.eq_ignore_ascii_case("CADCRAFT") || cur_app.starts_with("AcDb") {
+                if cadcraft_engine::is_system_xdata_app(&cur_app) {
                     continue;
                 }
                 if tag.code == 1002 {
@@ -1166,10 +1166,10 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                     group(ui, &hdr);
                     ui.horizontal(|ui| {
                         ui.add_space(12.0);
-                        if ui.small_button("✏ Edit XData (XDEDIT)").on_hover_text("Open visual XData Editor dialog").clicked() {
+                        if ui.small_button(crate::tl!("✏ Edit XData (XDEDIT)")).on_hover_text(crate::tl!("Open visual XData Editor dialog")).clicked() {
                             open_xdedit = true;
                         }
-                        if ui.small_button("📋 Copy Values").on_hover_text("Copy XData values (Key,Value) to clipboard").clicked() {
+                        if ui.small_button(crate::tl!("📋 Copy Values")).on_hover_text(crate::tl!("Copy XData values (Key,Value) to clipboard")).clicked() {
                             let text = crate::xdedit::XdEditState::from_entity(&e).format_plain_text();
                             ui.ctx().copy_text(text);
                             copied_xdata = true;
@@ -1181,13 +1181,13 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                 if let Some((k, v)) = val_str.split_once(": ").or_else(|| val_str.split_once('=')) {
                     let v_clean = v.trim();
                     prop_row(ui, k.trim(), |ui| {
-                        if value_box(ui, v_clean, false, false).on_hover_text("Click to copy value to clipboard").clicked() {
+                        if value_box(ui, v_clean, false, false).on_hover_text(crate::tl!("Click to copy value to clipboard")).clicked() {
                             ui.ctx().copy_text(v_clean.to_string());
                         }
                     });
                 } else {
                     prop_row(ui, &format!("Code {}", tag.code), |ui| {
-                        if value_box(ui, val_str, false, false).on_hover_text("Click to copy value to clipboard").clicked() {
+                        if value_box(ui, val_str, false, false).on_hover_text(crate::tl!("Click to copy value to clipboard")).clicked() {
                             ui.ctx().copy_text(val_str.to_string());
                         }
                     });
@@ -1195,7 +1195,7 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
             }
             if copied_xdata {
                 let _ = d;
-                app.set_status("✓ XData values copied to clipboard");
+                app.set_status(crate::tl!("✓ XData values copied to clipboard"));
                 return;
             }
             if open_xdedit {

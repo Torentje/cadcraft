@@ -108,7 +108,7 @@ impl Default for XdEditState {
 }
 
 fn is_system_app(app: &str) -> bool {
-    app.eq_ignore_ascii_case("ACAD") || app.eq_ignore_ascii_case("CADCRAFT") || app.starts_with("AcDb")
+    cadcraft_engine::is_system_xdata_app(app)
 }
 
 fn has_user_xdata(e: &Entity) -> bool {
@@ -140,15 +140,14 @@ impl XdEditState {
                 }
                 continue;
             }
-            if tag.code == 1002 {
-                continue;
-            }
             if let Some(idx) = cur_idx
                 && let Some(g) = groups.get_mut(idx)
             {
                 let row = XdRow::from_tag(tag);
-                max_key_len = max_key_len.max(row.key.chars().count());
-                max_val_len = max_val_len.max(row.val.chars().count());
+                if tag.code != 1002 {
+                    max_key_len = max_key_len.max(row.key.chars().count());
+                    max_val_len = max_val_len.max(row.val.chars().count());
+                }
                 g.rows.push(row);
             }
         }
@@ -194,6 +193,9 @@ impl XdEditState {
         let mut out = format!("Object,{}", self.entity_type);
         for g in &self.groups {
             for r in &g.rows {
+                if r.code == 1002 {
+                    continue;
+                }
                 if !r.key.trim().is_empty() {
                     out.push_str(&format!("\n{},{}", r.key.trim(), r.val.trim()));
                 } else {
@@ -210,6 +212,9 @@ impl XdEditState {
         for g in &self.groups {
             let mut app_obj = serde_json::Map::new();
             for (idx, r) in g.rows.iter().enumerate() {
+                if r.code == 1002 {
+                    continue;
+                }
                 if !r.key.trim().is_empty() {
                     app_obj.insert(r.key.trim().to_string(), json!(r.val));
                 } else {
@@ -288,7 +293,7 @@ pub fn resume(app: &mut CadApp) {
     {
         // Pick was cancelled with Esc/Enter: return to editor with the previous object preserved.
         p.awaiting_pick = false;
-        p.status_msg = Some("Selectie geannuleerd — vorig object behouden.".into());
+        p.status_msg = Some(crate::tl!("Selection canceled — previous object kept.").into());
         if let Some(h) = p.handle {
             app.session.set_selection(vec![h]);
         }
@@ -354,7 +359,7 @@ fn resizable_header(ui: &mut egui::Ui, id_salt: &str, title: &str, width: &mut f
     if grip_resp.dragged() {
         *width = (*width + grip_resp.drag_delta().x).clamp(min_w, max_w);
     }
-    grip_resp.on_hover_text("Sleep naar links/rechts om deze kolom breder of smaller te maken");
+    grip_resp.on_hover_text(crate::tl!("Drag left or right to resize this column"));
 }
 
 pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
@@ -400,7 +405,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
     let mut step_dir: Option<isize> = None;
     let mut close_clicked = false;
 
-    egui::Window::new("XDATA Editor (XDEDIT)")
+    egui::Window::new(crate::tl!("XDATA Editor (XDEDIT)"))
         .id(egui::Id::new("xdedit_window_v3"))
         .open(open)
         .default_size(vec2(1100.0, 720.0))
@@ -412,9 +417,9 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             let Some(h) = st.handle else {
                 ui.vertical_centered(|ui| {
                     ui.add_space(20.0);
-                    ui.label("Geen object geselecteerd.");
+                    ui.label(crate::tl!("No object selected."));
                     ui.add_space(8.0);
-                    if ui.button("🎯 Selecteer object in tekening").clicked() {
+                    if ui.button(crate::tl!("🎯 Select object in drawing")).clicked() {
                         start_pick_another = true;
                     }
                 });
@@ -423,11 +428,11 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
 
             // 1. Header bar: Object info + Prev/Next + Pick Object + Copy All
             ui.horizontal(|ui| {
-                ui.label(RichText::new(format!("Object: {}", st.entity_type)).strong());
+                ui.label(RichText::new(crate::tf!("Object: {kind}", kind = st.entity_type.as_str())).strong());
                 ui.separator();
-                ui.label(RichText::new(format!("Layer: {}", st.layer)).color(t.text_dim));
+                ui.label(RichText::new(crate::tf!("Layer: {layer}", layer = st.layer.as_str())).color(t.text_dim));
                 ui.separator();
-                ui.label(RichText::new(format!("Handle: {}", h.hex())).monospace().color(t.text_dim));
+                ui.label(RichText::new(crate::tf!("Handle: {handle}", handle = h.hex())).monospace().color(t.text_dim));
                 if st.selection_list.len() > 1
                     && let Some(pos) = st.selection_list.iter().position(|&x| x == h)
                 {
@@ -437,34 +442,42 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui
-                        .button(RichText::new("🎯 Selecteer ander object").strong())
-                        .on_hover_text("Verberg editor tijdelijk, klik een ander object in de tekening aan en open deze direct in XDEDIT")
+                        .button(RichText::new(crate::tl!("🎯 Select Another Object")).strong())
+                        .on_hover_text(crate::tl!("Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT"))
                         .clicked()
                     {
                         start_pick_another = true;
                     }
                     if ui
-                        .button("Volgend ▶")
-                        .on_hover_text("Ga naar het volgende object met XData in de selectie of tekening")
+                        .button(crate::tl!("Next ▶"))
+                        .on_hover_text(crate::tl!("Step to the next object with XData in the selection or drawing"))
                         .clicked()
                     {
                         step_dir = Some(1);
                     }
                     if ui
-                        .button("◀ Vorig")
-                        .on_hover_text("Ga naar het vorige object met XData in de selectie of tekening")
+                        .button(crate::tl!("◀ Previous"))
+                        .on_hover_text(crate::tl!("Step to the previous object with XData in the selection or drawing"))
                         .clicked()
                     {
                         step_dir = Some(-1);
                     }
                     ui.separator();
-                    if ui.button("📋 Copy JSON").on_hover_text("Copy all XData as structured JSON to clipboard").clicked() {
+                    if ui
+                        .button(crate::tl!("📋 Copy JSON"))
+                        .on_hover_text(crate::tl!("Copy all XData as structured JSON to clipboard"))
+                        .clicked()
+                    {
                         ctx.copy_text(st.format_export_json());
-                        st.status_msg = Some("✓ JSON copied to clipboard".into());
+                        st.status_msg = Some(crate::tl!("✓ JSON copied to clipboard").into());
                     }
-                    if ui.button("📋 Copy Text").on_hover_text("Copy all XData as text to clipboard").clicked() {
+                    if ui
+                        .button(crate::tl!("📋 Copy Text"))
+                        .on_hover_text(crate::tl!("Copy all XData as text to clipboard"))
+                        .clicked()
+                    {
                         ctx.copy_text(st.format_plain_text());
-                        st.status_msg = Some("✓ XData text copied to clipboard".into());
+                        st.status_msg = Some(crate::tl!("✓ XData text copied to clipboard").into());
                     }
                 });
             });
@@ -472,9 +485,10 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
 
             // 2. Application (1001 AppID) Tabs & Management
             ui.horizontal_wrapped(|ui| {
-                ui.label(RichText::new("AppID (1001):").strong());
+                ui.label(RichText::new(crate::tl!("AppID (1001):")).strong());
                 for (idx, g) in st.groups.iter().enumerate() {
-                    let label = format!("{} ({})", g.app, g.rows.len());
+                    let visible_count = g.rows.iter().filter(|r| r.code != 1002).count();
+                    let label = format!("{} ({visible_count})", g.app);
                     if ui.selectable_label(st.active_app == idx, RichText::new(label).strong()).clicked() {
                         st.active_app = idx;
                     }
@@ -483,10 +497,10 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 let resp = ui.add_sized(
                     [155.0, 22.0],
                     egui::TextEdit::singleline(&mut st.new_app_name)
-                        .hint_text("New AppID (e.g. Lumi_KLIC)")
+                        .hint_text(crate::tl!("New AppID (e.g. Lumi_KLIC)"))
                         .desired_width(f32::INFINITY),
                 );
-                let add_clicked = ui.button("+ Add AppID").clicked()
+                let add_clicked = ui.button(crate::tl!("+ Add AppID")).clicked()
                     || (resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !st.new_app_name.trim().is_empty());
                 if add_clicked {
                     let name = if st.new_app_name.trim().is_empty() {
@@ -503,43 +517,45 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     }
                     st.new_app_name.clear();
                 }
-                if !st.groups.is_empty() {
-                    if ui.button("🗑 Delete AppID").on_hover_text("Remove this Application and its XData from the entity").clicked() {
-                        if st.active_app < st.groups.len() {
-                            st.groups.remove(st.active_app);
-                            if st.active_app >= st.groups.len() && !st.groups.is_empty() {
-                                st.active_app = st.groups.len() - 1;
-                            }
-                            st.dirty = true;
-                            st.status_msg = Some("Application removed (click Apply to save)".into());
-                        }
+                if !st.groups.is_empty()
+                    && ui
+                        .button(crate::tl!("🗑 Delete AppID"))
+                        .on_hover_text(crate::tl!("Remove this Application and its XData from the entity"))
+                        .clicked()
+                    && st.active_app < st.groups.len()
+                {
+                    st.groups.remove(st.active_app);
+                    if st.active_app >= st.groups.len() && !st.groups.is_empty() {
+                        st.active_app = st.groups.len() - 1;
                     }
+                    st.dirty = true;
+                    st.status_msg = Some(crate::tl!("Application removed (click Apply to save)").into());
                 }
             });
             ui.separator();
 
             // 3. Filter, Column Width Controls & View Mode Bar
             ui.horizontal(|ui| {
-                ui.label("🔍 Filter:");
+                ui.label(crate::tl!("🔍 Filter:"));
                 ui.add_sized(
                     [230.0, 22.0],
                     egui::TextEdit::singleline(&mut st.filter)
-                        .hint_text("Search key or value (e.g. THEMA, DIEPTE)...")
+                        .hint_text(crate::tl!("Search key or value (e.g. THEMA, DIEPTE)..."))
                         .desired_width(f32::INFINITY),
                 );
                 if !st.filter.is_empty() && ui.small_button("✕").clicked() {
                     st.filter.clear();
                 }
                 ui.separator();
-                ui.label(RichText::new("Key breedte:").color(t.text_dim));
+                ui.label(RichText::new(crate::tl!("Key width:")).color(t.text_dim));
                 ui.add(egui::DragValue::new(&mut st.key_col_width).range(140.0..=600.0).speed(2.0).suffix(" px"))
-                    .on_hover_text("Sleep dit getal of de kolomrand ⇔ om de Property / Key kolom breder te maken");
-                ui.label(RichText::new("Value breedte:").color(t.text_dim));
+                    .on_hover_text(crate::tl!("Drag this value or the column divider ⇔ to resize the Key column"));
+                ui.label(RichText::new(crate::tl!("Value width:")).color(t.text_dim));
                 ui.add(egui::DragValue::new(&mut st.val_col_width).range(200.0..=900.0).speed(2.0).suffix(" px"))
-                    .on_hover_text("Sleep dit getal of de kolomrand ⇔ om de Value kolom breder te maken");
+                    .on_hover_text(crate::tl!("Drag this value or the column divider ⇔ to resize the Value column"));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.checkbox(&mut st.smart_kv, "Smart Key=Value Columns")
-                        .on_hover_text("Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields");
+                    ui.checkbox(&mut st.smart_kv, crate::tl!("Smart Key=Value Columns"))
+                        .on_hover_text(crate::tl!("Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields"));
                 });
             });
             ui.add_space(4.0);
@@ -548,9 +564,9 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             if st.groups.is_empty() {
                 ui.vertical_centered(|ui| {
                     ui.add_space(30.0);
-                    ui.label(RichText::new("This object currently has no user XData.").color(t.text_dim));
+                    ui.label(RichText::new(crate::tl!("This object currently has no user XData.")).color(t.text_dim));
                     ui.add_space(8.0);
-                    if ui.button("+ Create Lumi_KLIC Application").clicked() {
+                    if ui.button(crate::tl!("+ Create Lumi_KLIC Application")).clicked() {
                         st.groups.push(XdAppGroup {
                             app: "Lumi_KLIC".into(),
                             rows: vec![
@@ -592,19 +608,38 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                 .spacing(vec2(8.0, 6.0))
                                 .show(ui, |ui| {
                                     ui.label(RichText::new("#").strong().color(t.text_dim));
-                                    ui.label(RichText::new("DXF Code").strong());
+                                    ui.label(RichText::new(crate::tl!("DXF Code")).strong());
                                     if smart_kv {
-                                        resizable_header(ui, "xd_hdr_key", "Property / Key ⇔", &mut key_w, 140.0, 600.0);
-                                        resizable_header(ui, "xd_hdr_val", "Value (Selectable & Editable) ⇔", &mut val_w, 200.0, 900.0);
+                                        resizable_header(ui, "xd_hdr_key", crate::tl!("Property / Key ⇔"), &mut key_w, 140.0, 600.0);
+                                        resizable_header(
+                                            ui,
+                                            "xd_hdr_val",
+                                            crate::tl!("Value (Selectable & Editable) ⇔"),
+                                            &mut val_w,
+                                            200.0,
+                                            900.0,
+                                        );
                                     } else {
                                         let mut raw_w = key_w + val_w;
-                                        resizable_header(ui, "xd_hdr_raw", "Raw Value (Selectable & Editable) ⇔", &mut raw_w, 340.0, 1200.0);
+                                        resizable_header(
+                                            ui,
+                                            "xd_hdr_raw",
+                                            crate::tl!("Raw Value (Selectable & Editable) ⇔"),
+                                            &mut raw_w,
+                                            340.0,
+                                            1200.0,
+                                        );
                                         val_w = (raw_w - key_w).max(200.0);
                                     }
-                                    ui.label(RichText::new("Actions").strong());
+                                    ui.label(RichText::new(crate::tl!("Actions")).strong());
                                     ui.end_row();
 
+                                    let mut vis_num = 0usize;
                                     for (i, r) in group.rows.iter_mut().enumerate() {
+                                        if r.code == 1002 {
+                                            continue;
+                                        }
+                                        vis_num += 1;
                                         if !filter_low.is_empty() {
                                             let match_k = r.key.to_ascii_lowercase().contains(&filter_low);
                                             let match_v = r.val.to_ascii_lowercase().contains(&filter_low);
@@ -612,7 +647,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 continue;
                                             }
                                         }
-                                        ui.label(RichText::new(format!("{}", i + 1)).monospace().color(t.text_dim));
+                                        ui.label(RichText::new(format!("{vis_num}")).monospace().color(t.text_dim));
 
                                         let code_label = CODES
                                             .iter()
@@ -671,21 +706,25 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                         }
 
                                         ui.horizontal(|ui| {
-                                            if ui.small_button("📋").on_hover_text("Copy value to clipboard").clicked() {
+                                            if ui.small_button("📋").on_hover_text(crate::tl!("Copy value to clipboard")).clicked() {
                                                 ctx.copy_text(r.val.clone());
-                                                copied_msg = Some(format!("✓ Copied: {}", r.val));
+                                                copied_msg = Some(crate::tf!("✓ Copied: {val}", val = r.val.as_str()));
                                             }
-                                            if ui.add_enabled(i > 0, egui::Button::new("⬆").small()).on_hover_text("Move row up").clicked() {
+                                            if ui
+                                                .add_enabled(i > 0, egui::Button::new("⬆").small())
+                                                .on_hover_text(crate::tl!("Move row up"))
+                                                .clicked()
+                                            {
                                                 move_up = Some(i);
                                             }
                                             if ui
                                                 .add_enabled(i + 1 < row_count, egui::Button::new("⬇").small())
-                                                .on_hover_text("Move row down")
+                                                .on_hover_text(crate::tl!("Move row down"))
                                                 .clicked()
                                             {
                                                 move_down = Some(i);
                                             }
-                                            if ui.small_button("🗑").on_hover_text("Delete this XData row").clicked() {
+                                            if ui.small_button("🗑").on_hover_text(crate::tl!("Delete this XData row")).clicked() {
                                                 delete_row = Some(i);
                                             }
                                         });
@@ -718,7 +757,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     ui.separator();
                     // 5. Add New Property Row Bar
                     ui.horizontal(|ui| {
-                        ui.label(RichText::new("Add Row:").strong());
+                        ui.label(RichText::new(crate::tl!("Add Row:")).strong());
                         let new_code_lbl = CODES.iter().find(|(c, _)| *c == st.new_code).map(|(_, l)| *l).unwrap_or("1000 String");
                         egui::ComboBox::from_id_salt("xd_new_code")
                             .selected_text(new_code_lbl)
@@ -732,18 +771,18 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                             ui.add_sized(
                                 [key_w, 22.0],
                                 egui::TextEdit::singleline(&mut st.new_key)
-                                    .hint_text("Key (e.g. OPMERKING)")
+                                    .hint_text(crate::tl!("Key (e.g. OPMERKING)"))
                                     .desired_width(f32::INFINITY),
                             );
                         }
                         let val_resp = ui.add_sized(
                             [val_w.min(360.0), 22.0],
                             egui::TextEdit::singleline(&mut st.new_val)
-                                .hint_text("Value")
+                                .hint_text(crate::tl!("Value"))
                                 .desired_width(f32::INFINITY),
                         );
                         let enter_pressed = val_resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
-                        if (ui.button("+ Add Property").clicked() || enter_pressed)
+                        if (ui.button(crate::tl!("+ Add Property")).clicked() || enter_pressed)
                             && (!st.new_key.trim().is_empty() || !st.new_val.trim().is_empty())
                         {
                             group.rows.push(XdRow {
@@ -766,32 +805,37 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 if let Some(msg) = &st.status_msg {
                     ui.label(RichText::new(msg).color(t.text_dim));
                 } else if st.dirty {
-                    ui.label(RichText::new("● Unsaved changes").color(egui::Color32::from_rgb(245, 158, 11)));
+                    ui.label(RichText::new(crate::tl!("● Unsaved changes")).color(egui::Color32::from_rgb(245, 158, 11)));
                 } else {
-                    ui.label(RichText::new("Ready — klik '🎯 Selecteer volgend object' of '◀ Vorig / Volgend ▶' om te wisselen.").color(t.text_dim));
+                    ui.label(
+                        RichText::new(crate::tl!(
+                            "Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects."
+                        ))
+                        .color(t.text_dim),
+                    );
                 }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.button("Close").clicked() {
+                    if ui.button(crate::tl!("Close")).clicked() {
                         close_clicked = true;
                     }
-                    if ui.add_enabled(st.dirty, egui::Button::new("↺ Revert")).clicked() {
+                    if ui.add_enabled(st.dirty, egui::Button::new(crate::tl!("↺ Revert"))).clicked() {
                         revert_changes = true;
                     }
                     if ui
-                        .add_enabled(st.dirty, egui::Button::new(RichText::new("✔ Apply / Save XData").strong()))
-                        .on_hover_text("Write modified XData to the entity (Undoable with Ctrl+Z)")
+                        .add_enabled(st.dirty, egui::Button::new(RichText::new(crate::tl!("✔ Apply / Save XData")).strong()))
+                        .on_hover_text(crate::tl!("Write modified XData to the entity (Undoable with Ctrl+Z)"))
                         .clicked()
                     {
                         apply_changes = true;
                     }
                     let pick_label = if st.dirty {
-                        "✔ Opslaan & Selecteer volgend object"
+                        crate::tl!("✔ Save & Select Next Object")
                     } else {
-                        "🎯 Selecteer volgend object"
+                        crate::tl!("🎯 Select Next Object")
                     };
                     if ui
                         .button(RichText::new(pick_label).strong())
-                        .on_hover_text("Sla eventuele wijzigingen op en klik direct een volgend object aan in de tekening")
+                        .on_hover_text(crate::tl!("Save any changes and directly pick the next object in the drawing"))
                         .clicked()
                     {
                         start_pick_another = true;
@@ -829,7 +873,13 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             next.val_col_width = next.val_col_width.max(vw);
             next.smart_kv = skv;
             next.filter = flt;
-            next.status_msg = Some(format!("Object {idx1}/{total} geladen ({} — {})", next.entity_type, next_h.hex()));
+            next.status_msg = Some(crate::tf!(
+                "Object {idx1}/{total} loaded ({kind} — {handle})",
+                idx1 = idx1,
+                total = total,
+                kind = next.entity_type.as_str(),
+                handle = next_h.hex()
+            ));
             app.session.set_selection(vec![next_h]);
             app.xdedit_dlg = Some(next);
             ctx.request_repaint();
@@ -872,7 +922,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         st = XdEditState::from_entity_with_list(e, list);
         st.key_col_width = st.key_col_width.max(kw);
         st.val_col_width = st.val_col_width.max(vw);
-        st.status_msg = Some("↺ Reverted to saved entity XData".into());
+        st.status_msg = Some(crate::tl!("↺ Reverted to saved entity XData").into());
     }
 
     if apply_changes && let Some(h) = st.handle {
@@ -883,13 +933,47 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         match app.run("xdedit", payload) {
             Ok(_) => {
                 st.dirty = false;
-                st.status_msg = Some("✔ XData saved to entity (Undoable)".into());
+                st.status_msg = Some(crate::tl!("✔ XData saved to entity (Undoable)").into());
             }
             Err(e) => {
-                st.status_msg = Some(format!("Error: {e}"));
+                st.status_msg = Some(crate::tf!("Error: {err}", err = e));
             }
         }
     }
 
     app.xdedit_dlg = Some(st);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cadcraft_doc::{Common, EntityKind, Line};
+    use cadcraft_geom::Vec3;
+
+    #[test]
+    fn xdedit_state_preserves_1002_control_strings_and_formats_csv() {
+        let mut common = Common::default();
+        common.xdata = vec![
+            RawTag { code: 1001, value: "Lumi_KLIC".into() },
+            RawTag { code: 1002, value: "{".into() },
+            RawTag { code: 1000, value: "THEMA=Middenspanning".into() },
+            RawTag { code: 1002, value: "}".into() },
+        ];
+        let e = Entity {
+            handle: Handle(42),
+            common,
+            kind: EntityKind::Line(Line { a: Vec3::ZERO, b: Vec3::new(10.0, 0.0, 0.0) }),
+        };
+        let st = XdEditState::from_entity(&e);
+        let json_out = st.to_xdata_json();
+        let arr = json_out.as_array().cloned().unwrap_or_default();
+        assert_eq!(arr.len(), 4);
+        assert_eq!(arr[1]["code"], 1002);
+        assert_eq!(arr[1]["value"], "{");
+        assert_eq!(arr[3]["code"], 1002);
+        assert_eq!(arr[3]["value"], "}");
+
+        let csv = st.format_plain_text();
+        assert_eq!(csv, "Object,LINE\nTHEMA,Middenspanning");
+    }
 }
