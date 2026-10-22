@@ -885,7 +885,13 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 "handles": [cur_h.hex()],
                 "xdata": st.to_xdata_json(),
             });
-            let _ = app.run("xdedit", payload);
+            if let Err(e) = app.run("xdedit", payload) {
+                st.status_msg = Some(crate::tf!("Error: {err}", err = e));
+                app.xdedit_dlg = Some(st);
+                ctx.request_repaint();
+                return;
+            }
+            st.dirty = false;
         }
         if let Some((next_h, idx1, total)) = step_entity(app, cur_h, &st.selection_list, dir)
             && let Ok(d) = app.session.doc()
@@ -923,8 +929,14 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 "handles": [h.hex()],
                 "xdata": st.to_xdata_json(),
             });
-            if app.run("xdedit", payload).is_ok() {
-                st.dirty = false;
+            match app.run("xdedit", payload) {
+                Ok(_) => st.dirty = false,
+                Err(e) => {
+                    st.status_msg = Some(crate::tf!("Error: {err}", err = e));
+                    app.xdedit_dlg = Some(st);
+                    ctx.request_repaint();
+                    return;
+                }
             }
         }
         st.awaiting_pick = true;
