@@ -617,7 +617,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 let mut row_changed = false;
 
                 if let Some(group) = st.groups.get_mut(active_idx) {
-                    let row_count = group.rows.len();
+                    let row_codes: Vec<i32> = group.rows.iter().map(|r| r.code).collect();
                     let scroll_h = (ui.available_height() - 78.0).max(420.0);
                     egui::ScrollArea::vertical()
                         .id_salt("xdedit_rows_scroll")
@@ -737,15 +737,17 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 ctx.copy_text(r.val.clone());
                                                 copied_msg = Some(crate::tf!("✓ Copied: {val}", val = r.val.as_str()));
                                             }
+                                            let can_up = i.checked_sub(1).is_some_and(|j| row_codes.get(j).is_some_and(|&c| c != 1002));
                                             if ui
-                                                .add_enabled(i > 0, egui::Button::new("⬆").small())
+                                                .add_enabled(can_up, egui::Button::new("⬆").small())
                                                 .on_hover_text(crate::tl!("Move row up"))
                                                 .clicked()
                                             {
                                                 move_up = Some(i);
                                             }
+                                            let can_down = row_codes.get(i + 1).is_some_and(|&c| c != 1002);
                                             if ui
-                                                .add_enabled(i + 1 < row_count, egui::Button::new("⬇").small())
+                                                .add_enabled(can_down, egui::Button::new("⬇").small())
                                                 .on_hover_text(crate::tl!("Move row down"))
                                                 .clicked()
                                             {
@@ -769,12 +771,16 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                         st.status_msg = Some(msg);
                     }
                     if let Some(i) = move_up {
-                        group.rows.swap(i - 1, i);
-                        st.dirty = true;
+                        if let Some(j) = i.checked_sub(1).filter(|j| group.rows.get(*j).is_some_and(|r| r.code != 1002)) {
+                            group.rows.swap(j, i);
+                            st.dirty = true;
+                        }
                     }
                     if let Some(i) = move_down {
-                        group.rows.swap(i, i + 1);
-                        st.dirty = true;
+                        if group.rows.get(i + 1).is_some_and(|r| r.code != 1002) {
+                            group.rows.swap(i, i + 1);
+                            st.dirty = true;
+                        }
                     }
                     if let Some(i) = delete_row {
                         group.rows.remove(i);

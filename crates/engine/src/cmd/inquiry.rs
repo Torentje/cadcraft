@@ -936,6 +936,19 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
             Some(v @ Value::Number(_)) => v.to_string(),
             _ => return Err(bad("xdedit", format!("xdata[{i}]: `value` must be a string or number"))),
         };
+        let valid_code = matches!(code, 1000..=1005 | 1010..=1013 | 1020..=1023 | 1030..=1033 | 1040..=1042 | 1070 | 1071);
+        if !valid_code {
+            return Err(bad("xdedit", format!("xdata[{i}]: {code} is not an XData group code")));
+        }
+        let numeric_ok = match code {
+            1040..=1042 => val.trim().parse::<f64>().is_ok_and(f64::is_finite),
+            1070 => val.trim().parse::<i16>().is_ok(),
+            1071 => val.trim().parse::<i32>().is_ok(),
+            _ => true,
+        };
+        if !numeric_ok {
+            return Err(bad("xdedit", format!("xdata[{i}]: `{val}` is not a valid value for code {code}")));
+        }
         if code == 1001 {
             in_app = true;
             let app_name = val.trim().to_string();
