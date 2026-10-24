@@ -1,6 +1,6 @@
 # Localization parity
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-14 · **Change:** minor (Swedish catalog completed with the 95 strings added since; previously: Swedish catalog added: complete catalog, menu headings, native-speaker terminology review; previously: complete current Korean catalog with Hangul font coverage) · **Target:** Autodesk AutoCAD 2027 for Mac (26.0)
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-19 · **Change:** minor (Brazilian Portuguese row updated and terminology reviewed; previously: Swedish catalog completed with the 95 strings added since; previously: Swedish catalog added: complete catalog, menu headings, native-speaker terminology review; previously: complete current Korean catalog with Hangul font coverage) · **Target:** Autodesk AutoCAD 2027 for Mac (26.0)
 
 How far CADCraft's interface and drawing text are from AutoCAD's languages. Summarised in
 [ROADMAP.md](../ROADMAP.md#languages); work items in [gaps.md](gaps.md#localization).
@@ -58,7 +58,7 @@ plus native review by a human; extending the catalog to the remaining English-on
 | Arabic | ar | 0 (0%) | 0% | Drawing text shaped and laid out right to left (#287); the UI is not mirrored | no | none | 3–5 h + 15–25 h RTL UI |
 | French | fr | ≈ 900 catalog rows (gaps reported, English fallback) | partial | Latin: yes | contributed by @pechnikov2026-star (#624); no native review yet | partial | 2–4 h |
 | Russian | ru | ≈ 900 catalog rows (gaps reported, English fallback) | partial | Cyrillic: yes (bundled egui fonts) | contributed by @pechnikov2026-star (#624); no native review yet | partial | 2–4 h |
-| Portuguese | pt | 0 (0%) | 0% | Latin: yes | no | none | 3–5 h |
+| Portuguese (Brazil) | pt-BR | 1,231 catalog rows; reference catalog and marked UI literals covered (no gaps reported) | dialogs and tooltips yes; command reference searchable in Portuguese | Latin: yes (bundled egui fonts; accented letters tested) | catalog by @WladmirJunior, completed with AI assistance by @RicSchonfelder; terminology reviewed by a native speaker (@ffishman) | complete current catalog; English-only interface gaps remain | line-by-line proofreading + shared English-only UI work |
 | Indonesian | id | 0 (0%) | 0% | Latin: yes | no | none | 3–5 h |
 | Japanese | ja | 0 (0%) | 0% | CJK glyphs render; IME pending; no vertical text | no | none | 4–6 h |
 | German | de | 989 catalog rows (≈ 100% of the catalog; ≈ 80% of all UI strings, estimated: engine diagnostics and uncatalogued text stay English) | dialogs and tooltips yes; command reference searchable in German | Latin: yes (bundled egui fonts cover ä ö ü Ä Ö Ü ß; long strings will need layout checks) | no native review | partial | 1–2 h |

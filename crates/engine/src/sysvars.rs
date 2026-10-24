@@ -55,6 +55,8 @@ const SESSION_VARS: &[&str] = &[
     "APERTURE",
     "PICKFIRST",
     "ACADLSPASDOC",
+    "CMDECHO",
+    "FILEDIA",
     "PICKADD",
     "PICKDRAG",
     "PICKSTYLE",
@@ -62,6 +64,7 @@ const SESSION_VARS: &[&str] = &[
     "CURSORSIZE",
     "MAXARRAY",
     "ZOOMFACTOR",
+    "MEASUREINIT",
     "LASTPOINT",
     "FONTALT",
     "FONTFALLBACK",
@@ -129,6 +132,8 @@ pub fn get(s: &Session, name: &str) -> Option<Value> {
         "APERTURE" => json!(st.aperture),
         "PICKFIRST" => json!(i32::from(st.pickfirst)),
         "ACADLSPASDOC" => json!(i32::from(st.acadlspasdoc)),
+        "CMDECHO" => json!(i32::from(st.cmdecho)),
+        "FILEDIA" => json!(i32::from(st.filedia)),
         "PICKADD" => json!(i32::from(st.pickadd)),
         "PICKDRAG" => json!(i32::from(st.pickdrag) * 2),
         "PICKSTYLE" => json!(st.pickstyle),
@@ -136,6 +141,7 @@ pub fn get(s: &Session, name: &str) -> Option<Value> {
         "CURSORSIZE" => json!(st.cursorsize),
         "MAXARRAY" => json!(st.maxarray),
         "ZOOMFACTOR" => json!(st.zoomfactor),
+        "MEASUREINIT" => json!(i32::from(st.measureinit)),
         "LASTPOINT" => json!([s.last_point.x, s.last_point.y, 0.0]),
         // Held in radians (`$ANGBASE` in DXF is in degrees); reported in degrees, like POLARANG.
         "ANGBASE" => json!(s.doc().ok()?.header.f64("ANGBASE", 0.0).to_degrees()),
@@ -170,6 +176,10 @@ pub fn get(s: &Session, name: &str) -> Option<Value> {
             json!(dir)
         }
         "DBMOD" => json!(s.state().map(|d| i32::from(d.is_dirty())).unwrap_or(0)),
+        "DWGTITLED" => json!(s.state().map(|d| i32::from(d.path.is_some())).unwrap_or(0)),
+        "CMDACTIVE" => json!(i32::from(s.running.is_some())),
+        "TILEMODE" => json!(i32::from(s.state().is_ok_and(|d| d.space.layout().is_none()))),
+        "PLATFORM" => json!(std::env::consts::OS),
         "BLOCKEDITOR" => json!(i32::from(s.state().is_ok_and(|d| d.block_edit.is_some()))),
         // The template NEW/QNEW start from (a profile setting, like FONTALT; "" = none).
         "QNEWTEMPLATE" => json!(crate::cmd::file::qnew_template()),
@@ -224,6 +234,21 @@ pub fn get(s: &Session, name: &str) -> Option<Value> {
     Some(v)
 }
 
+/// DWGPREFIX: the folder of the drawing file, made absolute, with a trailing separator.
+fn dwg_prefix(path: &str) -> String {
+    let full = std::path::absolute(path).unwrap_or_else(|_| std::path::PathBuf::from(path));
+    match full.parent() {
+        Some(dir) => {
+            let mut text = dir.to_string_lossy().into_owned();
+            if !text.ends_with(std::path::MAIN_SEPARATOR) {
+                text.push(std::path::MAIN_SEPARATOR);
+            }
+            text
+        }
+        None => String::new(),
+    }
+}
+
 fn as_bool(v: &Value) -> Option<bool> {
     v.as_bool().or_else(|| v.as_i64().map(|i| i != 0)).or_else(|| v.as_str().and_then(|s| s.trim().parse::<i64>().ok()).map(|i| i != 0))
 }
@@ -272,6 +297,8 @@ pub fn set(s: &mut Session, name: &str, v: &Value) -> Result<()> {
     let st = &mut s.settings;
     match n.as_str() {
         "OSMODE" => st.osmode = v.as_u64().or_else(|| v.as_str().and_then(|s| s.trim().parse().ok())).ok_or_else(bad)? as u32 & 0x7fff,
+        // The `color` command's input: ByLayer, ByBlock, a name, an index or a true colour.
+        "CECOLOR" => crate::cmd::set_current_color_value(s, v).ok_or_else(bad)?,
         "OSNAPHATCH" => st.osnaphatch = as_bool(v).ok_or_else(bad)?,
         "ANNOAUTOSCALE" => st.annoautoscale = as_i(v).filter(|i| (-4..=4).contains(i)).ok_or_else(bad)? > 0,
         // A scale of the drawing's list; ANNOAUTOSCALE adds it to the annotative objects.
@@ -340,6 +367,8 @@ pub fn set(s: &mut Session, name: &str, v: &Value) -> Result<()> {
         "APERTURE" => st.aperture = as_f64(v).ok_or_else(bad)?.clamp(1.0, 50.0),
         "PICKFIRST" => st.pickfirst = as_bool(v).ok_or_else(bad)?,
         "ACADLSPASDOC" => st.acadlspasdoc = as_bool(v).ok_or_else(bad)?,
+        "CMDECHO" => st.cmdecho = small(v, 1).ok_or_else(bad)? == 1,
+        "FILEDIA" => st.filedia = small(v, 1).ok_or_else(bad)? == 1,
         "PICKADD" => st.pickadd = as_bool(v).ok_or_else(bad)?,
         "PICKDRAG" => st.pickdrag = as_i(v).filter(|b| matches!(b, 0 | 2)).map(|b| b == 2).ok_or_else(bad)?,
         "PICKSTYLE" => st.pickstyle = as_i(v).filter(|b| (0..=3).contains(b)).and_then(|b| u8::try_from(b).ok()).ok_or_else(bad)?,
@@ -347,6 +376,7 @@ pub fn set(s: &mut Session, name: &str, v: &Value) -> Result<()> {
         "CURSORSIZE" => st.cursorsize = as_f64(v).ok_or_else(bad)?.clamp(1.0, 100.0),
         "MAXARRAY" => st.maxarray = as_f64(v).ok_or_else(bad)?.clamp(100.0, 10_000_000.0) as u64,
         "ZOOMFACTOR" => st.zoomfactor = as_i(v).filter(|z| (3..=100).contains(z)).ok_or_else(bad)? as u32,
+        "MEASUREINIT" => st.measureinit = small(v, 1).ok_or_else(bad)? == 1,
         "FONTALT" => cadcraft_fonts::ttf::set_font_alt(v.as_str().ok_or_else(bad)?),
         "FONTFALLBACK" => cadcraft_fonts::ttf::set_fallback_fonts(v.as_str().ok_or_else(bad)?),
         "SAVETIME" => crate::autosave::set_savetime(
@@ -367,25 +397,6 @@ pub fn set(s: &mut Session, name: &str, v: &Value) -> Result<()> {
             let tab = v.as_str().map(str::trim).filter(|t| !t.is_empty()).ok_or_else(bad)?;
             let Some(c) = crate::cmd::find_command("layout.set") else { return Err(bad()) };
             return (c.run)(s, &json!({ "name": tab })).map(|_| ());
-        }
-        "CECOLOR" => {
-            let c = v
-                .as_str()
-                .and_then(cadcraft_color::Color::parse)
-                .or_else(|| as_i(v).and_then(|i| i16::try_from(i).ok()).map(cadcraft_color::Color::from_aci))
-                .ok_or_else(bad)?;
-            let d = s.doc_mut()?;
-            match c {
-                cadcraft_color::Color::True(rgb) => {
-                    d.header.set_i64("CECOLOR", i64::from(cadcraft_color::nearest_aci(rgb)));
-                    d.header.set_i64("CECOLOR_RGB", i64::from(rgb.to_u32()));
-                }
-                other => {
-                    d.header.set_i64("CECOLOR", i64::from(other.to_aci()));
-                    d.header.vars.remove("CECOLOR_RGB");
-                }
-            }
-            return Ok(());
         }
         "CVPORT" => {
             let id = as_i(v).filter(|i| *i >= 1).ok_or_else(bad)?;

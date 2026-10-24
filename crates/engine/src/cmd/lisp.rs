@@ -30,7 +30,7 @@ pub fn specs() -> Vec<CommandSpec> {
         CommandSpec::new("appload", "Load Application...", run_appload)
             .menu(&["Tools", "Load Application..."])
             .alias(&["ap"])
-            .params("{path: .lsp file} | {name, data: base64 | text} → {value?, error?}")
+            .params("{path: .lsp file} | {name, data: base64 | text} → {value?, commands: [commands the file defined], error?}")
             .noundo()
             .interactive(|_| Ok(Box::new(ApploadM))),
         CommandSpec::new("netload", "Load .NET DLL / LISP Application (NETLOAD)...", run_appload)
@@ -54,6 +54,11 @@ pub fn specs() -> Vec<CommandSpec> {
     ]
 }
 
+/// Whether `path` names an AutoLISP routine: APPLOAD loads `.lsp` files only, in any case.
+fn is_lisp_path(path: &str) -> bool {
+    std::path::Path::new(path).extension().is_some_and(|e| e.eq_ignore_ascii_case("lsp"))
+}
+
 /// The text of a LISP file from `{path}` or `{name, data | text}`, and its name.
 fn source(p: &Value) -> Result<(String, String)> {
     if let Some(text) = str_param(p, "text") {
@@ -63,7 +68,14 @@ fn source(p: &Value) -> Result<(String, String)> {
         let bytes = super::file::base64_decode(data).ok_or_else(|| bad("appload", "invalid base64"))?;
         return Ok((str_param(p, "name").unwrap_or("untitled.lsp").to_string(), String::from_utf8_lossy(&bytes).into_owned()));
     }
-    let path = str_param(p, "path").ok_or_else(|| bad("appload", "`path`, or `name` with `data` (base64) or `text`, is required"))?;
+    // The path is read as it is given (a JSON caller may name a file or folder with spaces);
+    // only a path of blanks alone is refused.
+    let path = str_param(p, "path")
+        .filter(|p| !p.trim().is_empty())
+        .ok_or_else(|| bad("appload", "`path`, or `name` with `data` (base64) or `text`, is required"))?;
+    if !is_lisp_path(path) {
+        return Err(bad("appload", format!("{path}: not an AutoLISP file (APPLOAD loads .lsp files)")));
+    }
     let text = crate::lisp::builtins::read_text_file(path).ok_or_else(|| bad("appload", format!("{path}: can't read the file")))?;
     Ok((path.to_string(), text))
 }
@@ -81,9 +93,14 @@ fn report(s: &Session, from_log: usize, r: Option<std::result::Result<Lv, String
 /// Load and evaluate an AutoLISP routine from `{path}`, `{text}`, or base64 `{data}`.
 fn run_appload(s: &mut Session, p: &Value) -> Result<Value> {
     let (name, text) = source(p)?;
+    let before = s.lisp_commands();
     let from = s.log.len();
     let r = s.lisp_load(&name, &text, true)?;
-    Ok(report(s, from, r))
+    let mut out = report(s, from, r);
+    // The commands the file defined, so a caller can run them next (a failed file may still
+    // have defined some before the error).
+    out["commands"] = json!(s.lisp_commands().into_iter().filter(|c| !before.contains(c)).collect::<Vec<_>>());
+    Ok(out)
 }
 
 /// Dispatch `VBAIDE` (`VLIDE`, `VLISP`): evaluates `code` when given, loads a file/text when given,
