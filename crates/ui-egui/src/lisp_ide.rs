@@ -362,9 +362,6 @@ pub fn load_dll_into_ide(app: &mut CadApp, path: &str) {
                 let msg = format!("{} {name}: {err_detail}", t("NETLOAD error in"));
                 ide.output.push(msg.clone());
                 ide.status = Some(msg.clone());
-                for cmd in &cmds {
-                    app.cmd.push_history(cmd);
-                }
                 app.session.echo(msg);
             }
         }

@@ -39,7 +39,7 @@ impl Xf {
 
 /// What a display list was built from: drawing uid, revision, tessellation band, hatch level of
 /// detail band, lineweight display, document and active viewport view (see [`ensure_list`]).
-type ListKey = (u64, u64, i32, i32, bool, bool, usize, u64);
+type ListKey = (u64, u64, i32, i32, bool, bool, usize, u64, u64);
 
 /// Whether two list keys are for the same drawing content (they may differ only in the view).
 fn same_content(a: &ListKey, b: &ListKey) -> bool {
@@ -311,7 +311,6 @@ fn ensure_list(app: &mut CadApp, xf: &Xf, views: &[(Bounds2, f64)], ctx: &egui::
         use std::hash::{Hash, Hasher};
         let mut s = std::collections::hash_map::DefaultHasher::new();
         split.hash(&mut s);
-        active_orbit.hash_key().hash(&mut s);
         if split.is_none()
             && let Some((h, vp)) = st.active_viewport()
         {
@@ -320,7 +319,17 @@ fn ensure_list(app: &mut CadApp, xf: &Xf, views: &[(Bounds2, f64)], ctx: &egui::
         s.finish()
     };
     let (lwdisplay, transparency_display) = (app.session.settings.lwdisplay, app.session.settings.transparency_display);
-    let key: ListKey = (st.uid, st.revision, band(px), lod_band, lwdisplay, transparency_display, std::sync::Arc::as_ptr(&st.doc) as usize, vp_view);
+    let key: ListKey = (
+        st.uid,
+        st.revision,
+        band(px),
+        lod_band,
+        lwdisplay,
+        transparency_display,
+        std::sync::Arc::as_ptr(&st.doc) as usize,
+        vp_view,
+        active_orbit.hash_key(),
+    );
     // A background build that finished: use it unless the drawing has changed since it started
     // (or the list was dropped to force a rebuild).
     if let Some(job) = &app.canvas.job {
@@ -1556,7 +1565,7 @@ fn effective_point(app: &mut CadApp, raw: Vec2, xf: &Xf, orbit: cadcraft_render:
                 app.canvas.snap = Some(hit);
                 app.canvas.cursor = Some(pt);
                 app.session.cursor = pt;
-                app.session.cursor_deferred = deferred;
+                app.session.cursor_deferred = hit.deferred;
                 return pt;
             }
         }
