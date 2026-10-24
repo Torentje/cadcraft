@@ -238,6 +238,22 @@ impl StretchArea {
     }
 }
 
+/// Add to `hs` the visible multilines in `space` with a control vertex inside `area`. A crossing
+/// selection tests the drawn element lines, which sit away from the control vertices by the
+/// multiline's scale, so a small area around a vertex alone would miss them.
+fn add_mline_vertex_hits(d: &cadcraft_doc::Drawing, space: &cadcraft_doc::Space, area: &StretchArea, hs: &mut Vec<Handle>) {
+    let Some(store) = d.space(space) else { return };
+    for e in store.iter() {
+        if let EntityKind::MLine(m) = &e.kind
+            && d.is_visible(e)
+            && !hs.contains(&e.handle)
+            && m.vertices.iter().any(|v| area.contains(v.p))
+        {
+            hs.push(e.handle);
+        }
+    }
+}
+
 /// Move the vertices of `e` that lie inside any of the areas `wins` by `d` (STRETCH).
 fn stretch_entity(e: &mut Entity, wins: &[StretchArea], d: Vec2) {
     let inside3 = |p: cadcraft_geom::Vec3| wins.iter().any(|a| a.contains(p));
@@ -260,6 +276,7 @@ fn stretch_entity(e: &mut Entity, wins: &[StretchArea], d: Vec2) {
                 }
             }
         }
+        EntityKind::MLine(m) => m.vertices.iter_mut().for_each(|v| mv(&mut v.p)),
         EntityKind::Polyline3d(pl) => {
             pl.points.iter_mut().for_each(mv);
         }
@@ -316,6 +333,7 @@ fn run_stretch(s: &mut Session, p: &Value) -> Result<Value> {
         let bx = cadcraft_geom::Bounds2::new(*a, *b);
         (crate::select::select_window_in_orbit(s.doc()?, &space, orbit, bx, true), StretchArea::r#box(bx, orbit))
     };
+    add_mline_vertex_hits(s.doc()?, &space, &area, &mut hs);
     hs.retain(|h| !super::curves::is_locked(s, *h));
     let doc = s.doc_mut()?;
     let areas = [area];
@@ -380,15 +398,15 @@ impl StretchM {
 
     /// Select with a typed mode that has its points. With too few (a fence of one point, a polygon
     /// of two) the mode is dropped.
-    fn finish_mode(&mut self, s: &mut Session, mut m: SelectMode) -> Result<()> {
+    fn finish_mode(&mut self, s: &mut Session, m: SelectMode) -> Result<()> {
         let space = s.space();
         let orbit = s.edit_orbit();
-        if !orbit.is_top() {
-            for p in &mut m.pts {
-                *p = orbit.project(p.to3(0.0));
-            }
-        }
-        let Some(hs) = m.select(s.doc()?, &space, orbit) else { return Ok(()) };
+        let Some(mut hs) = m.select(s.doc()?, &space, orbit) else { return Ok(()) };
+        let crossing = match (m.kind, m.pts.first().zip(m.pts.get(1))) {
+            (SelectKind::Crossing | SelectKind::CPolygon, _) => true,
+            (SelectKind::Box, Some((a, b))) => b.x < a.x,
+            _ => false,
+        };
         let area = match (m.kind, m.pts.first().zip(m.pts.get(1))) {
             (SelectKind::WPolygon | SelectKind::CPolygon, _) => Some(StretchArea::polygon(m.pts, orbit)),
             (SelectKind::Window | SelectKind::Crossing | SelectKind::Box, Some((a, b))) => {
@@ -398,6 +416,9 @@ impl StretchM {
             _ => None,
         };
         let whole = area.is_none();
+        if let (Some(a), true, false) = (&area, crossing, self.removing) {
+            add_mline_vertex_hits(s.doc()?, &space, a, &mut hs);
+        }
         if let (Some(a), false) = (area, self.removing) {
             self.windows.push(a);
         }
@@ -434,22 +455,24 @@ impl StretchM {
         match i {
             Input::Point(p) => {
                 let orbit = s.edit_orbit();
-                let vp = if orbit.is_top() { p } else { orbit.project(p.to3(0.0)) };
                 match self.corner.take() {
                     Some(c) => {
-                        let vc = if orbit.is_top() { c } else { orbit.project(c.to3(0.0)) };
-                        let bx = cadcraft_geom::Bounds2::new(vc, vp);
+                        let bx = cadcraft_geom::Bounds2::new(c, p);
                         let space = s.space();
-                        let hs = crate::select::select_window_in_orbit(s.doc()?, &space, orbit, bx, vp.x < vc.x);
+                        let mut hs = crate::select::select_window_in_orbit(s.doc()?, &space, orbit, bx, p.x < c.x);
+                        let area = StretchArea::r#box(bx, orbit);
                         if !self.removing {
-                            self.windows.push(StretchArea::r#box(bx, orbit));
+                            if p.x < c.x {
+                                add_mline_vertex_hits(s.doc()?, &space, &area, &mut hs);
+                            }
+                            self.windows.push(area);
                         }
                         self.add(s, hs, false);
                     }
                     None => {
                         let aperture = s.pixel_size() * s.settings.pickbox.max(1.0) * 1.5;
                         let space = s.space();
-                        match crate::select::pick_in_orbit(s.doc()?, &space, orbit, vp, aperture) {
+                        match crate::select::pick_in_orbit(s.doc()?, &space, orbit, p, aperture) {
                             Some(h) => self.add(s, vec![h], true),
                             None => self.corner = Some(p),
                         }
@@ -531,10 +554,7 @@ impl Interactive for StretchM {
         }
         match (self.phase, self.corner) {
             (StretchPhase::Select, Some(c)) => Prompt::new("Specify opposite corner", Accept::POINT).base(c),
-            (StretchPhase::Select, None) => Prompt {
-                picks_one: self.removing,
-                ..Prompt::new(if self.removing { "Remove objects" } else { "Select objects" }, Accept::POINT)
-            },
+            (StretchPhase::Select, None) => Prompt::new(if self.removing { "Remove objects" } else { "Select objects" }, Accept::POINT),
             (StretchPhase::Base, _) => Prompt::new("Specify base point", Accept::POINT).kw(&["Displacement"]).default("Displacement"),
             (StretchPhase::Displacement, _) => Prompt::new("Specify displacement", Accept::POINT).default("0,0"),
             (StretchPhase::Second, _) => Prompt::new("Specify second point or <use first point as displacement>", Accept::POINT).base_opt(self.base),
@@ -569,13 +589,16 @@ impl Interactive for StretchM {
     /// Rubber-band preview for the selection window, fence, polygon or stretched geometry.
     fn preview(&self, s: &Session, c: Vec2) -> Vec<EntityKind> {
         let orbit = s.edit_orbit();
-        let vp = |p: Vec2| if orbit.is_top() { p } else { orbit.project(p.to3(0.0)) };
-        let vc = vp(c);
-        let vline = |p: Vec2, q: Vec2| Some(line(orbit.unproject_xy(p)?, orbit.unproject_xy(q)?));
+        let vline = |p: Vec2, q: Vec2| {
+            if orbit.is_top() || orbit.is_edge_on() {
+                Some(line(p, q))
+            } else {
+                Some(line(orbit.unproject_xy(p)?, orbit.unproject_xy(q)?))
+            }
+        };
         let rect = |a: Vec2| -> Vec<EntityKind> {
-            let a = vp(a);
-            let (b, d) = (Vec2::new(vc.x, a.y), Vec2::new(a.x, vc.y));
-            [vline(a, b), vline(b, vc), vline(vc, d), vline(d, a)].into_iter().flatten().collect()
+            let (b, d) = (Vec2::new(c.x, a.y), Vec2::new(a.x, c.y));
+            [vline(a, b), vline(b, c), vline(c, d), vline(d, a)].into_iter().flatten().collect()
         };
         if let (StretchPhase::Select, Some(m)) = (self.phase, &self.mode) {
             let Some(first) = m.pts.first().copied() else { return Vec::new() };
@@ -583,10 +606,10 @@ impl Interactive for StretchM {
                 return rect(first);
             }
             // The fence or polygon so far, on to the cursor; a polygon closes back to its start.
-            let mut out: Vec<EntityKind> = m.pts.windows(2).filter_map(|w| vline(vp(*w.first()?), vp(*w.get(1)?))).collect();
-            out.extend(m.pts.last().and_then(|l| vline(vp(*l), vc)));
+            let mut out: Vec<EntityKind> = m.pts.windows(2).filter_map(|w| vline(*w.first()?, *w.get(1)?)).collect();
+            out.extend(m.pts.last().and_then(|l| vline(*l, c)));
             if m.kind != SelectKind::Fence && m.pts.len() >= 2 {
-                out.extend(vline(vc, vp(first)));
+                out.extend(vline(c, first));
             }
             return out;
         }
@@ -616,6 +639,21 @@ impl Interactive for StretchM {
             _ => Vec::new(),
         }
     }
+}
+
+/// Whether OFFSET can work on this kind of object at all.
+fn offsettable(k: &EntityKind) -> bool {
+    matches!(
+        k,
+        EntityKind::Line(_)
+            | EntityKind::Circle(_)
+            | EntityKind::Arc(_)
+            | EntityKind::Ellipse(_)
+            | EntityKind::LwPolyline(_)
+            | EntityKind::Spline(_)
+            | EntityKind::XLine(_)
+            | EntityKind::Ray(_)
+    )
 }
 
 /// Offset an entity by `dist` towards `side`. Returns the new geometry.
@@ -1442,7 +1480,7 @@ pub(crate) fn explode_kind(d: &cadcraft_doc::Drawing, e: &Entity) -> Option<Vec<
                         attach: 5,
                         rotation: g.text_angle,
                         style: style.text_style.clone(),
-                        contents: g.value.clone(),
+                        contents: g.mtext_contents(),
                         line_spacing: 1.0,
                         line_spacing_exact: false,
                         columns: None,
@@ -2175,7 +2213,7 @@ impl Interactive for SelectThen {
             _ => Ok(Step::Continue),
         }
     }
-    /// Rubber-band preview of the selected objects transformed to the cursor (MOVE, COPY, ROTATE, SCALE, MIRROR).
+    /// Rubber-band preview for the selection window, fence, polygon or stretched geometry.
     fn preview(&self, s: &Session, c: Vec2) -> Vec<EntityKind> {
         if self.op == Op::Rotate && self.reference {
             return self.rotate_reference_preview(s, c);
@@ -2294,8 +2332,24 @@ impl Interactive for OffsetM {
     fn name(&self) -> &'static str {
         "OFFSET"
     }
+    /// Starts OFFSET, keeping a single preselected offsettable object (issue #1610) so the prompt
+    /// sequence goes distance then side instead of asking for the object again; any other
+    /// selection is cleared and the object loop asks for it. With PICKFIRST off the selection is
+    /// likewise ignored and cleared.
     fn begin(&mut self, s: &mut Session) -> Result<Step> {
-        s.set_selection(Vec::new());
+        // Exactly one offsettable object selected before the command is taken at once, so only the
+        // side is asked for; the object loop stays for the ones after it (issue #1610). A multiple
+        // selection is left for the select prompt, as AutoCAD does.
+        let pre = s.selection();
+        if s.settings.pickfirst
+            && let [h] = pre[..]
+            && s.doc()?.entity(h).is_some_and(|e| offsettable(&e.kind))
+        {
+            self.picked = Some(h);
+            s.set_selection(vec![h]);
+        } else {
+            s.set_selection(Vec::new());
+        }
         let (erase, current) = offset_options(s);
         s.echo(format!(
             "Current settings: Erase source={}  Layer={}  OFFSETGAPTYPE=0",
@@ -2486,7 +2540,7 @@ impl Interactive for OffsetM {
             _ => Ok(Step::Continue),
         }
     }
-    /// Rubber-band preview of the offset object, or the distance line before the distance is set.
+    /// Rubber-band preview for the selection window, fence, polygon or stretched geometry.
     fn preview(&self, s: &Session, c: Vec2) -> Vec<EntityKind> {
         if let Some(base) = self.distance_first
             && c.is_finite()
@@ -3044,7 +3098,7 @@ impl Interactive for DisplaceM {
         }
         self.inner.input(s, i)
     }
-    /// Rubber-band preview for MOVE/COPY; empty while the displacement is typed.
+    /// Rubber-band preview for the selection window, fence, polygon or stretched geometry.
     fn preview(&self, s: &Session, c: Vec2) -> Vec<EntityKind> {
         if self.displacement {
             return Vec::new();

@@ -33,6 +33,8 @@ pub struct CmdLine {
     pub option_rows: Vec<(Rect, String)>,
     /// Where the Dynamic Input tooltip stays while the options menu is open.
     pub options_anchor: Option<Pos2>,
+    /// Highlighted row in the AutoComplete popup list.
+    pub selected_index: usize,
 }
 
 /// The most history lines the command line shows above its bar.
@@ -56,6 +58,11 @@ pub fn dyn_frame(app: &CadApp) -> Option<crate::dyninput::Frame> {
 pub fn capture_tab(ctx: &egui::Context, raw: &mut egui::RawInput) {
     if ctx.egui_wants_keyboard_input() {
         return;
+    }
+    // Surrender focus from non-text widgets (buttons, checkboxes in floating menus) before egui's
+    // Focus::begin_pass consumes ArrowUp / ArrowDown for widget focus navigation.
+    if let Some(id) = ctx.memory(|m| m.focused()) {
+        ctx.memory_mut(|m| m.surrender_focus(id));
     }
     raw.events.retain_mut(|e| {
         let tab = match e {
@@ -92,8 +99,12 @@ fn tab(app: &mut CadApp) {
     {
         // Both values typed: Tab locks the second one as well.
         app.cmd.locked_second = Some(app.cmd.buffer.clone());
-    } else if let Some(s) = suggestions_with_plugins(app, &app.cmd.buffer).first() {
-        app.cmd.buffer = s.id.clone();
+    } else {
+        let sug = suggestions_with_plugins(app, &app.cmd.buffer);
+        if let Some(s) = sug.get(app.cmd.selected_index).or_else(|| sug.first()) {
+            app.cmd.buffer = s.id.clone();
+            app.cmd.selected_index = 0;
+        }
     }
 }
 
@@ -411,13 +422,24 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                     submit(app);
                 } else {
                     app.cmd.history_pos = None;
+                    app.cmd.selected_index = 0;
                     app.cmd.buffer.push_str(&t);
                 }
             }
             egui::Event::Key { key, pressed: true, repeat, modifiers, .. } => match key {
-                Key::Enter => submit(app),
+                Key::Enter => {
+                    if !app.session.prompting() && app.cmd.history_pos.is_none() && app.cmd.selected_index > 0 {
+                        let sug = suggestions_with_plugins(app, &app.cmd.buffer);
+                        if let Some(s) = sug.get(app.cmd.selected_index) {
+                            app.cmd.buffer = s.id.clone();
+                        }
+                    }
+                    app.cmd.selected_index = 0;
+                    submit(app);
+                }
                 Key::Escape => {
                     app.cmd.history_pos = None;
+                    app.cmd.selected_index = 0;
                     app.cmd.buffer.clear();
                     app.session.cancel();
                 }
@@ -435,28 +457,58 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                         let _ = app.run("erase.selection", serde_json::json!({}));
                     } else {
                         app.cmd.history_pos = None;
+                        app.cmd.selected_index = 0;
                         app.cmd.buffer.pop();
                     }
                 }
                 Key::ArrowUp if !modifiers.any() => {
-                    if !app.cmd.history.is_empty() {
-                        let n = app.cmd.history.len();
-                        let pos = app.cmd.history_pos.map(|p| p.saturating_sub(1)).unwrap_or(n - 1);
-                        app.cmd.history_pos = Some(pos);
-                        app.cmd.buffer = app.cmd.history.get(pos).cloned().unwrap_or_default();
+                    let sug = if !app.session.prompting() && app.cmd.history_pos.is_none() {
+                        suggestions_with_plugins(app, &app.cmd.buffer)
+                    } else {
+                        Vec::new()
+                    };
+                    if sug.len() > 1 {
+                        app.cmd.selected_index = if app.cmd.selected_index == 0 { sug.len() - 1 } else { app.cmd.selected_index - 1 };
+                    } else {
+                        if app.cmd.history.is_empty() {
+                            for c in app.session.lisp_commands() {
+                                app.cmd.push_history(&c.to_ascii_uppercase());
+                            }
+                        }
+                        if !app.cmd.history.is_empty() {
+                            let n = app.cmd.history.len();
+                            let pos = app.cmd.history_pos.map(|p| if p == 0 { n - 1 } else { p - 1 }).unwrap_or(n - 1);
+                            app.cmd.history_pos = Some(pos);
+                            app.cmd.buffer = app.cmd.history.get(pos).cloned().unwrap_or_default();
+                        }
                     }
                 }
                 Key::ArrowDown if !modifiers.any() => {
-                    if !options_key(app, 1)
-                        && let Some(p) = app.cmd.history_pos
-                    {
-                        let np = p + 1;
-                        if np >= app.cmd.history.len() {
-                            app.cmd.history_pos = None;
-                            app.cmd.buffer.clear();
-                        } else {
-                            app.cmd.history_pos = Some(np);
-                            app.cmd.buffer = app.cmd.history.get(np).cloned().unwrap_or_default();
+                    let sug = if !app.session.prompting() && app.cmd.history_pos.is_none() {
+                        suggestions_with_plugins(app, &app.cmd.buffer)
+                    } else {
+                        Vec::new()
+                    };
+                    if sug.len() > 1 {
+                        app.cmd.selected_index = (app.cmd.selected_index + 1) % sug.len();
+                    } else if !options_key(app, 1) {
+                        if app.cmd.history.is_empty() {
+                            for c in app.session.lisp_commands() {
+                                app.cmd.push_history(&c.to_ascii_uppercase());
+                            }
+                        }
+                        if let Some(p) = app.cmd.history_pos {
+                            let np = p + 1;
+                            if np >= app.cmd.history.len() {
+                                app.cmd.history_pos = None;
+                                app.cmd.buffer.clear();
+                            } else {
+                                app.cmd.history_pos = Some(np);
+                                app.cmd.buffer = app.cmd.history.get(np).cloned().unwrap_or_default();
+                            }
+                        } else if !app.cmd.history.is_empty() {
+                            app.cmd.history_pos = Some(0);
+                            app.cmd.buffer = app.cmd.history.first().cloned().unwrap_or_default();
                         }
                     }
                 }
@@ -495,13 +547,20 @@ pub fn submit(app: &mut CadApp) {
         app.cmd.push_history(&text);
     }
     crate::context_menu::note_input(app, &text);
+    let was_inquiry = app.session.running.as_ref().is_some_and(|r| r.id == "xdlist" || r.id == "list");
     if text.is_empty() {
         if let Err(e) = app.session.input(Input::Enter) {
             app.session.echo(e.to_string());
         }
+        if was_inquiry && !app.session.prompting() {
+            app.cmd.expanded = true;
+        }
         return;
     }
     app.cmdline(&text);
+    if was_inquiry && !app.session.prompting() {
+        app.cmd.expanded = true;
+    }
 }
 
 fn visible_lines(app: &CadApp, canvas: Rect, bar: Rect) -> usize {
@@ -635,10 +694,11 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect) {
             );
             p.rect_filled(lr, 3.0, t.list_bg);
             p.rect_stroke(lr, 3.0, Stroke::new(1.0, t.cmd_border), egui::StrokeKind::Inside);
+            let sel_idx = app.cmd.selected_index.min(sug.len().saturating_sub(1));
             for (i, s) in sug.iter().enumerate() {
                 let r = Rect::from_min_size(pos2(lr.left(), lr.top() + rh * i as f32), vec2(lr.width(), rh));
                 let resp = ui.interact(r, ui.id().with(("sug", i)), Sense::click());
-                if resp.hovered() || i == 0 {
+                if resp.hovered() || i == sel_idx {
                     p.rect_filled(r.shrink(1.0), 2.0, if resp.hovered() { t.cmd_keyword_hover } else { t.list_row });
                 }
                 p.text(Pos2::new(r.left() + 8.0, r.center().y), egui::Align2::LEFT_CENTER, &s.display, crate::theme::body(), t.text);
@@ -700,7 +760,11 @@ fn zones(app: &CadApp, canvas: Rect, bar: Rect) -> Zones {
 /// the top edge sets how many lines show (`ui.cmdline.lines`).
 fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
     let z = zones(app, canvas, bar);
-    let resp = ui.interact(z.all, ui.id().with("cmdline"), Sense::click_and_drag());
+    if let Some(r) = z.window {
+        history_window(app, ui, r);
+    }
+    let interact_rect = if z.window.is_some() { bar } else { z.all };
+    let resp = ui.interact(interact_rect, ui.id().with("cmdline"), Sense::click_and_drag());
     let at = resp.hover_pos().or(resp.interact_pointer_pos());
     let on_grip = |p: Pos2| z.grip.contains(p) && z.window.is_none();
     let on_toggle = |p: Pos2| z.chevron.contains(p) || z.lines.is_some_and(|r| r.contains(p));
@@ -734,32 +798,71 @@ fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
         let _ = app.run("ui.toggle.history", serde_json::json!({}));
     }
     crate::shortcut_menus::attach(app, &resp, crate::shortcut_menus::command_line_entries);
-    if let Some(r) = zones(app, canvas, bar).window {
-        history_window(app, ui, r);
-    }
 }
 
-/// The expanded history: the whole command log, scrollable, newest at the bottom.
-fn history_window(app: &CadApp, ui: &mut egui::Ui, r: Rect) {
+/// The expanded history: the whole command log, scrollable & selectable, with Copy and XDEDIT buttons.
+fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
     let t = Tokens::get();
     ui.painter().rect_filled(r, 3.0, t.cmd_bg);
     ui.painter().rect_stroke(r, 3.0, Stroke::new(1.0, t.border), egui::StrokeKind::Inside);
-    let inner = r.shrink2(vec2(8.0, 3.0));
+    let inner = r.shrink2(vec2(8.0, 4.0));
     let mut child = ui.new_child(egui::UiBuilder::new().max_rect(inner).layout(egui::Layout::top_down(egui::Align::Min)));
-    child.spacing_mut().item_spacing.y = 0.0;
-    let log = &app.session.log;
-    egui::ScrollArea::vertical().id_salt("cmd_history").stick_to_bottom(true).auto_shrink([false, false]).show_rows(
-        &mut child,
-        LINE_H,
-        log.len(),
-        |ui, rows| {
-            for l in log.get(rows).into_iter().flatten() {
-                let (row, _) = ui.allocate_exact_size(vec2(ui.available_width(), LINE_H), Sense::hover());
-                let p = ui.painter().with_clip_rect(row.intersect(ui.clip_rect()));
-                p.text(pos2(row.left(), row.center().y), egui::Align2::LEFT_CENTER, l, crate::theme::small(), t.text_dim);
+    let mut open_xdedit = None;
+    let mut close_hist = false;
+    child.horizontal(|ui| {
+        ui.label(
+            egui::RichText::new(crate::tl!("Command & XData Output (select text + Ctrl+C to copy)"))
+                .font(crate::theme::small())
+                .color(t.text_dim),
+        );
+        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+            if ui
+                .small_button("✕")
+                .on_hover_text(crate::tl!("Close History Window (F2)"))
+                .clicked()
+            {
+                close_hist = true;
             }
-        },
-    );
+            if let Some(&h) = app.session.selection().first()
+                && ui
+                    .small_button(crate::tl!("✏ Edit XData (XDEDIT)"))
+                    .on_hover_text(crate::tl!("Open visual XData Editor for selected object"))
+                    .clicked()
+            {
+                open_xdedit = Some(h);
+            }
+            if ui
+                .small_button(crate::tl!("📋 Copy All"))
+                .on_hover_text(crate::tl!("Copy history output to clipboard"))
+                .clicked()
+            {
+                ui.ctx().copy_text(app.session.log.join("\n"));
+            }
+        });
+    });
+    child.separator();
+    let mut full_text = app.session.log.join("\n");
+    egui::ScrollArea::vertical()
+        .id_salt("cmd_history")
+        .stick_to_bottom(true)
+        .auto_shrink([false, false])
+        .show(&mut child, |ui| {
+            ui.add_sized(
+                ui.available_size(),
+                egui::TextEdit::multiline(&mut full_text)
+                    .font(crate::theme::mono())
+                    .text_color(t.text)
+                    .frame(egui::Frame::NONE)
+                    .desired_width(f32::INFINITY),
+            );
+        });
+    if close_hist {
+        app.cmd.expanded = false;
+    }
+    if let Some(h) = open_xdedit {
+        app.cmd.expanded = false;
+        crate::xdedit::open_for_handle(app, h);
+    }
 }
 
 #[cfg(test)]

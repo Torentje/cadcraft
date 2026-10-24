@@ -62,14 +62,11 @@ impl XdRow {
         }
     }
 
-    pub fn to_raw_value(&self, smart_kv: bool) -> String {
+    pub fn to_raw_value(&self, _smart_kv: bool) -> String {
         if let Some(raw) = &self.original_raw {
             return raw.clone();
         }
-        if smart_kv && self.code == 1000 && !self.key.trim().is_empty() {
-            let s = if self.sep.is_empty() { "=" } else { self.sep.as_str() };
-            format!("{}{s}{}", self.key.trim(), self.val.trim())
-        } else if !self.key.trim().is_empty() && self.code == 1000 {
+        if self.code == 1000 && !self.key.trim().is_empty() {
             let s = if self.sep.is_empty() { "=" } else { self.sep.as_str() };
             format!("{}{s}{}", self.key.trim(), self.val.trim())
         } else {
@@ -90,6 +87,7 @@ pub struct XdEditState {
     pub selection_list: Vec<Handle>,
     pub entity_type: String,
     pub layer: String,
+    pub loaded_xdata: Vec<RawTag>,
     pub groups: Vec<XdAppGroup>,
     pub active_app: usize,
     pub filter: String,
@@ -112,6 +110,7 @@ impl Default for XdEditState {
             selection_list: Vec::new(),
             entity_type: String::new(),
             layer: String::new(),
+            loaded_xdata: Vec::new(),
             groups: Vec::new(),
             active_app: 0,
             filter: String::new(),
@@ -181,6 +180,7 @@ impl XdEditState {
             selection_list: list,
             entity_type: e.kind.dxf_name().to_string(),
             layer: e.common.layer.clone(),
+            loaded_xdata: e.common.xdata.clone(),
             groups,
             active_app: 0,
             filter: String::new(),
@@ -195,6 +195,24 @@ impl XdEditState {
             dirty: false,
             awaiting_pick: false,
         }
+    }
+
+    pub fn reload_from_entity(&mut self, e: &Entity) {
+        let kw = self.key_col_width;
+        let vw = self.val_col_width;
+        let skv = self.smart_kv;
+        let flt = self.filter.clone();
+        let active = self.active_app;
+        let list = self.selection_list.clone();
+        let mut next = Self::from_entity_with_list(e, list);
+        next.key_col_width = next.key_col_width.max(kw);
+        next.val_col_width = next.val_col_width.max(vw);
+        next.smart_kv = skv;
+        next.filter = flt;
+        if !next.groups.is_empty() {
+            next.active_app = active.min(next.groups.len() - 1);
+        }
+        *self = next;
     }
 
     pub fn to_xdata_json(&self) -> Value {
@@ -270,9 +288,7 @@ pub fn route(app: &mut CadApp, id: &str, params: &Value) -> Option<Result<Value,
         return Some(Ok(Value::Null));
     }
     // No selection yet: start the interactive single-object pick and open the dialog as soon as picked.
-    let mut st = XdEditState::default();
-    st.awaiting_pick = true;
-    app.xdedit_dlg = Some(st);
+    app.xdedit_dlg = Some(XdEditState { awaiting_pick: true, ..Default::default() });
     app.ui.dialog = None;
     None
 }
@@ -420,6 +436,19 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         *open = false;
         return;
     };
+
+    let mut external_changed = false;
+    if let Some(cur_h) = st.handle
+        && let Ok(d) = app.session.doc()
+        && let Some(e) = d.entity(cur_h)
+        && e.common.xdata != st.loaded_xdata
+    {
+        if !st.dirty {
+            st.reload_from_entity(e);
+        } else {
+            external_changed = true;
+        }
+    }
 
     let mut apply_changes = false;
     let mut revert_changes = false;
@@ -770,17 +799,17 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     if let Some(msg) = copied_msg {
                         st.status_msg = Some(msg);
                     }
-                    if let Some(i) = move_up {
-                        if let Some(j) = i.checked_sub(1).filter(|j| group.rows.get(*j).is_some_and(|r| r.code != 1002)) {
-                            group.rows.swap(j, i);
-                            st.dirty = true;
-                        }
+                    if let Some(i) = move_up
+                        && let Some(j) = i.checked_sub(1).filter(|j| group.rows.get(*j).is_some_and(|r| r.code != 1002))
+                    {
+                        group.rows.swap(j, i);
+                        st.dirty = true;
                     }
-                    if let Some(i) = move_down {
-                        if group.rows.get(i + 1).is_some_and(|r| r.code != 1002) {
-                            group.rows.swap(i, i + 1);
-                            st.dirty = true;
-                        }
+                    if let Some(i) = move_down
+                        && group.rows.get(i + 1).is_some_and(|r| r.code != 1002)
+                    {
+                        group.rows.swap(i, i + 1);
+                        st.dirty = true;
                     }
                     if let Some(i) = delete_row {
                         group.rows.remove(i);
@@ -836,7 +865,12 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             ui.separator();
             // 6. Footer Bar: Status + Select Next Object + Apply / Revert / Close
             ui.horizontal(|ui| {
-                if let Some(msg) = &st.status_msg {
+                if external_changed {
+                    ui.label(
+                        RichText::new(crate::tl!("⚠ Entity XData changed outside editor — click Revert before saving."))
+                            .color(egui::Color32::from_rgb(239, 68, 68)),
+                    );
+                } else if let Some(msg) = &st.status_msg {
                     ui.label(RichText::new(msg).color(t.text_dim));
                 } else if st.dirty {
                     ui.label(RichText::new(crate::tl!("● Unsaved changes")).color(egui::Color32::from_rgb(245, 158, 11)));
@@ -852,11 +886,17 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     if ui.button(crate::tl!("Close")).clicked() {
                         close_clicked = true;
                     }
-                    if ui.add_enabled(st.dirty, egui::Button::new(crate::tl!("↺ Revert"))).clicked() {
+                    if ui
+                        .add_enabled(st.dirty || external_changed, egui::Button::new(crate::tl!("↺ Revert")))
+                        .clicked()
+                    {
                         revert_changes = true;
                     }
                     if ui
-                        .add_enabled(st.dirty, egui::Button::new(RichText::new(crate::tl!("✔ Apply / Save XData")).strong()))
+                        .add_enabled(
+                            st.dirty && !external_changed,
+                            egui::Button::new(RichText::new(crate::tl!("✔ Apply / Save XData")).strong()),
+                        )
                         .on_hover_text(crate::tl!("Write modified XData to the entity (Undoable with Ctrl+Z)"))
                         .clicked()
                     {
@@ -887,6 +927,12 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         && let Some(cur_h) = st.handle
     {
         if st.dirty {
+            if external_changed {
+                st.status_msg = Some(crate::tl!("⚠ Entity XData changed outside editor — click Revert before saving.").into());
+                app.xdedit_dlg = Some(st);
+                ctx.request_repaint();
+                return;
+            }
             let payload = json!({
                 "handles": [cur_h.hex()],
                 "xdata": st.to_xdata_json(),
@@ -931,12 +977,25 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         if st.dirty
             && let Some(h) = st.handle
         {
+            if external_changed {
+                st.status_msg = Some(crate::tl!("⚠ Entity XData changed outside editor — click Revert before saving.").into());
+                app.xdedit_dlg = Some(st);
+                ctx.request_repaint();
+                return;
+            }
             let payload = json!({
                 "handles": [h.hex()],
                 "xdata": st.to_xdata_json(),
             });
             match app.run("xdedit", payload) {
-                Ok(_) => st.dirty = false,
+                Ok(_) => {
+                    st.dirty = false;
+                    if let Ok(d) = app.session.doc()
+                        && let Some(e) = d.entity(h)
+                    {
+                        st.loaded_xdata = e.common.xdata.clone();
+                    }
+                }
                 Err(e) => {
                     st.status_msg = Some(crate::tf!("Error: {err}", err = e));
                     app.xdedit_dlg = Some(st);
@@ -962,27 +1021,31 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         && let Ok(d) = app.session.doc()
         && let Some(e) = d.entity(h)
     {
-        let kw = st.key_col_width;
-        let vw = st.val_col_width;
-        let list = st.selection_list.clone();
-        st = XdEditState::from_entity_with_list(e, list);
-        st.key_col_width = st.key_col_width.max(kw);
-        st.val_col_width = st.val_col_width.max(vw);
+        st.reload_from_entity(e);
         st.status_msg = Some(crate::tl!("↺ Reverted to saved entity XData").into());
     }
 
     if apply_changes && let Some(h) = st.handle {
-        let payload = json!({
-            "handles": [h.hex()],
-            "xdata": st.to_xdata_json(),
-        });
-        match app.run("xdedit", payload) {
-            Ok(_) => {
-                st.dirty = false;
-                st.status_msg = Some(crate::tl!("✔ XData saved to entity (Undoable)").into());
-            }
-            Err(e) => {
-                st.status_msg = Some(crate::tf!("Error: {err}", err = e));
+        if external_changed {
+            st.status_msg = Some(crate::tl!("⚠ Entity XData changed outside editor — click Revert before saving.").into());
+        } else {
+            let payload = json!({
+                "handles": [h.hex()],
+                "xdata": st.to_xdata_json(),
+            });
+            match app.run("xdedit", payload) {
+                Ok(_) => {
+                    st.dirty = false;
+                    if let Ok(d) = app.session.doc()
+                        && let Some(e) = d.entity(h)
+                    {
+                        st.loaded_xdata = e.common.xdata.clone();
+                    }
+                    st.status_msg = Some(crate::tl!("✔ XData saved to entity (Undoable)").into());
+                }
+                Err(e) => {
+                    st.status_msg = Some(crate::tf!("Error: {err}", err = e));
+                }
             }
         }
     }
@@ -998,19 +1061,22 @@ mod tests {
 
     #[test]
     fn xdedit_state_preserves_1002_control_strings_and_formats_csv() {
-        let mut common = Common::default();
-        common.xdata = vec![
-            RawTag { code: 1001, value: "Lumi_KLIC".into() },
-            RawTag { code: 1002, value: "{".into() },
-            RawTag { code: 1000, value: "THEMA=Middenspanning".into() },
-            RawTag { code: 1002, value: "}".into() },
-        ];
-        let e = Entity {
+        let common = Common {
+            xdata: vec![
+                RawTag { code: 1001, value: "Lumi_KLIC".into() },
+                RawTag { code: 1002, value: "{".into() },
+                RawTag { code: 1000, value: "THEMA=Middenspanning".into() },
+                RawTag { code: 1002, value: "}".into() },
+            ],
+            ..Default::default()
+        };
+        let mut e = Entity {
             handle: Handle(42),
             common,
             kind: EntityKind::Line(Line { a: Vec3::ZERO, b: Vec3::new(10.0, 0.0, 0.0) }),
         };
-        let st = XdEditState::from_entity(&e);
+        let mut st = XdEditState::from_entity(&e);
+        assert_eq!(st.loaded_xdata, e.common.xdata);
         let json_out = st.to_xdata_json();
         let arr = json_out.as_array().cloned().unwrap_or_default();
         assert_eq!(arr.len(), 4);
@@ -1021,6 +1087,16 @@ mod tests {
 
         let csv = st.format_plain_text();
         assert_eq!(csv, "Object,LINE\nTHEMA,Middenspanning");
+
+        // External entity XData modification is detected via loaded_xdata and reloaded cleanly.
+        e.common.xdata = vec![
+            RawTag { code: 1001, value: "Lumi_KLIC".into() },
+            RawTag { code: 1000, value: "THEMA=Laagspanning".into() },
+        ];
+        assert_ne!(st.loaded_xdata, e.common.xdata);
+        st.reload_from_entity(&e);
+        assert_eq!(st.loaded_xdata, e.common.xdata);
+        assert_eq!(st.format_plain_text(), "Object,LINE\nTHEMA,Laagspanning");
     }
 
     #[test]

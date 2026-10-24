@@ -339,6 +339,9 @@ pub fn load_dll_into_ide(app: &mut CadApp, path: &str) {
                 };
                 ide.output.push(msg.clone());
                 ide.status = Some(msg.clone());
+                for cmd in &cmds {
+                    app.cmd.push_history(cmd);
+                }
                 app.session.echo(msg);
                 if !cmds.is_empty() && app.ui.dialog.as_deref() == Some("vbaide") {
                     app.ui.dialog = None;
@@ -359,6 +362,9 @@ pub fn load_dll_into_ide(app: &mut CadApp, path: &str) {
                 let msg = format!("{} {name}: {err_detail}", t("NETLOAD error in"));
                 ide.output.push(msg.clone());
                 ide.status = Some(msg.clone());
+                for cmd in &cmds {
+                    app.cmd.push_history(cmd);
+                }
                 app.session.echo(msg);
             }
         }
@@ -617,6 +623,9 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
                     };
                     ide.output.push(msg.clone());
                     ide.status = Some(msg.clone());
+                    for cmd in &cmds {
+                        app.cmd.push_history(cmd);
+                    }
                     app.session.echo(msg);
                     if !cmds.is_empty() && app.ui.dialog.as_deref() == Some("vbaide") {
                         app.ui.dialog = None;
@@ -696,6 +705,9 @@ fn execute_current_code(app: &mut CadApp) -> bool {
             };
             ide.output.push(msg.clone());
             ide.status = Some(msg);
+            for cmd in &cmds {
+                app.cmd.push_history(cmd);
+            }
             true
         }
         Ok(Some(Err(e))) => {

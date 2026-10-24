@@ -1432,46 +1432,9 @@ menu	Modify	Wijzigen
 	↺ Reverted to saved entity XData	↺ Hersteld naar opgeslagen XData van object
 	✔ XData saved to entity (Undoable)	✔ XData opgeslagen op object (Ctrl+Z mogelijk)
 	Error: {err}	Fout: {err}
-# AutoLISP / VB.NET / C# IDE & NETLOAD Studio
-	AutoLISP / VB.NET / C# IDE & NETLOAD Studio	AutoLISP / VB.NET / C# IDE & NETLOAD Studio
-	Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.	Gereed. Open een .dll (.NET VB.NET/C#) of .lsp (AutoLISP) bestand via Open... of NETLOAD.
-	Open .lsp / .vb / .cs	Open .lsp / .dll / .vb / .cs
-	Select and load a .lsp, .dll, .vb, or .cs file from disk	Selecteer en laad een .lsp, .dll, .vb of .cs bestand van schijf
-	Save the current source code in the editor to disk	Sla de huidige broncode in de editor op naar schijf
-	Load & Run LISP	LISP Laden & Uitvoeren
-	Compile & Load .NET DLL	Compileer & Laad .NET DLL
-	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Evalueer de LISP-code of compileer de VB.NET / C# broncode direct naar een .NET DLL
-	Compact Menu	Compact Menu
-	Hide this Studio window and show the compact floating Plugin Commands menu	Verberg dit Studio-venster en toon het compacte zwevende Plugin Commando's venster
-	Template...	Sjabloon...
-	0. Empty file (New)	0. Leeg bestand (Nieuw)
-	1. AutoLISP: Basic Math & Commands	1. AutoLISP: Basis rekenen & commando's
-	2. AutoLISP: Survey Marker (c:meetpunt)	2. AutoLISP: Landmeetpunt plaatsen (c:meetpunt)
-	3. VB.NET Plugin (.vb -> .dll)	3. VB.NET Plugin (.vb -> .dll)
-	4. C# Plugin (.cs -> .dll)	4. C# Plugin (.cs -> .dll)
-	AutoLISP Commands (click to run)	AutoLISP Commando's (klik om uit te voeren)
-	Run command	Voer commando uit:
-	Run .NET command	Voer .NET commando uit:
-	AutoLISP Editor (.lsp)	AutoLISP Editor (.lsp)
-	VB.NET Plugin Editor (.vb)	VB.NET Plugin Editor (.vb)
-	C# Plugin Editor (.cs)	C# Plugin Editor (.cs)
-	Quick Expression	Snelle expressie
-	e.g. (+ 1 2) or + 1 2	bijv. (+ 1 2) of + 1 2
-	Evaluate	Evalueer
-	Clear Log	Wis Log
-	Console / Output	Console / Uitvoer
-	Plugin Commands	Plugin Commando's
-	Open Studio	Open Studio
-	Open the full AutoLISP / VB.NET / C# & NETLOAD Studio	Open de volledige AutoLISP / VB.NET / C# & NETLOAD Studio
-	Plugins	Plugins
-	Open NETLOAD Studio (VBAIDE)	Open NETLOAD Studio (VBAIDE)
-	Show Floating Command Menu	Zwevend Commando-venster tonen
-	Loaded	Geladen:
-	Commands	Commando's
-	Registered commands	Geregistreerde commando's
-	Routine started	Routine gestart
-	Routine started from	Routine gestart vanuit
-	Drawings & Plugins (DWG, DXF, DLL, LSP, VB, CS)	Tekeningen & Plugins (DWG, DXF, DLL, LSP, VB, CS)
-	.NET Plugin / AutoLISP (DLL, LSP, VB, CS)	.NET Plugin / AutoLISP (DLL, LSP, VB, CS)
-	AutoLISP Routine (LSP)	AutoLISP Routine (LSP)
-
+	Command & XData Output (select text + Ctrl+C to copy)	Opdracht- & XData-uitvoer (selecteer tekst + Ctrl+C om te kopiëren)
+	Close History Window (F2)	Geschiedenisvenster sluiten (F2)
+	Open visual XData Editor for selected object	Open visuele XData-editor voor geselecteerd object
+	📋 Copy All	📋 Alles kopiëren
+	Copy history output to clipboard	Kopieer geschiedenisuitvoer naar klembord
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Object-XData is buiten de editor gewijzigd — klik op Herstellen vóór het opslaan.

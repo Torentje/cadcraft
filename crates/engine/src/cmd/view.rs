@@ -101,13 +101,6 @@ pub fn specs() -> Vec<CommandSpec> {
         })
         .noundo(),
         CommandSpec::new("layout.set", "Switch Layout", run_layout_set).params("{name: \"Model\" | layout name}").noundo(),
-        CommandSpec::new("model", "Model Tab", |s, _| run_layout_set(s, &json!({"name": "Model"}))).noundo(),
-        CommandSpec::new("viewres", "View Resolution", |s, _| {
-            s.touch();
-            ok()
-        })
-        .noundo()
-        .interactive(|_| Ok(Box::new(ViewresM::default()))),
         CommandSpec::new("3dorbit", "3D Orbit", run_3dorbit)
             .menu(&["View", "3D Orbit"])
             .alias(&["3do", "orbit", "3dforbit"])
@@ -158,8 +151,7 @@ pub fn specs() -> Vec<CommandSpec> {
 }
 
 fn ext_bounds(s: &Session) -> Result<Bounds2> {
-    let space = s.space();
-    Ok(s.doc()?.extents(&space))
+    s.space_extents()
 }
 
 fn fit(s: &mut Session, b: Bounds2) -> Result<()> {
@@ -646,7 +638,6 @@ impl Session {
         if st.orbit.is_top() {
             st.orbit = cadcraft_render::Orbit3d::default();
         }
-        self.touch();
         Ok(())
     }
 }
@@ -708,7 +699,6 @@ fn run_3dorbit(s: &mut Session, p: &Value) -> Result<Value> {
     if p.get("reset").and_then(Value::as_bool) == Some(true) {
         let st = s.state_mut()?;
         st.orbit = cadcraft_render::Orbit3d::default();
-        s.touch();
         return Ok(json!({ "yaw": 0.0, "pitch": 0.0, "label": "TOP" }));
     }
     let pivot = default_orbit_pivot(s);
@@ -734,7 +724,6 @@ fn run_3dorbit(s: &mut Session, p: &Value) -> Result<Value> {
             cadcraft_render::Orbit3d { yaw: yaw_deg.to_radians(), pitch: pitch_rad, pivot }
         };
         let (y, pt, lbl) = (st.orbit.yaw.to_degrees(), st.orbit.pitch.to_degrees(), st.orbit.label());
-        s.touch();
         return Ok(json!({ "yaw": y, "pitch": pt, "label": lbl }));
     }
     if st.orbit.is_top() {
@@ -750,7 +739,6 @@ fn run_3dorbit(s: &mut Session, p: &Value) -> Result<Value> {
         st.orbit = cadcraft_render::Orbit3d::default();
     }
     let (y, pt, lbl) = (st.orbit.yaw.to_degrees(), st.orbit.pitch.to_degrees(), st.orbit.label());
-    s.touch();
     Ok(json!({ "yaw": y, "pitch": pt, "label": lbl }))
 }
 
@@ -816,37 +804,6 @@ impl Interactive for PanM {
             }
             (_, Input::Enter) => Ok(Step::Done),
             _ => Ok(Step::Continue),
-        }
-    }
-}
-
-#[derive(Default)]
-struct ViewresM {
-    step: u8,
-}
-
-impl Interactive for ViewresM {
-    fn name(&self) -> &'static str {
-        "VIEWRES"
-    }
-    fn prompt(&self, _s: &Session) -> Prompt {
-        if self.step == 0 {
-            Prompt::new("Do you want fast zooms?", Accept::TEXT).kw(&["Yes", "No"]).default("Y")
-        } else {
-            Prompt::new("Enter circle zoom percent (1-20000)", Accept::NUMBER).default("1000")
-        }
-    }
-    fn input(&mut self, s: &mut Session, i: Input) -> Result<Step> {
-        match i {
-            Input::Cancel => Ok(Step::Cancel),
-            _ if self.step == 0 => {
-                self.step = 1;
-                Ok(Step::Continue)
-            }
-            _ => {
-                s.touch();
-                Ok(Step::Done)
-            }
         }
     }
 }
