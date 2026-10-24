@@ -925,6 +925,7 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
     let mut new_user_tags: Vec<cadcraft_doc::RawTag> = Vec::new();
     let mut apps: Vec<String> = Vec::new();
     let mut in_app = false;
+    let mut xdata_depth: usize = 0;
     for (i, item) in arr.iter().enumerate() {
         let code = item
             .get("code")
@@ -941,7 +942,7 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
             return Err(bad("xdedit", format!("xdata[{i}]: {code} is not an XData group code")));
         }
         let numeric_ok = match code {
-            1040..=1042 => val.trim().parse::<f64>().is_ok_and(f64::is_finite),
+            1010..=1013 | 1020..=1023 | 1030..=1033 | 1040..=1042 => val.trim().parse::<f64>().is_ok_and(f64::is_finite),
             1070 => val.trim().parse::<i16>().is_ok(),
             1071 => val.trim().parse::<i32>().is_ok(),
             _ => true,
@@ -950,6 +951,9 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
             return Err(bad("xdedit", format!("xdata[{i}]: `{val}` is not a valid value for code {code}")));
         }
         if code == 1001 {
+            if xdata_depth != 0 {
+                return Err(bad("xdedit", format!("xdata[{i}]: previous application has unmatched `{{`")));
+            }
             in_app = true;
             let app_name = val.trim().to_string();
             if is_system_xdata_app(&app_name) {
@@ -960,8 +964,18 @@ fn run_xdedit(s: &mut Session, p: &Value) -> Result<Value> {
             }
         } else if !in_app {
             return Err(bad("xdedit", format!("xdata[{i}]: tags must follow a 1001 application name")));
+        } else if code == 1002 {
+            match val.trim() {
+                "{" => xdata_depth += 1,
+                "}" if xdata_depth > 0 => xdata_depth -= 1,
+                "}" => return Err(bad("xdedit", format!("xdata[{i}]: unmatched `}}`"))),
+                _ => return Err(bad("xdedit", format!("xdata[{i}]: invalid 1002 control string"))),
+            }
         }
         new_user_tags.push(cadcraft_doc::RawTag { code, value: val });
+    }
+    if xdata_depth != 0 {
+        return Err(bad("xdedit", "xdata: unmatched `{` control string"));
     }
     let d = s.doc_mut()?;
     if d.entity(h).is_none() {

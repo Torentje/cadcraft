@@ -1202,15 +1202,13 @@ pub(crate) fn properties_section(app: &mut CadApp, ui: &mut egui::Ui) {
                     });
                 }
             }
+            let handle = e.handle;
+            let _ = d;
             if copied_xdata {
-                let _ = d;
                 app.set_status(crate::tl!("✓ XData values copied to clipboard"));
-                return;
             }
             if open_xdedit {
-                let _ = d;
-                crate::xdedit::open_for_handle(app, e.handle);
-                return;
+                crate::xdedit::open_for_handle(app, handle);
             }
         }
     }
