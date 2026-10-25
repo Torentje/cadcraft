@@ -1291,7 +1291,17 @@ fn deferred_hit_in_orbit(
             && best.as_ref().is_none_or(|(bd, ..)| dd < *bd)
             && let Some(point) = work_plane_point(orbit, at, *z, pr)
         {
-            best = Some((dd, SnapHit { point, mode: m, name, viewport: None, deferred: Some(Deferred { mode: m, curve, at }) }, pr));
+            let shift = point - at;
+            let shifted_curve = match curve {
+                SnapCurve::Circle { center, radius } => SnapCurve::Circle { center: center + shift, radius },
+                SnapCurve::Arc { center, radius, start, end } => SnapCurve::Arc { center: center + shift, radius, start, end },
+                SnapCurve::Line { a, b } => SnapCurve::Line { a: a + shift, b: b + shift },
+            };
+            best = Some((
+                dd,
+                SnapHit { point, mode: m, name, viewport: None, deferred: Some(Deferred { mode: m, curve: shifted_curve, at: point }) },
+                pr,
+            ));
         }
     }
     best.map(|(_, h, pr)| (h, pr))
