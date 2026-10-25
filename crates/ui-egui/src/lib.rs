@@ -521,11 +521,11 @@ impl CadApp {
     /// menu runs this way too).
     fn load_lisp(&mut self, name: &str, text: &str) {
         let cmds = lisp_ide::extract_c_commands(text);
-        for cmd in &cmds {
-            self.cmd.push_history(cmd);
-        }
         match self.session.lisp_load(name, text, false) {
             Ok(_) => {
+                for cmd in &cmds {
+                    self.cmd.push_history(cmd);
+                }
                 if !cmds.is_empty() {
                     self.session.echo(format!("Loaded {name} — Commands: {}", cmds.join(", ")));
                 }

@@ -154,10 +154,12 @@ fn suggestions_with_plugins(app: &CadApp, prefix: &str) -> Vec<Suggestion> {
 }
 
 /// Matching command names/aliases for AutoComplete.
+#[cfg(test)]
 fn suggestions(prefix: &str) -> Vec<Suggestion> {
     suggestions_inner(prefix, &[])
 }
 
+/// Internal helper that merges built-in commands/aliases with dynamic LISP and `.NET` plugin commands.
 fn suggestions_inner(prefix: &str, dynamic: &[(String, &'static str)]) -> Vec<Suggestion> {
     if prefix.is_empty() || prefix.contains(' ') {
         return Vec::new();
@@ -419,6 +421,13 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                 if t == "\t" {
                     tab(app);
                 } else if t == " " && !keep_space {
+                    if !app.session.prompting() && app.cmd.history_pos.is_none() && app.cmd.selected_index > 0 {
+                        let sug = suggestions_with_plugins(app, &app.cmd.buffer);
+                        if let Some(s) = sug.get(app.cmd.selected_index) {
+                            app.cmd.buffer = s.id.clone();
+                        }
+                    }
+                    app.cmd.selected_index = 0;
                     submit(app);
                 } else {
                     app.cmd.history_pos = None;
@@ -468,7 +477,8 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                         Vec::new()
                     };
                     if sug.len() > 1 {
-                        app.cmd.selected_index = if app.cmd.selected_index == 0 { sug.len() - 1 } else { app.cmd.selected_index - 1 };
+                        let cur = app.cmd.selected_index.min(sug.len() - 1);
+                        app.cmd.selected_index = if cur == 0 { sug.len() - 1 } else { cur - 1 };
                     } else {
                         if app.cmd.history.is_empty() {
                             for c in app.session.lisp_commands() {
@@ -490,7 +500,8 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                         Vec::new()
                     };
                     if sug.len() > 1 {
-                        app.cmd.selected_index = (app.cmd.selected_index + 1) % sug.len();
+                        let cur = app.cmd.selected_index.min(sug.len() - 1);
+                        app.cmd.selected_index = (cur + 1) % sug.len();
                     } else if !options_key(app, 1) {
                         if app.cmd.history.is_empty() {
                             for c in app.session.lisp_commands() {
@@ -543,6 +554,7 @@ pub fn submit(app: &mut CadApp) {
     let text = std::mem::take(&mut app.cmd.buffer);
     app.cmd.locked_second = None;
     app.cmd.history_pos = None;
+    app.cmd.selected_index = 0;
     if !text.trim().is_empty() && !app.session.prompting() {
         app.cmd.push_history(&text);
     }
@@ -1043,5 +1055,16 @@ mod autocomplete_tests {
         app.cmd.buffer = "rec".to_string();
         tab(&mut app);
         assert_eq!(app.cmd.buffer, "RECTANG");
+    }
+
+    #[test]
+    fn loaded_lisp_commands_appear_in_history_echo_and_autocomplete() {
+        let mut app = CadApp::new(cadcraft_engine::Session::empty(), crate::Services::default());
+        app.load_lisp("test.lsp", "(defun c:mijnlisp () (princ \"ok\"))");
+        assert!(app.cmd.history.iter().any(|h| h == "MIJNLISP"));
+        assert!(app.session.log.iter().any(|l| l.contains("MIJNLISP")));
+        let sug = suggestions_with_plugins(&app, "mijn");
+        assert!(!sug.is_empty());
+        assert_eq!(sug[0].id, "MIJNLISP");
     }
 }
