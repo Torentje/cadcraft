@@ -1238,3 +1238,83 @@ menu	View	보기
 menu	Draw	그리기
 menu	Dimension	치수
 menu	Modify	수정
+	Copy All	모두 복사
+	Copy history output to clipboard	명령 기록 클립보드 복사
+	Close History Window (F2)	명령 기록 닫기 (F2)
+	Edit XData (XDEDIT)	XData 편집 (XDEDIT)
+	Open visual XData Editor for selected object	선택 항목 XData 편집
+	Command & XData Output (select text + Ctrl+C to copy)	명령 기록 & XData (Ctrl+C로 복사)
+	Save changes to {name}?	{name} 변경 사항 저장?
+	Your changes will be lost if you don't save them.	저장하지 않으면 변경 사항이 손실됩니다.
+	Don't Save	저장 안 함
+	List Xdata	XData 목록
+	Edit Xdata	XData 편집
+	Edit Xdata (XDEDIT)	XData 편집 (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ XData 편집 (XDEDIT)
+	Open visual XData Editor dialog	XData 편집 열기
+	📋 Copy Values	📋 값 복사
+	Copy XData values (Key,Value) to clipboard	XData 값 클립보드 복사
+	Click to copy value to clipboard	클립보드에 값 복사
+	✓ XData values copied to clipboard	✓ XData 값 클립보드 복사됨
+	Selection canceled — previous object kept.	선택 취소됨 — 이전 객체 유지.
+	Drag left or right to resize this column	열 폭 조정
+	XDATA Editor (XDEDIT)	XDATA 편집 (XDEDIT)
+	No object selected.	선택된 객체 없음.
+	🎯 Select object in drawing	🎯 도면에서 객체 선택
+	Object: {kind}	객체: {kind}
+	Layer: {layer}	도면층: {layer}
+	Handle: {handle}	핸들: {handle}
+	🎯 Select Another Object	🎯 다른 객체 선택
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	도면에서 다른 객체를 선택하여 XDEDIT에서 열기
+	Next ▶	다음 ▶
+	Step to the next object with XData in the selection or drawing	다음 XData 객체로 이동
+	◀ Previous	◀ 이전
+	Step to the previous object with XData in the selection or drawing	이전 XData 객체로 이동
+	📋 Copy JSON	📋 JSON 복사
+	Copy all XData as structured JSON to clipboard	전체 XData JSON 클립보드 복사
+	✓ JSON copied to clipboard	✓ JSON 클립보드 복사됨
+	📋 Copy Text	📋 문자 복사
+	Copy all XData as text to clipboard	전체 XData 문자 클립보드 복사
+	✓ XData text copied to clipboard	✓ XData 문자 클립보드 복사됨
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	새 AppID (예: Lumi_KLIC)
+	+ Add AppID	+ AppID 추가
+	🗑 Delete AppID	🗑 AppID 삭제
+	Remove this Application and its XData from the entity	객체에서 이 AppID 및 XData 삭제
+	Application removed (click Apply to save)	AppID 삭제됨 (적용을 눌러 저장)
+	🔍 Filter:	🔍 필터:
+	Search key or value (e.g. THEMA, DIEPTE)...	이름 또는 값 검색...
+	Key width:	이름 폭:
+	Drag this value or the column divider ⇔ to resize the Key column	이름 열 폭 조정
+	Value width:	값 폭:
+	Drag this value or the column divider ⇔ to resize the Value column	값 열 폭 조정
+	Smart Key=Value Columns	이름=값 열 분리
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	'KEY=VALUE' 항목을 이름과 값 필드로 분리
+	This object currently has no user XData.	이 객체에는 사용자 XData가 없습니다.
+	+ Create Lumi_KLIC Application	+ Lumi_KLIC 작성
+	DXF Code	DXF 코드
+	Property / Key ⇔	특성 / 이름 ⇔
+	Value (Selectable & Editable) ⇔	값 (선택 및 편집) ⇔
+	Raw Value (Selectable & Editable) ⇔	원본 값 (선택 및 편집) ⇔
+	Actions	작업
+	Copy value to clipboard	값 클립보드 복사
+	✓ Copied: {val}	✓ 복사됨: {val}
+	Move row up	행 위로 이동
+	Move row down	행 아래로 이동
+	Delete this XData row	이 XData 행 삭제
+	Add Row:	행 추가:
+	Key (e.g. OPMERKING)	이름 (예: OPMERKING)
+	+ Add Property	+ 특성 추가
+	● Unsaved changes	● 저장되지 않은 변경 사항
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	준비 — 다음 객체 선택 또는 이전 / 다음으로 전환.
+	↺ Revert	↺ 되돌리기
+	✔ Apply / Save XData	✔ 적용 / XData 저장
+	Write modified XData to the entity (Undoable with Ctrl+Z)	변경된 XData를 객체에 저장 (Ctrl+Z 취소 가능)
+	✔ Save & Select Next Object	✔ 저장 및 다음 객체 선택
+	🎯 Select Next Object	🎯 다음 객체 선택
+	Save any changes and directly pick the next object in the drawing	변경 사항을 저장하고 다음 객체 선택
+	Object {idx1}/{total} loaded ({kind} — {handle})	객체 {idx1}/{total} 로드됨 ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ 저장된 XData로 복원됨
+	✔ XData saved to entity (Undoable)	✔ 객체에 XData 저장됨 (Ctrl+Z 가능)
+	Error: {err}	오류: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ 외부에서 XData가 변경됨 — 저장 전 복원 클릭.

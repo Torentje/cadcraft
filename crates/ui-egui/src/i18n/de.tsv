@@ -1035,3 +1035,84 @@
 	Justify	Blocksatz
 	Text color	Textfarbe
 	Click the ruler to add a tab stop, right-click to remove one	Klick auf das Lineal setzt einen Tabstopp, Rechtsklick entfernt ihn
+	Clear Command History	Befehlsverlauf leeren
+	Copy All	Alles kopieren
+	Copy history output to clipboard	Verlaufsausgabe in die Zwischenablage kopieren
+	Close History Window (F2)	Verlaufsfenster schließen (F2)
+	Edit XData (XDEDIT)	XData bearbeiten (XDEDIT)
+	Open visual XData Editor for selected object	Visuellen XData-Editor für ausgewähltes Objekt öffnen
+	Command & XData Output (select text + Ctrl+C to copy)	Befehls- & XData-Ausgabe (Text markieren + Strg+C zum Kopieren)
+	Save changes to {name}?	Änderungen in {name} speichern?
+	Your changes will be lost if you don't save them.	Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.
+	Don't Save	Nicht speichern
+	List Xdata	XData auflisten
+	Edit Xdata	XData bearbeiten
+	Edit Xdata (XDEDIT)	XData bearbeiten (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ XData bearbeiten (XDEDIT)
+	Open visual XData Editor dialog	Visuellen XData-Editor öffnen
+	📋 Copy Values	📋 Werte kopieren
+	Copy XData values (Key,Value) to clipboard	XData-Werte (Key,Value) in die Zwischenablage kopieren
+	Click to copy value to clipboard	Klicken, um Wert in die Zwischenablage zu kopieren
+	✓ XData values copied to clipboard	✓ XData-Werte in die Zwischenablage kopiert
+	Selection canceled — previous object kept.	Auswahl abgebrochen — vorheriges Objekt beibehalten.
+	Drag left or right to resize this column	Nach links oder rechts ziehen, um die Spaltenbreite zu ändern
+	XDATA Editor (XDEDIT)	XDATA-Editor (XDEDIT)
+	No object selected.	Kein Objekt ausgewählt.
+	🎯 Select object in drawing	🎯 Objekt in Zeichnung auswählen
+	Object: {kind}	Objekt: {kind}
+	Layer: {layer}	Layer: {layer}
+	Handle: {handle}	Handle: {handle}
+	🎯 Select Another Object	🎯 Anderes Objekt auswählen
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Editor kurz ausblenden, anderes Objekt in der Zeichnung wählen und in XDEDIT öffnen
+	Next ▶	Weiter ▶
+	Step to the next object with XData in the selection or drawing	Zum nächsten Objekt mit XData in Auswahl oder Zeichnung wechseln
+	◀ Previous	◀ Zurück
+	Step to the previous object with XData in the selection or drawing	Zum vorherigen Objekt mit XData in Auswahl oder Zeichnung wechseln
+	📋 Copy JSON	📋 JSON kopieren
+	Copy all XData as structured JSON to clipboard	Alle XData als strukturiertes JSON in die Zwischenablage kopieren
+	✓ JSON copied to clipboard	✓ JSON in die Zwischenablage kopiert
+	📋 Copy Text	📋 Text kopieren
+	Copy all XData as text to clipboard	Alle XData als Text in die Zwischenablage kopieren
+	✓ XData text copied to clipboard	✓ XData-Text in die Zwischenablage kopiert
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	Neue AppID (z. B. Lumi_KLIC)
+	+ Add AppID	+ AppID hinzufügen
+	🗑 Delete AppID	🗑 AppID löschen
+	Remove this Application and its XData from the entity	Diese Anwendung und ihre XData vom Objekt entfernen
+	Application removed (click Apply to save)	Anwendung entfernt (zum Speichern auf Übernehmen klicken)
+	🔍 Filter:	🔍 Filter:
+	Search key or value (e.g. THEMA, DIEPTE)...	Schlüssel oder Wert suchen (z. B. THEMA, DIEPTE)...
+	Key width:	Schlüsselbreite:
+	Drag this value or the column divider ⇔ to resize the Key column	Wert oder Spaltentrenner ⇔ ziehen, um die Schlüsselspalte anzupassen
+	Value width:	Wertbreite:
+	Drag this value or the column divider ⇔ to resize the Value column	Wert oder Spaltentrenner ⇔ ziehen, um die Wertspalte anzupassen
+	Smart Key=Value Columns	Intelligente Key=Value-Spalten
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Teilt 'KEY=VALUE' oder 'Key: Value' in separate bearbeitbare Felder auf
+	This object currently has no user XData.	Dieses Objekt hat derzeit keine Benutzer-XData.
+	+ Create Lumi_KLIC Application	+ Lumi_KLIC-Anwendung erstellen
+	DXF Code	DXF-Code
+	Property / Key ⇔	Eigenschaft / Schlüssel ⇔
+	Value (Selectable & Editable) ⇔	Wert (Auswählbar & Bearbeitbar) ⇔
+	Raw Value (Selectable & Editable) ⇔	Rohwert (Auswählbar & Bearbeitbar) ⇔
+	Actions	Aktionen
+	Copy value to clipboard	Wert in die Zwischenablage kopieren
+	✓ Copied: {val}	✓ Kopiert: {val}
+	Move row up	Zeile nach oben verschieben
+	Move row down	Zeile nach unten verschieben
+	Delete this XData row	Diese XData-Zeile löschen
+	Add Row:	Zeile hinzufügen:
+	Key (e.g. OPMERKING)	Schlüssel (z. B. OPMERKING)
+	+ Add Property	+ Eigenschaft hinzufügen
+	● Unsaved changes	● Ungespeicherte Änderungen
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Bereit — klicken Sie auf '🎯 Nächstes Objekt auswählen' oder '◀ Zurück / Weiter ▶' zum Wechseln.
+	↺ Revert	↺ Zurücksetzen
+	✔ Apply / Save XData	✔ Übernehmen / XData speichern
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Geänderte XData auf das Objekt schreiben (Rückgängig mit Strg+Z)
+	✔ Save & Select Next Object	✔ Speichern & Nächstes Objekt
+	🎯 Select Next Object	🎯 Nächstes Objekt auswählen
+	Save any changes and directly pick the next object in the drawing	Änderungen speichern und direkt das nächste Objekt in der Zeichnung wählen
+	Object {idx1}/{total} loaded ({kind} — {handle})	Objekt {idx1}/{total} geladen ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ Auf gespeicherte Objekt-XData zurückgesetzt
+	✔ XData saved to entity (Undoable)	✔ XData im Objekt gespeichert (Strg+Z möglich)
+	Error: {err}	Fehler: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Objekt-XData außerhalb des Editors geändert — vor dem Speichern Zurücksetzen klicken.

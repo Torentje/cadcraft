@@ -1708,10 +1708,11 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui) {
     }
     // Pan with the middle button (or Shift+right-drag / two-finger drag on trackpads is scroll).
     let middle_pressed = ui.input(|i| i.pointer.button_pressed(egui::PointerButton::Middle));
-    if (pressed_primary || pressed_secondary || middle_pressed) && inside {
-        if let Some(id) = ui.ctx().memory(|m| m.focused()) {
-            ui.ctx().memory_mut(|m| m.surrender_focus(id));
-        }
+    if (pressed_primary || pressed_secondary || middle_pressed)
+        && inside
+        && let Some(id) = ui.ctx().memory(|m| m.focused())
+    {
+        ui.ctx().memory_mut(|m| m.surrender_focus(id));
     }
     let focused = ui.input(|i| i.focused);
     if middle_down
@@ -2082,7 +2083,7 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui) {
     ensure_list(app, &xf_paper, &views, ui.ctx());
     let sheet = app.canvas.list.as_ref().and_then(|l| l.sheet);
     let surround = Color32::from_rgb(0x50, 0x57, 0x63);
-    let (bg, paper_rect) = match sheet {
+    let (bg, _paper_rect) = match sheet {
         Some(sh) => {
             // Paper space: grey surround, the sheet with a shadow, the printable area dashed.
             painter.rect_filled(rect, 0.0, surround);

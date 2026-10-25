@@ -1187,13 +1187,13 @@ pub fn plugin_menu_overlay(app: &mut CadApp, ctx: &egui::Context) {
     let window_title = app
         .lisp_ide
         .as_ref()
-        .and_then(|ide| {
+        .map(|ide| {
             if ide.loaded_dlls.len() == 1 && ide.commands.is_empty() {
-                Some(format!("🧩 {}", ide.loaded_dlls[0].name))
+                format!("🧩 {}", ide.loaded_dlls[0].name)
             } else if ide.loaded_dlls.is_empty() && !ide.commands.is_empty() {
-                Some(format!("📜 {}", ide.file_name))
+                format!("📜 {}", ide.file_name)
             } else {
-                Some(format!("🧩 {}", t("Plugin Commands")))
+                format!("🧩 {}", t("Plugin Commands"))
             }
         })
         .unwrap_or_else(|| format!("🧩 {}", t("Plugin Commands")));

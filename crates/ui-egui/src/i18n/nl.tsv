@@ -1435,6 +1435,10 @@ menu	Modify	Wijzigen
 	Command & XData Output (select text + Ctrl+C to copy)	Opdracht- & XData-uitvoer (selecteer tekst + Ctrl+C om te kopiëren)
 	Close History Window (F2)	Geschiedenisvenster sluiten (F2)
 	Open visual XData Editor for selected object	Open visuele XData-editor voor geselecteerd object
-	📋 Copy All	📋 Alles kopiëren
+	Copy All	Alles kopiëren
+	Edit XData (XDEDIT)	XData bewerken (XDEDIT)
 	Copy history output to clipboard	Kopieer geschiedenisuitvoer naar klembord
 	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Object-XData is buiten de editor gewijzigd — klik op Herstellen vóór het opslaan.
+	Save changes to {name}?	Wijzigingen in {name} opslaan?
+	Your changes will be lost if you don't save them.	Uw wijzigingen gaan verloren als u ze niet opslaat.
+	Don't Save	Niet opslaan

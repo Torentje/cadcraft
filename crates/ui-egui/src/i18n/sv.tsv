@@ -1394,3 +1394,83 @@ menu	Modify	Ändra
 	Window <	Fönster <
 	X offset (mm)	X-förskjutning (mm)
 	Y offset (mm)	Y-förskjutning (mm)
+	Copy All	Kopiera allt
+	Copy history output to clipboard	Kopiera historik till urklipp
+	Close History Window (F2)	Stäng historikfönster (F2)
+	Edit XData (XDEDIT)	Redigera XData (XDEDIT)
+	Open visual XData Editor for selected object	Öppna visuell XData-redigerare för valt objekt
+	Command & XData Output (select text + Ctrl+C to copy)	Kommando- & XData-utdata (markera text + Ctrl+C för att kopiera)
+	Save changes to {name}?	Spara ändringar i {name}?
+	Your changes will be lost if you don't save them.	Dina ändringar går förlorade om du inte sparar dem.
+	Don't Save	Spara inte
+	List Xdata	Lista XData
+	Edit Xdata	Redigera XData
+	Edit Xdata (XDEDIT)	Redigera XData (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ Redigera XData (XDEDIT)
+	Open visual XData Editor dialog	Öppna visuell XData-redigerare
+	📋 Copy Values	📋 Kopiera värden
+	Copy XData values (Key,Value) to clipboard	Kopiera XData-värden (Nyckel,Värde) till urklipp
+	Click to copy value to clipboard	Klicka för att kopiera värdet till urklipp
+	✓ XData values copied to clipboard	✓ XData-värden kopierade till urklipp
+	Selection canceled — previous object kept.	Val avbrutet — föregående objekt behölls.
+	Drag left or right to resize this column	Dra åt vänster eller höger för att ändra kolumnbredd
+	XDATA Editor (XDEDIT)	XDATA-redigerare (XDEDIT)
+	No object selected.	Inget objekt valt.
+	🎯 Select object in drawing	🎯 Välj objekt i ritningen
+	Object: {kind}	Objekt: {kind}
+	Layer: {layer}	Lager: {layer}
+	Handle: {handle}	Referens: {handle}
+	🎯 Select Another Object	🎯 Välj ett annat objekt
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Dölj redigeraren tillfälligt, välj ett annat objekt i ritningen och öppna det i XDEDIT
+	Next ▶	Nästa ▶
+	Step to the next object with XData in the selection or drawing	Gå till nästa objekt med XData i urvalet eller ritningen
+	◀ Previous	◀ Föregående
+	Step to the previous object with XData in the selection or drawing	Gå till föregående objekt med XData i urvalet eller ritningen
+	📋 Copy JSON	📋 Kopiera JSON
+	Copy all XData as structured JSON to clipboard	Kopiera alla XData som strukturerad JSON till urklipp
+	✓ JSON copied to clipboard	✓ JSON kopierad till urklipp
+	📋 Copy Text	📋 Kopiera text
+	Copy all XData as text to clipboard	Kopiera alla XData som text till urklipp
+	✓ XData text copied to clipboard	✓ XData-text kopierad till urklipp
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	Nytt AppID (t.ex. Lumi_KLIC)
+	+ Add AppID	+ Lägg till AppID
+	🗑 Delete AppID	🗑 Ta bort AppID
+	Remove this Application and its XData from the entity	Ta bort detta program och dess XData från objektet
+	Application removed (click Apply to save)	Program borttaget (klicka på Verkställ för att spara)
+	🔍 Filter:	🔍 Filter:
+	Search key or value (e.g. THEMA, DIEPTE)...	Sök nyckel eller värde (t.ex. THEMA, DIEPTE)...
+	Key width:	Nyckelbredd:
+	Drag this value or the column divider ⇔ to resize the Key column	Dra detta värde eller kolumnavdelaren ⇔ för att ändra Nyckel-kolumnen
+	Value width:	Värdebredd:
+	Drag this value or the column divider ⇔ to resize the Value column	Dra detta värde eller kolumnavdelaren ⇔ för att ändra Värde-kolumnen
+	Smart Key=Value Columns	Smarta Nyckel=Värde-kolumner
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Dela upp 'KEY=VALUE' eller 'Key: Value' i separata redigerbara fält
+	This object currently has no user XData.	Detta objekt har för närvarande inga användar-XData.
+	+ Create Lumi_KLIC Application	+ Skapa Lumi_KLIC-program
+	DXF Code	DXF-kod
+	Property / Key ⇔	Egenskap / Nyckel ⇔
+	Value (Selectable & Editable) ⇔	Värde (Markerbart & Redigerbart) ⇔
+	Raw Value (Selectable & Editable) ⇔	Råvärde (Markerbart & Redigerbart) ⇔
+	Actions	Åtgärder
+	Copy value to clipboard	Kopiera värde till urklipp
+	✓ Copied: {val}	✓ Kopierat: {val}
+	Move row up	Flytta rad uppåt
+	Move row down	Flytta rad nedåt
+	Delete this XData row	Ta bort denna XData-rad
+	Add Row:	Lägg till rad:
+	Key (e.g. OPMERKING)	Nyckel (t.ex. OPMERKING)
+	+ Add Property	+ Lägg till egenskap
+	● Unsaved changes	● Osparade ändringar
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Klar — klicka på '🎯 Välj nästa objekt' eller '◀ Föregående / Nästa ▶'.
+	↺ Revert	↺ Återställ
+	✔ Apply / Save XData	✔ Verkställ / Spara XData
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Skriv ändrade XData till objektet (kan ångras med Ctrl+Z)
+	✔ Save & Select Next Object	✔ Spara & välj nästa objekt
+	🎯 Select Next Object	🎯 Välj nästa objekt
+	Save any changes and directly pick the next object in the drawing	Spara ändringar och välj direkt nästa objekt i ritningen
+	Object {idx1}/{total} loaded ({kind} — {handle})	Objekt {idx1}/{total} laddat ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ Återställt till sparade XData
+	✔ XData saved to entity (Undoable)	✔ XData sparade i objektet (Ctrl+Z möjligt)
+	Error: {err}	Fel: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Objektets XData ändrades utanför redigeraren — klicka på Återställ innan du sparar.

@@ -1218,3 +1218,83 @@ menu	Modify	Modifikace
 	Not a number or distance: {text}	Není číslo ani vzdálenost: {text}
 	Query Texts	Dotaz na texty
 	Analyze Shapes	Analyzovat tvary
+	Copy All	Kopírovat vše
+	Copy history output to clipboard	Zkopírovat výstup historie do schránky
+	Close History Window (F2)	Zavřít okno historie (F2)
+	Edit XData (XDEDIT)	Upravit XData (XDEDIT)
+	Open visual XData Editor for selected object	Otevřít vizuální editor XData pro vybraný objekt
+	Command & XData Output (select text + Ctrl+C to copy)	Výstup příkazů a XData (vyberte text + Ctrl+C pro kopírování)
+	Save changes to {name}?	Uložit změny v {name}?
+	Your changes will be lost if you don't save them.	Pokud změny neuložíte, budou ztraceny.
+	Don't Save	Neukládat
+	List Xdata	Vypsat XData
+	Edit Xdata	Upravit XData
+	Edit Xdata (XDEDIT)	Upravit XData (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ Upravit XData (XDEDIT)
+	Open visual XData Editor dialog	Otevřít vizuální editor XData
+	📋 Copy Values	📋 Kopírovat hodnoty
+	Copy XData values (Key,Value) to clipboard	Kopírovat hodnoty XData (Klíč,Hodnota) do schránky
+	Click to copy value to clipboard	Kliknutím zkopírujete hodnotu do schránky
+	✓ XData values copied to clipboard	✓ Hodnoty XData zkopírovány do schránky
+	Selection canceled — previous object kept.	Výběr zrušen — ponechán předchozí objekt.
+	Drag left or right to resize this column	Tažením doleva nebo doprava změníte šířku sloupce
+	XDATA Editor (XDEDIT)	Editor XDATA (XDEDIT)
+	No object selected.	Není vybrán žádný objekt.
+	🎯 Select object in drawing	🎯 Vybrat objekt ve výkresu
+	Object: {kind}	Objekt: {kind}
+	Layer: {layer}	Hladina: {layer}
+	Handle: {handle}	Identifikátor: {handle}
+	🎯 Select Another Object	🎯 Vybrat jiný objekt
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Dočasně skrýt editor, vybrat jiný objekt ve výkresu a otevřít jej v XDEDIT
+	Next ▶	Další ▶
+	Step to the next object with XData in the selection or drawing	Přejít na další objekt s XData ve výběru nebo výkresu
+	◀ Previous	◀ Předchozí
+	Step to the previous object with XData in the selection or drawing	Přejít na předchozí objekt s XData ve výběru nebo výkresu
+	📋 Copy JSON	📋 Kopírovat JSON
+	Copy all XData as structured JSON to clipboard	Kopírovat všechna XData jako strukturovaný JSON do schránky
+	✓ JSON copied to clipboard	✓ JSON zkopírován do schránky
+	📋 Copy Text	📋 Kopírovat text
+	Copy all XData as text to clipboard	Kopírovat všechna XData jako text do schránky
+	✓ XData text copied to clipboard	✓ Text XData zkopírován do schránky
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	Nové AppID (např. Lumi_KLIC)
+	+ Add AppID	+ Přidat AppID
+	🗑 Delete AppID	🗑 Smazat AppID
+	Remove this Application and its XData from the entity	Odebrat tuto aplikaci a její XData z objektu
+	Application removed (click Apply to save)	Aplikace odebrána (uložte kliknutím na Použít)
+	🔍 Filter:	🔍 Filtr:
+	Search key or value (e.g. THEMA, DIEPTE)...	Hledat klíč nebo hodnotu (např. THEMA, DIEPTE)...
+	Key width:	Šířka klíče:
+	Drag this value or the column divider ⇔ to resize the Key column	Tažením hodnoty nebo oddělovače ⇔ změníte šířku sloupce Klíč
+	Value width:	Šířka hodnoty:
+	Drag this value or the column divider ⇔ to resize the Value column	Tažením hodnoty nebo oddělovače ⇔ změníte šířku sloupce Hodnota
+	Smart Key=Value Columns	Chytré sloupce Klíč=Hodnota
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Rozdělit 'KEY=VALUE' nebo 'Key: Value' do samostatných polí Klíč a Hodnota
+	This object currently has no user XData.	Tento objekt momentálně nemá žádná uživatelská XData.
+	+ Create Lumi_KLIC Application	+ Vytvořit aplikaci Lumi_KLIC
+	DXF Code	Kód DXF
+	Property / Key ⇔	Vlastnost / Klíč ⇔
+	Value (Selectable & Editable) ⇔	Hodnota (Vybratelná a Upravitelná) ⇔
+	Raw Value (Selectable & Editable) ⇔	Surová hodnota (Vybratelná a Upravitelná) ⇔
+	Actions	Akce
+	Copy value to clipboard	Kopírovat hodnotu do schránky
+	✓ Copied: {val}	✓ Zkopírováno: {val}
+	Move row up	Posunout řádek nahoru
+	Move row down	Posunout řádek dolů
+	Delete this XData row	Smazat tento řádek XData
+	Add Row:	Přidat řádek:
+	Key (e.g. OPMERKING)	Klíč (např. OPMERKING)
+	+ Add Property	+ Přidat vlastnost
+	● Unsaved changes	● Neuložené změny
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Připraveno — klikněte na '🎯 Vybrat další objekt' nebo '◀ Předchozí / Další ▶'.
+	↺ Revert	↺ Vrátit
+	✔ Apply / Save XData	✔ Použít / Uložit XData
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Zapsat upravená XData do objektu (lze vrátit pomocí Ctrl+Z)
+	✔ Save & Select Next Object	✔ Uložit a vybrat další
+	🎯 Select Next Object	🎯 Vybrat další objekt
+	Save any changes and directly pick the next object in the drawing	Uložit změny a přímo vybrat další objekt ve výkresu
+	Object {idx1}/{total} loaded ({kind} — {handle})	Objekt {idx1}/{total} načten ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ Vráceno k uloženým XData objektu
+	✔ XData saved to entity (Undoable)	✔ XData uložena do objektu (Ctrl+Z možné)
+	Error: {err}	Chyba: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ XData objektu byla změněna mimo editor — před uložením klikněte na Vrátit.

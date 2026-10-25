@@ -1008,3 +1008,84 @@
 	Not a number or distance: {text}	Ni un nombre ni une distance : {text}
 	Query Texts	Interroger les textes
 	Analyze Shapes	Analyser les formes
+	Clear Command History	Effacer l'historique des commandes
+	Copy All	Tout copier
+	Copy history output to clipboard	Copier l'historique dans le presse-papiers
+	Close History Window (F2)	Fermer la fenêtre d'historique (F2)
+	Edit XData (XDEDIT)	Modifier les XData (XDEDIT)
+	Open visual XData Editor for selected object	Ouvrir l'éditeur visuel XData pour l'objet sélectionné
+	Command & XData Output (select text + Ctrl+C to copy)	Sortie des commandes et XData (sélectionner le texte + Ctrl+C pour copier)
+	Save changes to {name}?	Enregistrer les modifications dans {name} ?
+	Your changes will be lost if you don't save them.	Vos modifications seront perdues si vous ne les enregistrez pas.
+	Don't Save	Ne pas enregistrer
+	List Xdata	Lister les XData
+	Edit Xdata	Modifier les XData
+	Edit Xdata (XDEDIT)	Modifier les XData (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ Modifier les XData (XDEDIT)
+	Open visual XData Editor dialog	Ouvrir l'éditeur visuel de XData
+	📋 Copy Values	📋 Copier les valeurs
+	Copy XData values (Key,Value) to clipboard	Copier les valeurs XData (Clé,Valeur) dans le presse-papiers
+	Click to copy value to clipboard	Cliquer pour copier la valeur dans le presse-papiers
+	✓ XData values copied to clipboard	✓ Valeurs XData copiées dans le presse-papiers
+	Selection canceled — previous object kept.	Sélection annulée — objet précédent conservé.
+	Drag left or right to resize this column	Faire glisser à gauche ou à droite pour redimensionner la colonne
+	XDATA Editor (XDEDIT)	Éditeur XDATA (XDEDIT)
+	No object selected.	Aucun objet sélectionné.
+	🎯 Select object in drawing	🎯 Sélectionner un objet dans le dessin
+	Object: {kind}	Objet : {kind}
+	Layer: {layer}	Calque : {layer}
+	Handle: {handle}	Descripteur : {handle}
+	🎯 Select Another Object	🎯 Sélectionner un autre objet
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Masquer l'éditeur, choisir un autre objet dans le dessin et l'ouvrir dans XDEDIT
+	Next ▶	Suivant ▶
+	Step to the next object with XData in the selection or drawing	Passer à l'objet suivant avec XData dans la sélection ou le dessin
+	◀ Previous	◀ Précédent
+	Step to the previous object with XData in the selection or drawing	Passer à l'objet précédent avec XData dans la sélection ou le dessin
+	📋 Copy JSON	📋 Copier JSON
+	Copy all XData as structured JSON to clipboard	Copier toutes les XData en JSON structuré dans le presse-papiers
+	✓ JSON copied to clipboard	✓ JSON copié dans le presse-papiers
+	📋 Copy Text	📋 Copier le texte
+	Copy all XData as text to clipboard	Copier toutes les XData en texte dans le presse-papiers
+	✓ XData text copied to clipboard	✓ Texte XData copié dans le presse-papiers
+	AppID (1001):	AppID (1001) :
+	New AppID (e.g. Lumi_KLIC)	Nouvel AppID (ex. Lumi_KLIC)
+	+ Add AppID	+ Ajouter AppID
+	🗑 Delete AppID	🗑 Supprimer AppID
+	Remove this Application and its XData from the entity	Supprimer cette application et ses XData de l'objet
+	Application removed (click Apply to save)	Application supprimée (cliquer sur Appliquer pour enregistrer)
+	🔍 Filter:	🔍 Filtre :
+	Search key or value (e.g. THEMA, DIEPTE)...	Rechercher une clé ou une valeur (ex. THEMA, DIEPTE)...
+	Key width:	Largeur clé :
+	Drag this value or the column divider ⇔ to resize the Key column	Glisser cette valeur ou le séparateur ⇔ pour redimensionner la colonne Clé
+	Value width:	Largeur valeur :
+	Drag this value or the column divider ⇔ to resize the Value column	Glisser cette valeur ou le séparateur ⇔ pour redimensionner la colonne Valeur
+	Smart Key=Value Columns	Colonnes intelligentes Clé=Valeur
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Séparer 'KEY=VALUE' ou 'Key: Value' en champs Clé et Valeur distincts
+	This object currently has no user XData.	Cet objet ne contient actuellement aucune XData utilisateur.
+	+ Create Lumi_KLIC Application	+ Créer l'application Lumi_KLIC
+	DXF Code	Code DXF
+	Property / Key ⇔	Propriété / Clé ⇔
+	Value (Selectable & Editable) ⇔	Valeur (Sélectionnable & Modifiable) ⇔
+	Raw Value (Selectable & Editable) ⇔	Valeur brute (Sélectionnable & Modifiable) ⇔
+	Actions	Actions
+	Copy value to clipboard	Copier la valeur dans le presse-papiers
+	✓ Copied: {val}	✓ Copié : {val}
+	Move row up	Monter la ligne
+	Move row down	Descendre la ligne
+	Delete this XData row	Supprimer cette ligne XData
+	Add Row:	Ajouter une ligne :
+	Key (e.g. OPMERKING)	Clé (ex. OPMERKING)
+	+ Add Property	+ Ajouter une propriété
+	● Unsaved changes	● Modifications non enregistrées
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Prêt — cliquez sur '🎯 Sélectionner l'objet suivant' ou '◀ Précédent / Suivant ▶'.
+	↺ Revert	↺ Rétablir
+	✔ Apply / Save XData	✔ Appliquer / Enregistrer XData
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Écrire les XData modifiées dans l'objet (annulable avec Ctrl+Z)
+	✔ Save & Select Next Object	✔ Enregistrer & Objet suivant
+	🎯 Select Next Object	🎯 Sélectionner l'objet suivant
+	Save any changes and directly pick the next object in the drawing	Enregistrer les modifications et sélectionner directement l'objet suivant
+	Object {idx1}/{total} loaded ({kind} — {handle})	Objet {idx1}/{total} chargé ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ XData de l'objet rétablies
+	✔ XData saved to entity (Undoable)	✔ XData enregistrées dans l'objet (Ctrl+Z possible)
+	Error: {err}	Erreur : {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ XData modifiées hors de l'éditeur — cliquez sur Rétablir avant d'enregistrer.

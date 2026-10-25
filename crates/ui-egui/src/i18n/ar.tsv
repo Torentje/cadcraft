@@ -1233,3 +1233,83 @@ menu	Modify	تعديل
 menu	View	عرض
 @plural	{n} commit	{n} إيداع|{n} إيداع|{n} إيداعان|{n} إيداعات|{n} إيداعاً|{n} إيداع
 @plural	{n} contributor	{n} مساهم|{n} مساهم|{n} مساهمان|{n} مساهمين|{n} مساهماً|{n} مساهم
+	Copy All	نسخ الكل
+	Copy history output to clipboard	نسخ السجل إلى الحافظة
+	Close History Window (F2)	إغلاق نافذة السجل (F2)
+	Edit XData (XDEDIT)	تحرير XData (XDEDIT)
+	Open visual XData Editor for selected object	فتح محرر XData للكائن المحدد
+	Command & XData Output (select text + Ctrl+C to copy)	سجل الأوامر و XData (Ctrl+C للنسخ)
+	Save changes to {name}?	حفظ التغييرات في {name}؟
+	Your changes will be lost if you don't save them.	ستفقد التغييرات إذا لم تقم بحفظها.
+	Don't Save	عدم الحفظ
+	List Xdata	عرض XData
+	Edit Xdata	تحرير XData
+	Edit Xdata (XDEDIT)	تحرير XData (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ تحرير XData (XDEDIT)
+	Open visual XData Editor dialog	فتح محرر XData
+	📋 Copy Values	📋 نسخ القيم
+	Copy XData values (Key,Value) to clipboard	نسخ قيم XData إلى الحافظة
+	Click to copy value to clipboard	انقر لنسخ القيمة إلى الحافظة
+	✓ XData values copied to clipboard	✓ تم نسخ قيم XData إلى الحافظة
+	Selection canceled — previous object kept.	تم إلغاء التحديد — تم الاحتفاظ بالكائن السابق.
+	Drag left or right to resize this column	اسحب لتغيير عرض العمود
+	XDATA Editor (XDEDIT)	محرر XDATA (XDEDIT)
+	No object selected.	لم يتم تحديد كائن.
+	🎯 Select object in drawing	🎯 تحديد كائن في الرسم
+	Object: {kind}	كائن: {kind}
+	Layer: {layer}	طبقة: {layer}
+	Handle: {handle}	معرف: {handle}
+	🎯 Select Another Object	🎯 تحديد كائن آخر
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	إخفاء المحرر مؤقتا وتحديد كائن آخر في الرسم
+	Next ▶	التالي ▶
+	Step to the next object with XData in the selection or drawing	الانتقال إلى الكائن التالي
+	◀ Previous	◀ السابق
+	Step to the previous object with XData in the selection or drawing	الانتقال إلى الكائن السابق
+	📋 Copy JSON	📋 نسخ JSON
+	Copy all XData as structured JSON to clipboard	نسخ XData بصيغة JSON إلى الحافظة
+	✓ JSON copied to clipboard	✓ تم نسخ JSON إلى الحافظة
+	📋 Copy Text	📋 نسخ النص
+	Copy all XData as text to clipboard	نسخ XData كنص إلى الحافظة
+	✓ XData text copied to clipboard	✓ تم نسخ نص XData إلى الحافظة
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	AppID جديد (مثل Lumi_KLIC)
+	+ Add AppID	+ إضافة AppID
+	🗑 Delete AppID	🗑 حذف AppID
+	Remove this Application and its XData from the entity	إزالة هذا التطبيق وبيانات XData من الكائن
+	Application removed (click Apply to save)	تمت إزالة التطبيق (انقر تطبيق للحفظ)
+	🔍 Filter:	🔍 تصفية:
+	Search key or value (e.g. THEMA, DIEPTE)...	بحث عن مفتاح أو قيمة...
+	Key width:	عرض المفتاح:
+	Drag this value or the column divider ⇔ to resize the Key column	اسحب لتغيير عرض عمود المفتاح
+	Value width:	عرض القيمة:
+	Drag this value or the column divider ⇔ to resize the Value column	اسحب لتغيير عرض عمود القيمة
+	Smart Key=Value Columns	أعمدة مفتاح=قيمة ذكية
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	فصل المفتاح والقيمة في حقول قابلة للتحرير
+	This object currently has no user XData.	لا توجد بيانات XData لهذا الكائن.
+	+ Create Lumi_KLIC Application	+ إنشاء تطبيق Lumi_KLIC
+	DXF Code	رمز DXF
+	Property / Key ⇔	خاصية / مفتاح ⇔
+	Value (Selectable & Editable) ⇔	قيمة (قابلة للتحرير) ⇔
+	Raw Value (Selectable & Editable) ⇔	قيمة خام (قابلة للتحرير) ⇔
+	Actions	إجراءات
+	Copy value to clipboard	نسخ القيمة إلى الحافظة
+	✓ Copied: {val}	✓ تم النسخ: {val}
+	Move row up	تحريك الصف لأعلى
+	Move row down	تحريك الصف لأسفل
+	Delete this XData row	حذف صف XData
+	Add Row:	إضافة صف:
+	Key (e.g. OPMERKING)	مفتاح (مثل OPMERKING)
+	+ Add Property	+ إضافة خاصية
+	● Unsaved changes	● تغييرات غير محفوظة
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	جاهز — انقر لتبديل الكائنات.
+	↺ Revert	↺ استعادة
+	✔ Apply / Save XData	✔ تطبيق / حفظ XData
+	Write modified XData to the entity (Undoable with Ctrl+Z)	حفظ XData في الكائن (تراجع عبر Ctrl+Z)
+	✔ Save & Select Next Object	✔ حفظ وتحديد التالي
+	🎯 Select Next Object	🎯 تحديد الكائن التالي
+	Save any changes and directly pick the next object in the drawing	حفظ التغييرات وتحديد الكائن التالي
+	Object {idx1}/{total} loaded ({kind} — {handle})	تم تحميل الكائن {idx1}/{total} ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ تمت استعادة XData المحفوظة
+	✔ XData saved to entity (Undoable)	✔ تم حفظ XData (Ctrl+Z متاح)
+	Error: {err}	خطأ: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ تغيرت XData خارج المحرر — انقر استعادة قبل الحفظ.

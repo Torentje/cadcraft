@@ -364,7 +364,7 @@ fn run_ui_command_inner(app: &mut CadApp, id: &str, params: &Value) -> Option<Re
             }
             Ok(json!({ "lines": app.ui.history_lines }))
         }
-        "ui.cmdline.clear" => {
+        "ui.cmdline.clear" | "clear" | "cls" => {
             app.session.log.clear();
             Ok(Value::Null)
         }

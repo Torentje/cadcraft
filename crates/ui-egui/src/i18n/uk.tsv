@@ -1435,3 +1435,13 @@
 	↺ Reverted to saved entity XData	↺ Відновлено збережені XData об’єкта
 	✔ XData saved to entity (Undoable)	✔ XData збережено в об’єкті (доступне скасування)
 	Error: {err}	Помилка: {err}
+	Command & XData Output (select text + Ctrl+C to copy)	Вивід команд і XData (виділіть текст + Ctrl+C для копіювання)
+	Close History Window (F2)	Закрити вікно історії (F2)
+	Open visual XData Editor for selected object	Відкрити візуальний редактор XData для вибраного об’єкта
+	Copy All	Копіювати все
+	Edit XData (XDEDIT)	Редагувати XData (XDEDIT)
+	Copy history output to clipboard	Скопіювати історію до буфера обміну
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ XData об’єкта змінено поза редактором — натисніть Відновити перед збереженням.
+	Save changes to {name}?	Зберегти зміни у {name}?
+	Your changes will be lost if you don't save them.	Ваші зміни буде втрачено, якщо ви їх не збережете.
+	Don't Save	Не зберігати

@@ -238,7 +238,7 @@ fn load_tsv_table(s: &mut Session, text: &str) -> bool {
         return false;
     }
     let ncols = raw_rows.iter().map(|r| r.len()).max().unwrap_or(0);
-    if ncols < 2 || ncols > 64 || raw_rows.len() > 500 {
+    if !(2..=64).contains(&ncols) || raw_rows.len() > 500 {
         return false;
     }
     let nrows = raw_rows.len();

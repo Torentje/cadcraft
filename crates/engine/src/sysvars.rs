@@ -235,6 +235,7 @@ pub fn get(s: &Session, name: &str) -> Option<Value> {
 }
 
 /// DWGPREFIX: the folder of the drawing file, made absolute, with a trailing separator.
+#[allow(dead_code)]
 fn dwg_prefix(path: &str) -> String {
     let full = std::path::absolute(path).unwrap_or_else(|_| std::path::PathBuf::from(path));
     match full.parent() {

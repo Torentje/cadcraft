@@ -1009,3 +1009,84 @@
 	Not a number or distance: {text}	Не число и не расстояние: {text}
 	Query Texts	Запрос текстов
 	Analyze Shapes	Анализ фигур
+	Clear Command History	Очистить историю команд
+	Copy All	Копировать все
+	Copy history output to clipboard	Скопировать историю в буфер обмена
+	Close History Window (F2)	Закрыть окно истории (F2)
+	Edit XData (XDEDIT)	Редактировать XData (XDEDIT)
+	Open visual XData Editor for selected object	Открыть визуальный редактор XData для выбранного объекта
+	Command & XData Output (select text + Ctrl+C to copy)	Вывод команд и XData (выделите текст + Ctrl+C для копирования)
+	Save changes to {name}?	Сохранить изменения в {name}?
+	Your changes will be lost if you don't save them.	Ваши изменения будут потеряны, если вы их не сохраните.
+	Don't Save	Не сохранять
+	List Xdata	Список XData
+	Edit Xdata	Редактировать XData
+	Edit Xdata (XDEDIT)	Редактировать XData (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ Редактировать XData (XDEDIT)
+	Open visual XData Editor dialog	Открыть визуальный редактор XData
+	📋 Copy Values	📋 Копировать значения
+	Copy XData values (Key,Value) to clipboard	Копировать значения XData (Ключ,Значение) в буфер обмена
+	Click to copy value to clipboard	Нажмите для копирования значения в буфер обмена
+	✓ XData values copied to clipboard	✓ Значения XData скопированы в буфер обмена
+	Selection canceled — previous object kept.	Выбор отменен — сохранен предыдущий объект.
+	Drag left or right to resize this column	Перетащите влево или вправо для изменения ширины столбца
+	XDATA Editor (XDEDIT)	Редактор XDATA (XDEDIT)
+	No object selected.	Объект не выбран.
+	🎯 Select object in drawing	🎯 Выбрать объект на чертеже
+	Object: {kind}	Объект: {kind}
+	Layer: {layer}	Слой: {layer}
+	Handle: {handle}	Дескриптор: {handle}
+	🎯 Select Another Object	🎯 Выбрать другой объект
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Временно скрыть редактор, выбрать другой объект и открыть его в XDEDIT
+	Next ▶	Далее ▶
+	Step to the next object with XData in the selection or drawing	Перейти к следующему объекту с XData
+	◀ Previous	◀ Назад
+	Step to the previous object with XData in the selection or drawing	Перейти к предыдущему объекту с XData
+	📋 Copy JSON	📋 Копировать JSON
+	Copy all XData as structured JSON to clipboard	Копировать все XData как JSON в буфер обмена
+	✓ JSON copied to clipboard	✓ JSON скопирован в буфер обмена
+	📋 Copy Text	📋 Копировать текст
+	Copy all XData as text to clipboard	Копировать все XData как текст в буфер обмена
+	✓ XData text copied to clipboard	✓ Текст XData скопирован в буфер обмена
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	Новый AppID (напр. Lumi_KLIC)
+	+ Add AppID	+ Добавить AppID
+	🗑 Delete AppID	🗑 Удалить AppID
+	Remove this Application and its XData from the entity	Удалить это приложение и его XData из объекта
+	Application removed (click Apply to save)	Приложение удалено (нажмите Применить для сохранения)
+	🔍 Filter:	🔍 Фильтр:
+	Search key or value (e.g. THEMA, DIEPTE)...	Поиск ключа или значения (напр. THEMA, DIEPTE)...
+	Key width:	Ширина ключа:
+	Drag this value or the column divider ⇔ to resize the Key column	Перетащите значение или разделитель ⇔ для изменения ширины столбца Ключ
+	Value width:	Ширина значения:
+	Drag this value or the column divider ⇔ to resize the Value column	Перетащите значение или разделитель ⇔ для изменения ширины столбца Значение
+	Smart Key=Value Columns	Умные столбцы Ключ=Значение
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Разделять 'KEY=VALUE' или 'Key: Value' на отдельные поля Ключ и Значение
+	This object currently has no user XData.	У этого объекта нет пользовательских XData.
+	+ Create Lumi_KLIC Application	+ Создать приложение Lumi_KLIC
+	DXF Code	Код DXF
+	Property / Key ⇔	Свойство / Ключ ⇔
+	Value (Selectable & Editable) ⇔	Значение (Выбор и редактирование) ⇔
+	Raw Value (Selectable & Editable) ⇔	Исходное значение (Выбор и редактирование) ⇔
+	Actions	Действия
+	Copy value to clipboard	Копировать значение в буфер обмена
+	✓ Copied: {val}	✓ Скопировано: {val}
+	Move row up	Переместить строку выше
+	Move row down	Переместить строку ниже
+	Delete this XData row	Удалить эту строку XData
+	Add Row:	Добавить строку:
+	Key (e.g. OPMERKING)	Ключ (напр. OPMERKING)
+	+ Add Property	+ Добавить свойство
+	● Unsaved changes	● Несохраненные изменения
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Готово — нажмите '🎯 Выбрать следующий объект' или '◀ Назад / Далее ▶'.
+	↺ Revert	↺ Восстановить
+	✔ Apply / Save XData	✔ Применить / Сохранить XData
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Записать измененные XData в объект (отмена через Ctrl+Z)
+	✔ Save & Select Next Object	✔ Сохранить и выбрать следующий
+	🎯 Select Next Object	🎯 Выбрать следующий объект
+	Save any changes and directly pick the next object in the drawing	Сохранить изменения и сразу выбрать следующий объект на чертеже
+	Object {idx1}/{total} loaded ({kind} — {handle})	Объект {idx1}/{total} загружен ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ Восстановлены сохраненные XData объекта
+	✔ XData saved to entity (Undoable)	✔ XData сохранены в объекте (доступна отмена Ctrl+Z)
+	Error: {err}	Ошибка: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ XData объекта изменены вне редактора — нажмите Восстановить перед сохранением.

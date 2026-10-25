@@ -216,6 +216,13 @@ fn suggestions_inner(prefix: &str, dynamic: &[(String, &'static str)]) -> Vec<Su
     }
 
     // 1. Exact match: alias resolution or exact command name match.
+    if p == "clear" || p == "cls" {
+        let up_id = "CLEAR".to_string();
+        if seen_ids.insert(up_id.clone()) {
+            let display = if p == "clear" { up_id.clone() } else { "CLS (CLEAR)".to_string() };
+            out.push(Suggestion { id: up_id, display, label: "Clear Command History" });
+        }
+    }
     let resolved = cadcraft_engine::cmd::resolve_alias(&p);
     if let Some(spec) = cadcraft_engine::cmd::find_command(&resolved)
         && !spec.id.contains('.')
@@ -237,37 +244,44 @@ fn suggestions_inner(prefix: &str, dynamic: &[(String, &'static str)]) -> Vec<Su
         }
     }
 
-    let mut id_matches: Vec<&'static cadcraft_engine::CommandSpec> = cadcraft_engine::command_specs()
+    let mut id_matches: Vec<(&'static str, &'static str)> = cadcraft_engine::command_specs()
         .iter()
         .filter(|c| !c.id.contains('.') && !seen_ids.contains(&c.id.to_ascii_uppercase()) && c.id.starts_with(&p))
+        .map(|c| (c.id, c.label))
         .collect();
-    id_matches.sort_by_key(|c| (c.id.len(), c.id));
-    for c in id_matches {
-        let up_id = c.id.to_ascii_uppercase();
+    if "clear".starts_with(&p) && !seen_ids.contains("CLEAR") {
+        id_matches.push(("clear", "Clear Command History"));
+    }
+    id_matches.sort_by_key(|(id, _)| (id.len(), *id));
+    for (id, label) in id_matches {
+        let up_id = id.to_ascii_uppercase();
         if seen_ids.insert(up_id.clone()) {
-            out.push(Suggestion { id: up_id.clone(), display: up_id, label: c.label });
+            out.push(Suggestion { id: up_id.clone(), display: up_id, label });
         }
     }
 
     // 3. Command alias prefix matches (for commands not yet added).
-    let mut alias_matches: Vec<(&'static str, &'static cadcraft_engine::CommandSpec)> = Vec::new();
+    let mut alias_matches: Vec<(&'static str, &'static str, &'static str)> = Vec::new();
     for c in cadcraft_engine::command_specs() {
         if c.id.contains('.') || seen_ids.contains(&c.id.to_ascii_uppercase()) {
             continue;
         }
         let matching_alias = c.aliases.iter().copied().filter(|a| a.starts_with(&p)).min_by_key(|a| (a.len(), *a));
         if let Some(alias) = matching_alias {
-            alias_matches.push((alias, c));
+            alias_matches.push((alias, c.id, c.label));
         }
     }
-    alias_matches.sort_by_key(|(alias, c)| (alias.len(), *alias, c.id));
-    for (alias, c) in alias_matches {
-        let up_id = c.id.to_ascii_uppercase();
+    if "cls".starts_with(&p) && !seen_ids.contains("CLEAR") {
+        alias_matches.push(("cls", "clear", "Clear Command History"));
+    }
+    alias_matches.sort_by_key(|(alias, id, _)| (alias.len(), *alias, *id));
+    for (alias, id, label) in alias_matches {
+        let up_id = id.to_ascii_uppercase();
         if seen_ids.insert(up_id.clone()) {
             out.push(Suggestion {
                 id: up_id.clone(),
                 display: format!("{} ({})", alias.to_ascii_uppercase(), up_id),
-                label: c.label,
+                label,
             });
         }
     }
@@ -804,15 +818,11 @@ fn zones(app: &CadApp, canvas: Rect, bar: Rect) -> Zones {
 /// the top edge sets how many lines show (`ui.cmdline.lines`).
 fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
     let z = zones(app, canvas, bar);
+    let interact_rect = if z.window.is_some() { bar } else { z.all };
+    let resp = ui.interact(interact_rect, ui.id().with("cmdline"), Sense::click_and_drag());
     if let Some(r) = z.window {
         history_window(app, ui, r);
     }
-    let interact_rect = if let Some(w) = z.window {
-        bar.union(Rect::from_min_max(z.all.min, pos2(z.all.max.x, w.min.y.min(bar.min.y))))
-    } else {
-        z.all
-    };
-    let resp = ui.interact(interact_rect, ui.id().with("cmdline"), Sense::click_and_drag());
     let at = resp.hover_pos().or(resp.interact_pointer_pos());
     let on_grip = |p: Pos2| z.grip.contains(p) && z.window.is_none();
     let on_toggle = |p: Pos2| z.chevron.contains(p) || z.lines.is_some_and(|r| r.contains(p));
@@ -837,10 +847,10 @@ fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
             app.cmd.resize_from = None;
         }
     }
-    if resp.clicked() {
-        if let Some(id) = ui.ctx().memory(|m| m.focused()) {
-            ui.ctx().memory_mut(|m| m.surrender_focus(id));
-        }
+    if resp.clicked()
+        && let Some(id) = ui.ctx().memory(|m| m.focused())
+    {
+        ui.ctx().memory_mut(|m| m.surrender_focus(id));
     }
     if resp.clicked() && resp.interact_pointer_pos().is_some_and(on_toggle) {
         let _ = app.run("ui.toggle.history", serde_json::json!({}));
@@ -848,9 +858,12 @@ fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
     crate::shortcut_menus::attach(app, &resp, crate::shortcut_menus::command_line_entries);
 }
 
-/// The expanded history: the whole command log, scrollable & selectable, with Copy and XDEDIT buttons.
+/// The expanded history: the whole command log, scrollable & selectable, with Copy, Clear and XDEDIT buttons.
 fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
     let t = Tokens::get();
+    // Register background interaction FIRST so clicks/drags don't pass through to the canvas,
+    // while child buttons and the scrollable TextEdit registered afterwards sit on top of it.
+    let _ = ui.interact(r, ui.id().with("cmd_history_window_bg"), Sense::click_and_drag());
     ui.painter().rect_filled(r, 3.0, t.cmd_bg);
     ui.painter().rect_stroke(r, 3.0, Stroke::new(1.0, t.border), egui::StrokeKind::Inside);
     let inner = r.shrink2(vec2(8.0, 4.0));
@@ -858,14 +871,9 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
     let mut open_xdedit = None;
     let mut close_hist = false;
     child.horizontal(|ui| {
-        ui.label(
-            egui::RichText::new(crate::tl!("Command & XData Output (select text + Ctrl+C to copy)"))
-                .font(crate::theme::small())
-                .color(t.text_dim),
-        );
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             if ui
-                .small_button("✕")
+                .small_button("×")
                 .on_hover_text(crate::tl!("Close History Window (F2)"))
                 .clicked()
             {
@@ -873,19 +881,36 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
             }
             if let Some(&h) = app.session.selection().first()
                 && ui
-                    .small_button(crate::tl!("✏ Edit XData (XDEDIT)"))
+                    .small_button(crate::tl!("Edit XData (XDEDIT)"))
                     .on_hover_text(crate::tl!("Open visual XData Editor for selected object"))
                     .clicked()
             {
                 open_xdedit = Some(h);
             }
             if ui
-                .small_button(crate::tl!("📋 Copy All"))
+                .small_button(crate::tl!("Copy All"))
                 .on_hover_text(crate::tl!("Copy history output to clipboard"))
                 .clicked()
             {
                 ui.ctx().copy_text(app.session.log.join("\n"));
             }
+            if ui
+                .small_button(crate::tl!("Clear"))
+                .on_hover_text(crate::tl!("Clear Command History"))
+                .clicked()
+            {
+                app.session.log.clear();
+            }
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                ui.add(
+                    egui::Label::new(
+                        egui::RichText::new(crate::tl!("Command & XData Output (select text + Ctrl+C to copy)"))
+                            .font(crate::theme::small())
+                            .color(t.text_dim),
+                    )
+                    .truncate(),
+                );
+            });
         });
     });
     child.separator();
@@ -906,7 +931,6 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
                     .desired_width(f32::INFINITY),
             );
         });
-    let _ = ui.interact(r, ui.id().with("cmd_history_window_bg"), Sense::click_and_drag());
     if close_hist {
         app.cmd.expanded = false;
     }
@@ -985,7 +1009,13 @@ mod tests {
         let f2 = |pressed| Event::Key { key: Key::F2, physical_key: None, pressed, repeat: false, modifiers: egui::Modifiers::NONE };
         frame(&mut app, &ctx, vec![f2(true), f2(false)]);
         assert!(app.cmd.expanded);
-        assert_eq!(app.run("ui.toggle.history", serde_json::json!({"on": false})), Ok(serde_json::json!({"on": false})));
+        let win = zones(&app, canvas, bar).window.expect("expanded history window");
+        let close_btn = pos2(win.right() - 16.0, win.top() + 12.0);
+        frame(&mut app, &ctx, vec![Event::PointerMoved(close_btn)]);
+        press(&mut app, &ctx, close_btn, true);
+        press(&mut app, &ctx, close_btn, false);
+        frame(&mut app, &ctx, Vec::new());
+        assert!(!app.cmd.expanded, "clicking × inside the history window header closes it");
         app.cmdline("textscr");
         assert!(app.cmd.expanded);
         let _ = app.run("ui.toggle.history", serde_json::json!({"on": false}));
@@ -1106,5 +1136,30 @@ mod autocomplete_tests {
         let sug = suggestions_with_plugins(&app, "mijn");
         assert!(!sug.is_empty());
         assert_eq!(sug[0].id, "MIJNLISP");
+    }
+
+    #[test]
+    fn clear_and_cls_clear_command_history_and_appear_in_suggestions() {
+        let mut app = CadApp::new(cadcraft_engine::Session::empty(), crate::Services::default());
+        app.session.echo("line 1");
+        app.session.echo("line 2");
+        assert_eq!(app.session.log.len(), 2);
+        assert!(app.cmdline("cls").is_none());
+        assert!(app.session.log.is_empty());
+
+        app.session.echo("line 3");
+        assert_eq!(app.session.log.len(), 1);
+        assert!(app.cmdline("clear").is_none());
+        assert!(app.session.log.is_empty());
+
+        let cls = suggestions("cls");
+        assert!(!cls.is_empty());
+        assert_eq!(cls[0].id, "CLEAR");
+        assert_eq!(cls[0].display, "CLS (CLEAR)");
+
+        let cle = suggestions("cle");
+        assert!(!cle.is_empty());
+        assert_eq!(cle[0].id, "CLEAR");
+        assert_eq!(cle[0].display, "CLEAR");
     }
 }

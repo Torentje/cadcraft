@@ -1344,3 +1344,83 @@ menu	Dimension	Ölçülendirme
 menu	Draw	Çiz
 menu	Modify	Değiştir
 menu	View	Görünüm
+	Copy All	Tümünü Kopyala
+	Copy history output to clipboard	Geçmiş çıktısını panoya kopyala
+	Close History Window (F2)	Geçmiş Penceresini Kapat (F2)
+	Edit XData (XDEDIT)	XData Düzenle (XDEDIT)
+	Open visual XData Editor for selected object	Seçili nesne için görsel XData Düzenleyiciyi aç
+	Command & XData Output (select text + Ctrl+C to copy)	Komut ve XData Çıktısı (metni seçin + kopyalamak için Ctrl+C)
+	Save changes to {name}?	{name} içindeki değişiklikler kaydedilsin mi?
+	Your changes will be lost if you don't save them.	Kaydetmezseniz değişiklikleriniz kaybolacaktır.
+	Don't Save	Kaydetme
+	List Xdata	XData Listele
+	Edit Xdata	XData Düzenle
+	Edit Xdata (XDEDIT)	XData Düzenle (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ XData Düzenle (XDEDIT)
+	Open visual XData Editor dialog	Görsel XData Düzenleyiciyi aç
+	📋 Copy Values	📋 Değerleri Kopyala
+	Copy XData values (Key,Value) to clipboard	XData değerlerini (Anahtar,Değer) panoya kopyala
+	Click to copy value to clipboard	Değeri panoya kopyalamak için tıklayın
+	✓ XData values copied to clipboard	✓ XData değerleri panoya kopyalandı
+	Selection canceled — previous object kept.	Seçim iptal edildi — önceki nesne korundu.
+	Drag left or right to resize this column	Bu sütunu yeniden boyutlandırmak için sola veya sağa sürükleyin
+	XDATA Editor (XDEDIT)	XDATA Düzenleyici (XDEDIT)
+	No object selected.	Seçili nesne yok.
+	🎯 Select object in drawing	🎯 Çizimde nesne seç
+	Object: {kind}	Nesne: {kind}
+	Layer: {layer}	Katman: {layer}
+	Handle: {handle}	Tanıtıcı: {handle}
+	🎯 Select Another Object	🎯 Başka Nesne Seç
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	Düzenleyiciyi geçici olarak gizle, çizimde başka bir nesne seç ve XDEDIT'te aç
+	Next ▶	Sonraki ▶
+	Step to the next object with XData in the selection or drawing	Seçimdeki veya çizimdeki XData'lı sonraki nesneye geç
+	◀ Previous	◀ Önceki
+	Step to the previous object with XData in the selection or drawing	Seçimdeki veya çizimdeki XData'lı önceki nesneye geç
+	📋 Copy JSON	📋 JSON Kopyala
+	Copy all XData as structured JSON to clipboard	Tüm XData'yı yapılandırılmış JSON olarak panoya kopyala
+	✓ JSON copied to clipboard	✓ JSON panoya kopyalandı
+	📋 Copy Text	📋 Metni Kopyala
+	Copy all XData as text to clipboard	Tüm XData'yı metin olarak panoya kopyala
+	✓ XData text copied to clipboard	✓ XData metni panoya kopyalandı
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	Yeni AppID (örn. Lumi_KLIC)
+	+ Add AppID	+ AppID Ekle
+	🗑 Delete AppID	🗑 AppID Sil
+	Remove this Application and its XData from the entity	Bu uygulamayı ve XData verilerini nesneden kaldır
+	Application removed (click Apply to save)	Uygulama kaldırıldı (kaydetmek için Uygula'ya tıklayın)
+	🔍 Filter:	🔍 Filtre:
+	Search key or value (e.g. THEMA, DIEPTE)...	Anahtar veya değer ara (örn. THEMA, DIEPTE)...
+	Key width:	Anahtar genişliği:
+	Drag this value or the column divider ⇔ to resize the Key column	Anahtar sütununu yeniden boyutlandırmak için değeri veya ⇔ ayırıcısını sürükleyin
+	Value width:	Değer genişliği:
+	Drag this value or the column divider ⇔ to resize the Value column	Değer sütununu yeniden boyutlandırmak için değeri veya ⇔ ayırıcısını sürükleyin
+	Smart Key=Value Columns	Akıllı Anahtar=Değer Sütunları
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	'KEY=VALUE' veya 'Key: Value' ifadelerini ayrı düzenlenebilir alanlara böl
+	This object currently has no user XData.	Bu nesnede şu anda kullanıcı XData verisi yok.
+	+ Create Lumi_KLIC Application	+ Lumi_KLIC Uygulaması Oluştur
+	DXF Code	DXF Kodu
+	Property / Key ⇔	Özellik / Anahtar ⇔
+	Value (Selectable & Editable) ⇔	Değer (Seçilebilir ve Düzenlenebilir) ⇔
+	Raw Value (Selectable & Editable) ⇔	Ham Değer (Seçilebilir ve Düzenlenebilir) ⇔
+	Actions	İşlemler
+	Copy value to clipboard	Değeri panoya kopyala
+	✓ Copied: {val}	✓ Kopyalandı: {val}
+	Move row up	Satırı yukarı taşı
+	Move row down	Satırı aşağı taşı
+	Delete this XData row	Bu XData satırını sil
+	Add Row:	Satır Ekle:
+	Key (e.g. OPMERKING)	Anahtar (örn. OPMERKING)
+	+ Add Property	+ Özellik Ekle
+	● Unsaved changes	● Kaydedilmemiş değişiklikler
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	Hazır — nesne değiştirmek için '🎯 Sonraki Nesneyi Seç' veya '◀ Önceki / Sonraki ▶' tıklayın.
+	↺ Revert	↺ Geri Al
+	✔ Apply / Save XData	✔ Uygula / XData Kaydet
+	Write modified XData to the entity (Undoable with Ctrl+Z)	Değiştirilen XData'yı nesneye yaz (Ctrl+Z ile geri alınabilir)
+	✔ Save & Select Next Object	✔ Kaydet ve Sonrakini Seç
+	🎯 Select Next Object	🎯 Sonraki Nesneyi Seç
+	Save any changes and directly pick the next object in the drawing	Değişiklikleri kaydet ve çizimdeki sonraki nesneyi doğrudan seç
+	Object {idx1}/{total} loaded ({kind} — {handle})	Nesne {idx1}/{total} yüklendi ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ Kaydedilmiş XData verilerine geri dönüldü
+	✔ XData saved to entity (Undoable)	✔ XData nesneye kaydedildi (Ctrl+Z ile geri alınabilir)
+	Error: {err}	Hata: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Nesne XData'sı düzenleyici dışında değişti — kaydetmeden önce Geri Al'a tıklayın.

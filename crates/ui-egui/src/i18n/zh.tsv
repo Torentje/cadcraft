@@ -1341,3 +1341,80 @@
 	US Survey Inch	美国测量英寸
 	US Survey Yard	美国测量码
 	US Survey Mile	美国测量英里
+	Copy All	全部复制
+	Copy history output to clipboard	复制命令行历史到剪贴板
+	Close History Window (F2)	关闭命令行历史 (F2)
+	Edit XData (XDEDIT)	编辑 XData (XDEDIT)
+	Open visual XData Editor for selected object	编辑所选对象 XData
+	Command & XData Output (select text + Ctrl+C to copy)	命令行历史 & XData (Ctrl+C 复制)
+	List Xdata	列出 XData
+	Edit Xdata	编辑 XData
+	Edit Xdata (XDEDIT)	编辑 XData (XDEDIT)
+	✏ Edit XData (XDEDIT)	✏ 编辑 XData (XDEDIT)
+	Open visual XData Editor dialog	打开可视化 XData 编辑器
+	📋 Copy Values	📋 复制数值
+	Copy XData values (Key,Value) to clipboard	复制 XData 数值到剪贴板
+	Click to copy value to clipboard	点击复制数值到剪贴板
+	✓ XData values copied to clipboard	✓ XData 数值已复制到剪贴板
+	Selection canceled — previous object kept.	选择已取消 — 保留上一个对象。
+	Drag left or right to resize this column	左右拖动以调整列宽
+	XDATA Editor (XDEDIT)	XDATA 编辑器 (XDEDIT)
+	No object selected.	未选择对象。
+	🎯 Select object in drawing	🎯 在图形中选择对象
+	Object: {kind}	对象: {kind}
+	Layer: {layer}	图层: {layer}
+	Handle: {handle}	句柄: {handle}
+	🎯 Select Another Object	🎯 选择其他对象
+	Hide editor temporarily, pick another object in the drawing, and open it in XDEDIT	暂时隐藏编辑器，在图形中选择其他对象并在 XDEDIT 中打开
+	Next ▶	下一个 ▶
+	Step to the next object with XData in the selection or drawing	切换到下一个带有 XData 的对象
+	◀ Previous	◀ 上一个
+	Step to the previous object with XData in the selection or drawing	切换到上一个带有 XData 的对象
+	📋 Copy JSON	📋 复制 JSON
+	Copy all XData as structured JSON to clipboard	将全部 XData 作为 JSON 复制到剪贴板
+	✓ JSON copied to clipboard	✓ JSON 已复制到剪贴板
+	📋 Copy Text	📋 复制文字
+	Copy all XData as text to clipboard	将全部 XData 作为文字复制到剪贴板
+	✓ XData text copied to clipboard	✓ XData 文字已复制到剪贴板
+	AppID (1001):	AppID (1001):
+	New AppID (e.g. Lumi_KLIC)	新 AppID (例如 Lumi_KLIC)
+	+ Add AppID	+ 添加 AppID
+	🗑 Delete AppID	🗑 删除 AppID
+	Remove this Application and its XData from the entity	从对象中删除此应用程序及其 XData
+	Application removed (click Apply to save)	应用程序已删除 (点击应用以保存)
+	🔍 Filter:	🔍 过滤:
+	Search key or value (e.g. THEMA, DIEPTE)...	搜索名称或数值 (例如 THEMA, DIEPTE)...
+	Key width:	名称宽度:
+	Drag this value or the column divider ⇔ to resize the Key column	拖动此数值或分隔线 ⇔ 以调整名称列宽
+	Value width:	数值宽度:
+	Drag this value or the column divider ⇔ to resize the Value column	拖动此数值或分隔线 ⇔ 以调整数值列宽
+	Smart Key=Value Columns	智能 名称=数值 列
+	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	将 'KEY=VALUE' 或 'Key: Value' 拆分为可编辑字段
+	This object currently has no user XData.	此对象当前没有用户 XData。
+	+ Create Lumi_KLIC Application	+ 创建 Lumi_KLIC 应用程序
+	DXF Code	DXF 代码
+	Property / Key ⇔	特性 / 名称 ⇔
+	Value (Selectable & Editable) ⇔	数值 (可选择与编辑) ⇔
+	Raw Value (Selectable & Editable) ⇔	原始数值 (可选择与编辑) ⇔
+	Actions	操作
+	Copy value to clipboard	复制数值到剪贴板
+	✓ Copied: {val}	✓ 已复制: {val}
+	Move row up	上移行
+	Move row down	下移行
+	Delete this XData row	删除此 XData 行
+	Add Row:	添加行:
+	Key (e.g. OPMERKING)	名称 (例如 OPMERKING)
+	+ Add Property	+ 添加特性
+	● Unsaved changes	● 未保存的更改
+	Ready — click '🎯 Select Next Object' or '◀ Previous / Next ▶' to switch objects.	就绪 — 点击切换对象。
+	↺ Revert	↺ 还原
+	✔ Apply / Save XData	✔ 应用 / 保存 XData
+	Write modified XData to the entity (Undoable with Ctrl+Z)	将修改后的 XData 写入对象 (Ctrl+Z 放弃)
+	✔ Save & Select Next Object	✔ 保存并选择下一个
+	🎯 Select Next Object	🎯 选择下一个对象
+	Save any changes and directly pick the next object in the drawing	保存更改并直接选择下一个对象
+	Object {idx1}/{total} loaded ({kind} — {handle})	已加载对象 {idx1}/{total} ({kind} — {handle})
+	↺ Reverted to saved entity XData	↺ 已还原为已保存的 XData
+	✔ XData saved to entity (Undoable)	✔ XData 已保存到对象 (可 Ctrl+Z)
+	Error: {err}	错误: {err}
+	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ 对象 XData 已在外部更改 — 保存前请点击还原。

@@ -1588,7 +1588,7 @@ fn entity_parts(b: &mut Builder, ctx: &Ctx, e: &Entity) {
                     u: world_u,
                     v: world_v,
                     bytes,
-                    fade: i.fade.clamp(0, 100) as u8,
+                    fade: i.fade.clamp(0, 100),
                     clip: None,
                 });
             }

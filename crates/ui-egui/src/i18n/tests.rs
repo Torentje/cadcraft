@@ -40,20 +40,6 @@ fn catalog_is_valid_and_preserves_placeholders_and_ellipses() {
     assert_eq!(tr("unknown", "Open"), "Open");
 }
 
-/// Ukrainian is the reference translation and must cover everything. Other languages fall back
-/// to English for what they don't cover yet; their gaps are reported, not enforced, so adding a
-/// command doesn't require a row in every language.
-const REQUIRED: &[&str] = &["uk"];
-const REPORTED: &[&str] = &["pt-BR", "de", "es", "cs", "ru", "fr", "zh", "it", "ko", "sv", "ar", "hu", "tr", "el", "nl"];
-
-fn check(language: &str, what: &str, missing: Vec<String>) {
-    if REQUIRED.contains(&language) {
-        assert!(missing.is_empty(), "{language}: missing {what}: {missing:?}");
-    } else if !missing.is_empty() {
-        eprintln!("{language}: {} {what} fall back to English: {missing:?}", missing.len());
-    }
-}
-
 #[test]
 #[ignore = "a report, printed by `cargo xtask i18n`"]
 fn translation_gaps() {
@@ -117,6 +103,8 @@ fn missing_marked_ui_literals(language: &str) -> BTreeSet<String> {
         include_str!("../vpscale.rs"),
         include_str!("../lisp_ide.rs"),
         include_str!("../options/dialog.rs"),
+        include_str!("../closing.rs"),
+        include_str!("../xdedit.rs"),
     ];
     let mut missing = BTreeSet::new();
     for source in sources {
@@ -164,8 +152,11 @@ fn locale_and_saved_preference_resolution() {
     for (tag, code) in [("ru", "ru"), ("ru-RU", "ru"), ("ru_RU.UTF-8", "ru"), ("fr", "fr"), ("fr-FR", "fr"), ("fr_CA.UTF-8", "fr")] {
         assert_eq!(locale_language(tag), Some(code), "{tag}");
     }
-    for tag in ["pt", "pt-BR", "pt_BR.UTF-8", "PT-br", "pt-PT"] {
+    for tag in ["pt", "pt-BR", "pt_BR.UTF-8", "PT-br"] {
         assert_eq!(locale_language(tag), Some("pt-BR"), "{tag}");
+    }
+    for tag in ["pt-PT", "pt_PT.UTF-8", "PT-pt"] {
+        assert_eq!(locale_language(tag), Some("pt-PT"), "{tag}");
     }
     for tag in ["es", "es-ES", "es_MX.UTF-8", "ES-ar"] {
         assert_eq!(locale_language(tag), Some("es"), "{tag}");
