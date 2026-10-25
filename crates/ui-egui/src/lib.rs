@@ -522,13 +522,16 @@ impl CadApp {
     fn load_lisp(&mut self, name: &str, text: &str) {
         let cmds = lisp_ide::extract_c_commands(text);
         match self.session.lisp_load(name, text, false) {
-            Ok(_) => {
+            Ok(Some(Ok(_))) | Ok(None) => {
                 for cmd in &cmds {
                     self.cmd.push_history(cmd);
                 }
                 if !cmds.is_empty() {
                     self.session.echo(format!("Loaded {name} — Commands: {}", cmds.join(", ")));
                 }
+            }
+            Ok(Some(Err(e))) => {
+                self.session.echo(e);
             }
             Err(e) => {
                 self.session.echo(e.to_string());

@@ -56,6 +56,22 @@ pub fn dyn_frame(app: &CadApp) -> Option<crate::dyninput::Frame> {
 /// the command line deaf to typing). While no widget has focus, a pressed Tab becomes a `"\t"`
 /// text event, which keeps its place among the other keystrokes; [`keyboard`] handles it.
 pub fn capture_tab(ctx: &egui::Context, raw: &mut egui::RawInput) {
+    let hist_id = egui::Id::new("cmd_history_log_text");
+    if ctx.memory(|m| m.focused()) == Some(hist_id) {
+        let should_release = raw.events.iter().any(|e| match e {
+            egui::Event::Text(t) => !t.is_empty(),
+            egui::Event::Key {
+                key: Key::Escape | Key::F2 | Key::Enter | Key::ArrowUp | Key::ArrowDown | Key::Backspace,
+                pressed: true,
+                modifiers,
+                ..
+            } => !modifiers.ctrl && !modifiers.command,
+            _ => false,
+        });
+        if should_release {
+            ctx.memory_mut(|m| m.surrender_focus(hist_id));
+        }
+    }
     if ctx.egui_wants_keyboard_input() {
         return;
     }
@@ -117,6 +133,28 @@ pub struct Suggestion {
     pub display: String,
     /// Human-readable command label (e.g. "Rectangle").
     pub label: &'static str,
+}
+
+/// Populate command history from loaded AutoLISP and `.NET` plugin commands when history is empty.
+fn seed_plugin_history(app: &mut CadApp) {
+    if !app.cmd.history.is_empty() {
+        return;
+    }
+    for c in app.session.lisp_commands() {
+        app.cmd.push_history(&c.to_ascii_uppercase());
+    }
+    if let Some(ide) = &app.lisp_ide {
+        let mut extra = Vec::new();
+        if ide.loaded_code.is_some() {
+            extra.extend(ide.commands.iter().cloned());
+        }
+        for dll in &ide.loaded_dlls {
+            extra.extend(dll.commands.iter().cloned());
+        }
+        for c in extra {
+            app.cmd.push_history(&c.to_ascii_uppercase());
+        }
+    }
 }
 
 /// Matching command names/aliases for AutoComplete, including loaded AutoLISP `c:` and `.NET` plugin commands.
@@ -480,11 +518,7 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                         let cur = app.cmd.selected_index.min(sug.len() - 1);
                         app.cmd.selected_index = if cur == 0 { sug.len() - 1 } else { cur - 1 };
                     } else {
-                        if app.cmd.history.is_empty() {
-                            for c in app.session.lisp_commands() {
-                                app.cmd.push_history(&c.to_ascii_uppercase());
-                            }
-                        }
+                        seed_plugin_history(app);
                         if !app.cmd.history.is_empty() {
                             let n = app.cmd.history.len();
                             let pos = app.cmd.history_pos.map(|p| if p == 0 { n - 1 } else { p - 1 }).unwrap_or(n - 1);
@@ -503,11 +537,7 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                         let cur = app.cmd.selected_index.min(sug.len() - 1);
                         app.cmd.selected_index = (cur + 1) % sug.len();
                     } else if !options_key(app, 1) {
-                        if app.cmd.history.is_empty() {
-                            for c in app.session.lisp_commands() {
-                                app.cmd.push_history(&c.to_ascii_uppercase());
-                            }
-                        }
+                        seed_plugin_history(app);
                         if let Some(p) = app.cmd.history_pos {
                             let np = p + 1;
                             if np >= app.cmd.history.len() {
@@ -723,6 +753,8 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect) {
                 );
                 if resp.clicked() {
                     app.cmd.buffer.clear();
+                    app.cmd.selected_index = 0;
+                    app.cmd.history_pos = None;
                     app.start(&s.id.to_ascii_lowercase());
                 }
             }
@@ -775,7 +807,11 @@ fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
     if let Some(r) = z.window {
         history_window(app, ui, r);
     }
-    let interact_rect = if z.window.is_some() { bar } else { z.all };
+    let interact_rect = if let Some(w) = z.window {
+        bar.union(Rect::from_min_max(z.all.min, pos2(z.all.max.x, w.min.y.min(bar.min.y))))
+    } else {
+        z.all
+    };
     let resp = ui.interact(interact_rect, ui.id().with("cmdline"), Sense::click_and_drag());
     let at = resp.hover_pos().or(resp.interact_pointer_pos());
     let on_grip = |p: Pos2| z.grip.contains(p) && z.window.is_none();
@@ -853,7 +889,8 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
         });
     });
     child.separator();
-    let mut full_text = app.session.log.join("\n");
+    let full_text = app.session.log.join("\n");
+    let mut text_slice: &str = &full_text;
     egui::ScrollArea::vertical()
         .id_salt("cmd_history")
         .stick_to_bottom(true)
@@ -861,13 +898,15 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
         .show(&mut child, |ui| {
             ui.add_sized(
                 ui.available_size(),
-                egui::TextEdit::multiline(&mut full_text)
+                egui::TextEdit::multiline(&mut text_slice)
+                    .id(egui::Id::new("cmd_history_log_text"))
                     .font(crate::theme::mono())
                     .text_color(t.text)
                     .frame(egui::Frame::NONE)
                     .desired_width(f32::INFINITY),
             );
         });
+    let _ = ui.interact(r, ui.id().with("cmd_history_window_bg"), Sense::click_and_drag());
     if close_hist {
         app.cmd.expanded = false;
     }
@@ -1060,6 +1099,7 @@ mod autocomplete_tests {
     #[test]
     fn loaded_lisp_commands_appear_in_history_echo_and_autocomplete() {
         let mut app = CadApp::new(cadcraft_engine::Session::empty(), crate::Services::default());
+        app.start("ui.sample");
         app.load_lisp("test.lsp", "(defun c:mijnlisp () (princ \"ok\"))");
         assert!(app.cmd.history.iter().any(|h| h == "MIJNLISP"));
         assert!(app.session.log.iter().any(|l| l.contains("MIJNLISP")));
