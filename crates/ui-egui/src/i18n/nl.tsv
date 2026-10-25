@@ -1442,3 +1442,168 @@ menu	Modify	Wijzigen
 	Save changes to {name}?	Wijzigingen in {name} opslaan?
 	Your changes will be lost if you don't save them.	Uw wijzigingen gaan verloren als u ze niet opslaat.
 	Don't Save	Niet opslaan
+	+  |  {view} ({yaw}°, {pitch}°)  |  3D Orbit Wireframe	+  |  {view} ({yaw}°, {pitch}°)  |  3D-baan draadmodel
+	.NET Plugin Bridge	.NET-plug-inbrug
+	3D Orbit	3D-baan
+	3D Views	3D-weergaven
+	Adjust Image...	Afbeelding aanpassen...
+	Adjust...	Aanpassen...
+	Analyze Usage	Gebruik analyseren
+	Angstroms	Ångström
+	Apply to Layout	Toepassen op lay-out
+	Architectural	Architectuur
+	Arrow size	Pijlgrootte
+	Associate	Associëren
+	Astronomical Units	Astronomische eenheden
+	Attach Image...	Afbeelding koppelen...
+	AutoLISP (LSP)	AutoLISP (LSP)
+	AutoLISP / VB.NET / C# IDE...	AutoLISP / VB.NET / C# IDE...
+	AutoLISP / VBA IDE...	AutoLISP / VBA IDE...
+	B	V
+	Back	Achter
+	CADCraft	CADCraft
+	Center the plot	Plot centreren
+	Centimeters	Centimeters
+	Change Properties	Eigenschappen wijzigen
+	Clip Image	Afbeelding bijsnijden
+	Decameters	Decameters
+	Decimal	Decimaal
+	Decimal Degrees	Decimale graden
+	Decimeters	Decimeters
+	Deg/Min/Sec	Gr/Min/Sec
+	Dim scale overall	Algehele maatschaal
+	Drawing Units	Tekeningeenheden
+	Engineering	Technisch
+	Enter block names to extract	Voer bloknamen in om te extraheren
+	Enter geometric characteristic	Voer geometrisch kenmerk in
+	Enter name of LISP file to load	Voer de naam in van het te laden LISP-bestand
+	Feet	Voet
+	First corner	Eerste hoek
+	Fit to paper	Passend op papier
+	Fractional	Breuk
+	Frame	Kader
+	Front	Voor
+	Gigameters	Gigameters
+	Grads	Decimale graden (gon)
+	Hectometers	Hectometers
+	Image	Afbeelding
+	Image Frame	Afbeeldingskader
+	Imperial (inches)	Imperiaal (inches)
+	Implied Loops	Impliciete lussen
+	Inches	Inches
+	Insertion scale	Invoegschaal
+	Kilometers	Kilometers
+	Landscape	Liggend
+	Layouts	Lay-outs
+	Light Years	Lichtjaren
+	Limits	Limieten
+	Load .NET DLL / LISP Application (NETLOAD)...	.NET DLL / LISP-toepassing laden (NETLOAD)...
+	Load Application (NETLOAD)...	Toepassing laden (NETLOAD)...
+	Meters	Meters
+	Metric (millimetres)	Metrisch (millimeters)
+	Microinches	Micro-inches
+	Microns	Microns
+	Miles	Mijlen
+	Millimeters	Millimeters
+	Mils	Mils
+	Model Tab	Tabblad Model
+	NE Isometric	NO Isometrisch
+	NW Isometric	NW Isometrisch
+	Nanometers	Nanometers
+	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Nieuwe tekeningen en de eerste tekening bij het opstarten gebruiken deze eenheden, tenzij er een standaardsjabloon is ingesteld (QNEWTEMPLATE).
+	Opposite corner	Tegenoverliggende hoek
+	Orientation	Afdrukstand
+	Paper size	Papierformaat
+	Parsecs	Parsecs
+	Plot area	Plotgebied
+	Plot object lineweights	Lijndiktes van objecten plotten
+	Plot offset	Plotoffset
+	Plot transparency	Transparantie plotten
+	Portrait	Staand
+	Precision	Nauwkeurigheid
+	Printer/plotter	Printer/plotter
+	Radians	Radialen
+	Raster Image Reference...	Rasterafbeeldingsreferentie...
+	SE Isometric	ZO Isometrisch
+	SW Isometric	ZW Isometrisch
+	Sample output	Voorbeelduitvoer
+	Scientific	Wetenschappelijk
+	Surveyor's Units	Landmeetkundige eenheden
+	Top (2D Plan)	Boven (2D-plattegrond)
+	US Survey Feet	US landmeetkundige voet
+	US Survey Inch	US landmeetkundige inch
+	US Survey Mile	US landmeetkundige mijl
+	US Survey Yard	US landmeetkundige yard
+	Unitless	Eenheidloos
+	Units of new drawings	Eenheden van nieuwe tekeningen
+	Units to scale inserted content	Eenheden voor het schalen van ingevoegde inhoud
+	View Resolution	Weergaveresolutie
+	Window <	Venster <
+	X	X
+	X offset (mm)	X-offset (mm)
+	Y	Y
+	Y offset (mm)	Y-offset (mm)
+	Yards	Yards
+	.NET command started	.NET-opdracht gestart
+	0. Empty file (New)	0. Leeg bestand (Nieuw)
+	1. AutoLISP: Basic Math & Commands	1. AutoLISP: Basiswiskunde & opdrachten
+	2. AutoLISP: Survey Marker (c:meetpunt)	2. AutoLISP: Meetpunt-symbool (c:meetpunt)
+	3. VB.NET Plugin (.vb -> .dll)	3. VB.NET-plug-in (.vb -> .dll)
+	4. C# Plugin (.cs -> .dll)	4. C#-plug-in (.cs -> .dll)
+	Added to Startup Suite (Auto-Load at startup & per drawing)	Toegevoegd aan opstartsuite (automatisch laden bij opstarten & per tekening)
+	Auto-Load	Automatisch laden
+	AutoLISP / VB.NET / C# IDE & NETLOAD Studio	AutoLISP / VB.NET / C# IDE & NETLOAD Studio
+	AutoLISP Commands (click to run)	AutoLISP-opdrachten (klik om uit te voeren)
+	AutoLISP Editor (.lsp)	AutoLISP-editor (.lsp)
+	Bottom	Onder
+	C# Plugin Editor (.cs)	C#-plug-ineditor (.cs)
+	C# source opened	C#-broncode geopend
+	Clear Log	Logboek wissen
+	Commands	Opdrachten
+	Compact Menu	Compact menu
+	Compilation error	Compilatiefout
+	Compilation failed (see Console)	Compilatie mislukt (zie Console)
+	Compilation succeeded	Compilatie geslaagd
+	Compile & Load .NET DLL	.NET-DLL compileren & laden
+	Console / Output	Console / Uitvoer
+	Error	Fout
+	Error in	Fout in
+	Error: cadcraft-nethost.exe not found next to the application.	Fout: cadcraft-nethost.exe niet gevonden naast de applicatie.
+	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Evalueer de LISP-code of compileer de VB.NET- / C#-broncode rechtstreeks naar een .NET-DLL
+	Failed to invoke compiler	Compiler aanroepen mislukt
+	Failed to load	Laden mislukt
+	Failed to save to	Opslaan mislukt naar
+	Failed to start .NET command	Starten van .NET-opdracht mislukt
+	Failed to write source file	Schrijven van bronbestand mislukt
+	Hide this Studio window and show the compact floating Plugin Commands menu	Dit Studio-venster verbergen en het compacte zwevende menu Plug-in-opdrachten tonen
+	Load & Run LISP	LISP laden & uitvoeren
+	NETLOAD .NET DLL loaded	NETLOAD .NET DLL geladen
+	NETLOAD error in	NETLOAD-fout in
+	NETLOAD failed to run cadcraft-nethost.exe	NETLOAD kan cadcraft-nethost.exe niet uitvoeren
+	Open .lsp / .vb / .cs	Open .lsp / .vb / .cs
+	Open NETLOAD Studio (VBAIDE)	NETLOAD Studio openen (VBAIDE)
+	Open Studio	Studio openen
+	Open the full AutoLISP / VB.NET / C# & NETLOAD Studio	Volledige AutoLISP / VB.NET / C# & NETLOAD Studio openen
+	Plugin Commands	Plug-in-opdrachten
+	Plugins	Plug-ins
+	Quick Expression	Snelle expressie
+	Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.	Gereed. Open een .dll- (.NET VB.NET/C#) of .lsp-bestand (AutoLISP) via NETLOAD.
+	Registered commands	Geregistreerde opdrachten
+	Removed from Startup Suite (Auto-Load)	Verwijderd uit opstartsuite (Automatisch laden)
+	Routine started	Routine gestart
+	Routine started from	Routine gestart vanuit
+	Run .NET command	.NET-opdracht uitvoeren
+	Run command	Opdracht uitvoeren
+	Save the current source code in the editor to disk	De huidige broncode in de editor op schijf opslaan
+	Saved to	Opgeslagen in
+	Select and load a .lsp, .dll, .vb, or .cs file from disk	Selecteer en laad een .lsp-, .dll-, .vb- of .cs-bestand vanaf schijf
+	Show Floating Command Menu	Zwevend opdrachtmenu tonen
+	Template...	Sjabloon...
+	Toggle Startup Suite (Auto-Load at startup)	Opstartsuite in-/uitschakelen (Automatisch laden bij opstarten)
+	Toggle Startup Suite: automatically load this file at startup and in every opened drawing	Opstartsuite schakelen: dit bestand automatisch laden bij het opstarten en in elke geopende tekening
+	VB.NET Plugin Editor (.vb)	VB.NET-plug-in-editor (.vb)
+	VB.NET source opened	VB.NET-broncode geopend
+	cadcraft-nethost.exe not found	cadcraft-nethost.exe niet gevonden
+	cannot read file	kan bestand niet lezen
+	e.g. (+ 1 2) or + 1 2	bijv. (+ 1 2) of + 1 2
+	no [CommandMethod] found	geen [CommandMethod] gevonden

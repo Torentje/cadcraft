@@ -41,19 +41,11 @@ fn catalog_is_valid_and_preserves_placeholders_and_ellipses() {
 }
 
 #[test]
-#[ignore = "a report, printed by `cargo xtask i18n`"]
 fn translation_gaps() {
     for language in translated() {
         let mut missing: BTreeSet<String> = missing_commands_menus_tools_and_snap_labels(language.code).into_iter().collect();
         missing.extend(missing_marked_ui_literals(language.code));
-        if missing.is_empty() {
-            println!("{}: nothing missing", language.code);
-            continue;
-        }
-        println!("{}: {} strings fall back to English", language.code, missing.len());
-        for source in &missing {
-            println!("  {source}");
-        }
+        assert!(missing.is_empty(), "{}: {} strings fall back to English: {missing:?}", language.code, missing.len());
     }
 }
 
@@ -61,6 +53,7 @@ fn missing_commands_menus_tools_and_snap_labels(language: &str) -> Vec<String> {
     let catalog = catalog(language).unwrap();
     let mut sources = BTreeSet::new();
     sources.extend(crate::menus::MENUS.iter().copied());
+    sources.extend(["Open Recent", "Clear Recent Files"]);
     for c in cadcraft_engine::command_specs() {
         sources.insert(c.label);
         sources.extend(c.menu.iter().copied());
@@ -105,6 +98,11 @@ fn missing_marked_ui_literals(language: &str) -> BTreeSet<String> {
         include_str!("../options/dialog.rs"),
         include_str!("../closing.rs"),
         include_str!("../xdedit.rs"),
+        include_str!("../chrome/annoscale.rs"),
+        include_str!("../viewcube/cube3d.rs"),
+        include_str!("../context_menu.rs"),
+        include_str!("../plotstyles.rs"),
+        include_str!("../spacemouse.rs"),
     ];
     let mut missing = BTreeSet::new();
     for source in sources {

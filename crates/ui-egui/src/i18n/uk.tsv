@@ -1445,3 +1445,161 @@
 	Save changes to {name}?	Зберегти зміни у {name}?
 	Your changes will be lost if you don't save them.	Ваші зміни буде втрачено, якщо ви їх не збережете.
 	Don't Save	Не зберігати
+	+  |  {view} ({yaw}°, {pitch}°)  |  3D Orbit Wireframe	+  |  {view} ({yaw}°, {pitch}°)  |  3D-орбіта (каркас)
+	.NET Plugin Bridge	Міст плагінів .NET
+	3D Orbit	3D-орбіта
+	3D Views	3D-види
+	Adjust Image...	Налаштувати зображення...
+	Adjust...	Налаштувати...
+	Angstroms	Ангстреми
+	Apply to Layout	Застосувати до аркуша
+	Architectural	Архітектурні
+	Arrow size	Розмір стрілки
+	Associate	Асоціювати
+	Astronomical Units	Астрономічні одиниці
+	Attach Image...	Приєднати зображення...
+	AutoLISP / VB.NET / C# IDE...	Середовище розробки AutoLISP / VB.NET / C#...
+	AutoLISP / VBA IDE...	Середовище розробки AutoLISP / VBA...
+	B	Ж
+	Back	Ззаду
+	CADCraft	CADCraft
+	Center the plot	Центрувати креслення
+	Centimeters	Сантиметри
+	Change Properties	Змінити властивості
+	Clip Image	Підрізати зображення
+	Decameters	Декаметри
+	Decimal	Десяткові
+	Decimal Degrees	Десяткові градуси
+	Decimeters	Дециметри
+	Deg/Min/Sec	Град/Хв/Сек
+	Dim scale overall	Загальний масштаб розмірів
+	Drawing Units	Одиниці креслення
+	Engineering	Інженерні
+	Enter block names to extract	Введіть імена блоків для вилучення
+	Enter geometric characteristic	Введіть геометричну характеристику
+	Enter name of LISP file to load	Введіть ім'я файлу LISP для завантаження
+	Feet	Фути
+	First corner	Перший кут
+	Fit to paper	Вписати в аркуш
+	Fractional	Дробові
+	Frame	Контур
+	Front	Спереду
+	Gigameters	Гігаметри
+	Grads	Гради
+	Hectometers	Гектометри
+	Image	Зображення
+	Image Frame	Контур зображення
+	Inches	Дюйми
+	Insertion scale	Масштаб вставки
+	Kilometers	Кілометри
+	Landscape	Альбомна
+	Layouts	Аркуші
+	Light Years	Світлові роки
+	Limits	Ліміти
+	Load .NET DLL / LISP Application (NETLOAD)...	Завантажити застосунок .NET DLL / LISP (NETLOAD)...
+	Load Application (NETLOAD)...	Завантажити застосунок (NETLOAD)...
+	Meters	Метри
+	Microinches	Мікродюйми
+	Microns	Мікрони
+	Miles	Милі
+	Millimeters	Міліметри
+	Mils	Міли
+	Model Tab	Вкладка «Модель»
+	NE Isometric	ПнСх ізометрія
+	NW Isometric	ПнЗх ізометрія
+	Nanometers	Нанометри
+	Opposite corner	Протилежний кут
+	Orientation	Орієнтація
+	Paper size	Формат паперу
+	Parsecs	Парсеки
+	Plot area	Область друку
+	Plot object lineweights	Друкувати вагу ліній об'єктів
+	Plot offset	Зміщення друку
+	Plot transparency	Друкувати прозорість
+	Portrait	Книжкова
+	Precision	Точність
+	Printer/plotter	Принтер/плотер
+	Radians	Радіани
+	Raster Image Reference...	Посилання на растрове зображення...
+	SE Isometric	ПдСх ізометрія
+	SW Isometric	ПдЗх ізометрія
+	Sample output	Приклад виводу
+	Scientific	Наукові
+	Surveyor's Units	Геодезичні одиниці
+	Top (2D Plan)	Зверху (2D-план)
+	US Survey Feet	Геодезичні фути США
+	US Survey Inch	Геодезичні дюйми США
+	US Survey Mile	Геодезичні милі США
+	US Survey Yard	Геодезичні ярди США
+	Unitless	Безрозмірні
+	Units to scale inserted content	Одиниці масштабування вставленого вмісту
+	View Resolution	Роздільна здатність виду
+	Window <	Вікно <
+	X	X
+	X offset (mm)	Зміщення за X (мм)
+	Y	Y
+	Y offset (mm)	Зміщення за Y (мм)
+	Yards	Ярди
+	.NET command started	Команду .NET запущено
+	0. Empty file (New)	0. Порожній файл (Новий)
+	1. AutoLISP: Basic Math & Commands	1. AutoLISP: базова математика та команди
+	2. AutoLISP: Survey Marker (c:meetpunt)	2. AutoLISP: геодезичний пікет (c:meetpunt)
+	3. VB.NET Plugin (.vb -> .dll)	3. Плагін VB.NET (.vb -> .dll)
+	4. C# Plugin (.cs -> .dll)	4. Плагін C# (.cs -> .dll)
+	Added to Startup Suite (Auto-Load at startup & per drawing)	Додано до автозавантаження (автоматичне завантаження під час запуску та для кожного креслення)
+	Auto-Load	Автозавантаження
+	AutoLISP / VB.NET / C# IDE & NETLOAD Studio	Середовище розробки AutoLISP / VB.NET / C# та студія NETLOAD
+	AutoLISP Commands (click to run)	Команди AutoLISP (натисніть для запуску)
+	AutoLISP Editor (.lsp)	Редактор AutoLISP (.lsp)
+	Bottom	Знизу
+	C# Plugin Editor (.cs)	Редактор плагінів C# (.cs)
+	C# source opened	Вихідний код C# відкрито
+	Clear Log	Очистити журнал
+	Commands	Команди
+	Compact Menu	Компактне меню
+	Compilation error	Помилка компіляції
+	Compilation failed (see Console)	Збій компіляції (див. консоль)
+	Compilation succeeded	Компіляцію успішно завершено
+	Compile & Load .NET DLL	Скомпілювати та завантажити .NET DLL
+	Console / Output	Консоль / Вивід
+	Error	Помилка
+	Error in	Помилка в
+	Error: cadcraft-nethost.exe not found next to the application.	Помилка: файл cadcraft-nethost.exe не знайдено поруч із програмою.
+	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Виконати код LISP або скомпілювати вихідний код VB.NET / C# безпосередньо в .NET DLL
+	Failed to invoke compiler	Не вдалося запустити компілятор
+	Failed to load	Не вдалося завантажити
+	Failed to save to	Не вдалося зберегти до
+	Failed to start .NET command	Не вдалося запустити команду .NET
+	Failed to write source file	Не вдалося записати вихідний файл
+	Hide this Studio window and show the compact floating Plugin Commands menu	Приховати це вікно Studio та показати компактне плаваюче меню команд плагінів
+	Load & Run LISP	Завантажити та виконати LISP
+	NETLOAD .NET DLL loaded	NETLOAD .NET DLL завантажено
+	NETLOAD error in	Помилка NETLOAD у
+	NETLOAD failed to run cadcraft-nethost.exe	NETLOAD не вдалося запустити cadcraft-nethost.exe
+	Open .lsp / .vb / .cs	Відкрити .lsp / .vb / .cs
+	Open NETLOAD Studio (VBAIDE)	Відкрити NETLOAD Studio (VBAIDE)
+	Open Studio	Відкрити Studio
+	Open the full AutoLISP / VB.NET / C# & NETLOAD Studio	Відкрити повне середовище AutoLISP / VB.NET / C# & NETLOAD Studio
+	Plugin Commands	Команди плагінів
+	Plugins	Плагіни
+	Quick Expression	Швидкий вираз
+	Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.	Готово. Відкрийте файл .dll (.NET VB.NET/C#) або .lsp (AutoLISP) через NETLOAD.
+	Registered commands	Зареєстровані команди
+	Removed from Startup Suite (Auto-Load)	Видалено з автозавантаження (Startup Suite)
+	Routine started	Процедуру запущено
+	Routine started from	Процедуру запущено з
+	Run .NET command	Виконати команду .NET
+	Run command	Виконати команду
+	Save the current source code in the editor to disk	Зберегти поточний вихідний код у редакторі на диск
+	Saved to	Збережено до
+	Select and load a .lsp, .dll, .vb, or .cs file from disk	Вибрати та завантажити файл .lsp, .dll, .vb або .cs з диска
+	Show Floating Command Menu	Показати плаваюче меню команд
+	Template...	Шаблон...
+	Toggle Startup Suite (Auto-Load at startup)	Перемкнути автозавантаження (Startup Suite під час запуску)
+	Toggle Startup Suite: automatically load this file at startup and in every opened drawing	Перемкнути автозавантаження: автоматично завантажувати цей файл під час запуску та в кожному відкритому кресленні
+	VB.NET Plugin Editor (.vb)	Редактор плагінів VB.NET (.vb)
+	VB.NET source opened	Вихідний код VB.NET відкрито
+	cadcraft-nethost.exe not found	cadcraft-nethost.exe не знайдено
+	cannot read file	не вдається прочитати файл
+	e.g. (+ 1 2) or + 1 2	напр., (+ 1 2) або + 1 2
+	no [CommandMethod] found	[CommandMethod] не знайдено

@@ -1327,3 +1327,277 @@
 	✔ XData saved to entity (Undoable)	✔ XData guardados na entidade (Ctrl+Z disponível)
 	Error: {err}	Erro: {err}
 	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Os XData foram alterados fora do editor — clique em Reverter antes de guardar.
+	+  |  {view} ({yaw}°, {pitch}°)  |  3D Orbit Wireframe	+  |  {view} ({yaw}°, {pitch}°)  |  Modelo de arame de órbita 3D
+	.NET Plugin Bridge	Ponte de suplementos .NET
+	3D Orbit	Órbita 3D
+	3D Views	Vistas 3D
+	Add: Pick points	Adicionar: Selecionar pontos
+	Add: Select objects	Adicionar: Selecionar objetos
+	Add…	Adicionar…
+	Adjust Image...	Ajustar imagem...
+	Adjust...	Ajustar...
+	Alias	Alias
+	Alias file: {file}	Ficheiro de alias: {file}
+	Align Multileaders	Alinhar linhas de chamada múltiplas
+	Analyze Usage	Analisar utilização
+	Angstroms	Angströms
+	Apply to Layout	Aplicar à apresentação
+	Architectural	Arquitetura
+	Arrow size	Tamanho da seta
+	Associate	Associar
+	Associative	Associativo
+	Astronomical Units	Unidades astronómicas
+	Attach Image...	Anexar imagem...
+	AutoLISP (LSP)	AutoLISP (LSP)
+	AutoLISP / VB.NET / C# IDE...	IDE AutoLISP / VB.NET / C#...
+	AutoLISP / VBA IDE...	IDE AutoLISP / VBA...
+	Back	Posterior
+	Block to create or edit	Bloco a criar ou editar
+	Bottom left	Inferior esquerdo
+	Bottom right	Inferior direito
+	Boundaries	Contornos
+	Boundaries picked: {n}	Contornos selecionados: {n}
+	Break-line Symbol	Símbolo de linha de interrupção
+	Center the plot	Centrar a impressão
+	Centered	Centrado
+	Centimeters	Centímetros
+	Change Properties	Alterar propriedades
+	Choose the command the alias starts.	Escolha o comando que o alias inicia.
+	Clear Recent Files	Limpar ficheiros recentes
+	Click the ruler to add a tab stop, right-click to remove one	Clique na régua para adicionar uma marca de tabulação, clique com o botão direito para remover
+	Click to set new origin	Clique para definir nova origem
+	Clip Image	Delimitar imagem
+	Close Block Editor	Fechar editor de blocos
+	Collect	Recolher
+	Collect Multileaders	Recolher linhas de chamada múltiplas
+	Color 1	Cor 1
+	Color 2	Cor 2
+	Command	Comando
+	Convert Text to Mtext	Converter texto em Mtext
+	Create separate hatches	Criar tramas separadas
+	Crossing selection color:	Cor da seleção de captura:
+	Curved	Curvo
+	Custom	Personalizado
+	Customize	Personalizar
+	Decameters	Decâmetros
+	Decimal	Decimal
+	Decimal Degrees	Graus decimais
+	Decimeters	Decímetros
+	Default to boundary extents	Predefinir para os limites do contorno
+	Deg/Min/Sec	Grau/Min/Seg
+	Dim scale overall	Escala geral de cotas
+	Discard	Rejeitar
+	Drag Dynamic Grip	Arrastar pega dinâmica
+	Drawing Units	Unidades de desenho
+	Dynamic Block Data	Dados do bloco dinâmico
+	Dynamic Block Grips	Pegas do bloco dinâmico
+	Dynamic Block Reference	Referência de bloco dinâmico
+	Edit Block Definition	Editar definição de bloco
+	Edit Command Aliases (PGP)...	Editar aliases de comando (PGP)...
+	Edit Multileader	Editar linha de chamada múltipla
+	Edit…	Editar…
+	Engineering	Engenharia
+	Enter block names to extract	Introduza os nomes dos blocos a extrair
+	Enter geometric characteristic	Introduza a característica geométrica
+	Enter name of LISP file to load	Introduza o nome do ficheiro LISP a carregar
+	Evaluate LISP	Avaliar LISP
+	Exclude:	Excluir:
+	Explode Attributes to Text	Explodir atributos em texto
+	Express Tools	Express Tools
+	Feet	Pés
+	First corner	Primeiro canto
+	Fit to paper	Ajustar ao papel
+	Fractional	Fracionário
+	Frame	Moldura
+	Front	Frontal
+	Gigameters	Gigâmetros
+	Grads	Grados
+	Grips	Pegas
+	Groups	Grupos
+	Hatch Pick	Seleção de trama
+	Hatch and Gradient	Trama e gradiente
+	Hatch origin	Origem da trama
+	Hatches	Tramas
+	Hectometers	Hectómetros
+	Hemispherical	Hemisférico
+	Ignore	Ignorar
+	Image	Imagem
+	Image Frame	Moldura da imagem
+	Imperial (inches)	Imperial (polegadas)
+	Implied Loops	Ciclos implícitos
+	Inches	Polegadas
+	Indicate selection area	Indicar área de seleção
+	Insertion scale	Escala de inserção
+	Interface scale	Escala da interface
+	Inverted	Invertido
+	Island	Ilha
+	Island detection	Deteção de ilhas
+	Italic	Itálico
+	Justify	Justificar
+	Kilometers	Quilómetros
+	Landscape	Horizontal
+	Layouts	Apresentações
+	Light Years	Anos-luz
+	Limits	Limites
+	Load .NET DLL / LISP Application (NETLOAD)...	Carregar aplicação .NET DLL / LISP (NETLOAD)...
+	Load Application (NETLOAD)...	Carregar aplicação (NETLOAD)...
+	Load Application...	Carregar aplicação...
+	Meters	Metros
+	Metric (millimetres)	Métrico (milímetros)
+	Microinches	Micropolegadas
+	Microns	Mícrones
+	Miles	Milhas
+	Millimeters	Milímetros
+	Mils	Mils
+	Model Tab	Separador Modelo
+	More than {n} aliases.	Mais de {n} aliases.
+	Move/Copy/Rotate	Mover/Copiar/Rodar
+	Multiline text	Texto de múltiplas linhas
+	NE Isometric	Isométrico NE
+	NW Isometric	Isométrico NO
+	Nanometers	Nanómetros
+	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Os novos desenhos e o primeiro desenho no arranque utilizam estas unidades, exceto se estiver definido um modelo predefinido (QNEWTEMPLATE).
+	New block	Novo bloco
+	No alias file loaded. REINIT replaces these aliases with a file's.	Nenhum ficheiro de alias carregado. REINIT substitui estes aliases pelos de um ficheiro.
+	Normal	Normal
+	Object grouping	Agrupamento de objetos
+	Object selection limit for display of grips	Limite de seleção de objetos para apresentação de pegas
+	Objects on locked layers	Objetos em camadas bloqueadas
+	Open Recent	Abrir recentes
+	Open in Block Editor	Abrir no editor de blocos
+	Opposite corner	Canto oposto
+	Orientation	Orientação
+	Origin: {x}, {y}	Origem: {x}, {y}
+	Outer	Exterior
+	Overline	Sobrelinha
+	Paper size	Tamanho do papel
+	Parsecs	Parsecs
+	Plot area	Área de impressão
+	Plot object lineweights	Imprimir espessuras de linha do objeto
+	Plot offset	Desfasamento de impressão
+	Plot transparency	Imprimir transparência
+	Portrait	Vertical
+	Precision	Precisão
+	Preview	Pré-visualizar
+	Printer/plotter	Impressora/traçador
+	Radians	Radianos
+	Raster Image Reference...	Referência de imagem raster...
+	SE Isometric	Isométrico SE
+	SW Isometric	Isométrico SO
+	Sample output	Exemplo de saída
+	Save Block	Guardar bloco
+	Save Block As	Guardar bloco como
+	Save alias	Guardar alias
+	Scientific	Científico
+	Select boundaries to remove	Selecione os contornos a remover
+	Selection Area Effect	Efeito da área de seleção
+	Selection Preview Filter	Filtro de pré-visualização da seleção
+	Selection area opacity:	Opacidade da área de seleção:
+	Selection effect color	Cor do efeito de seleção
+	Selection modes	Modos de seleção
+	Selection preview	Pré-visualização da seleção
+	Set Dynamic Property	Definir propriedade dinâmica
+	Shape	Forma
+	Sheet Books to PDF...	Cadernos de folhas para PDF...
+	Show grips	Mostrar pegas
+	Specified origin	Origem especificada
+	Spherical	Esférico
+	Surveyor's Units	Unidades topográficas
+	Tables	Tabelas
+	Text color	Cor do texto
+	This drawing	Este desenho
+	Top (2D Plan)	Superior (Planta 2D)
+	Top left	Superior esquerdo
+	Top right	Superior direito
+	Type an alias name.	Introduza um nome de alias.
+	US Survey Feet	Pés topográficos dos EUA
+	US Survey Inch	Polegadas topográficas dos EUA
+	US Survey Mile	Milhas topográficas dos EUA
+	US Survey Yard	Jardas topográficas dos EUA
+	Underline	Sublinhado
+	Unitless	Sem unidades
+	Units of new drawings	Unidades de novos desenhos
+	Units to scale inserted content	Unidades para ajustar a escala do conteúdo inserido
+	Unsaved changes	Alterações não guardadas
+	Use current origin	Utilizar origem atual
+	View Resolution	Resolução da vista
+	Visual Effect Settings	Definições de efeitos visuais
+	Visual Effect Settings...	Definições de efeitos visuais...
+	When a command is active	Quando um comando está ativo
+	When no command is active	Quando nenhum comando está ativo
+	Window <	Janela <
+	Window selection color:	Cor da seleção por janela:
+	X offset (mm)	Desfasamento X (mm)
+	Xrefs	RefEx
+	Y offset (mm)	Desfasamento Y (mm)
+	Yards	Jardas
+	built-in	integrado
+	contains authoring elements. Open in Block Editor?	contém elementos de criação. Abrir no editor de blocos?
+	overrides built-in	substitui o integrado
+	{alias} is already defined; select it and use Edit.	{alias} já está definido; selecione-o e utilize Editar.
+	{command} is an unknown command.	{command} é um comando desconhecido.
+	📋 Copy All	📋 Copiar tudo
+	🗑 Clear	🗑 Limpar
+	.NET command started	Comando .NET iniciado
+	0. Empty file (New)	0. Ficheiro vazio (Novo)
+	1. AutoLISP: Basic Math & Commands	1. AutoLISP: Matemática básica e comandos
+	2. AutoLISP: Survey Marker (c:meetpunt)	2. AutoLISP: Ponto topográfico (c:meetpunt)
+	3. VB.NET Plugin (.vb -> .dll)	3. Suplemento VB.NET (.vb -> .dll)
+	4. C# Plugin (.cs -> .dll)	4. Suplemento C# (.cs -> .dll)
+	Added to Startup Suite (Auto-Load at startup & per drawing)	Adicionado ao grupo de arranque (carregamento automático ao iniciar e por desenho)
+	Auto-Load	Carregamento automático
+	AutoLISP / VB.NET / C# IDE & NETLOAD Studio	IDE AutoLISP / VB.NET / C# e NETLOAD Studio
+	AutoLISP Commands (click to run)	Comandos AutoLISP (clique para executar)
+	AutoLISP Editor (.lsp)	Editor AutoLISP (.lsp)
+	Bottom	Inferior
+	C# Plugin Editor (.cs)	Editor de suplemento C# (.cs)
+	C# source opened	Código-fonte C# aberto
+	Clear Log	Limpar registo
+	Commands	Comandos
+	Compact Menu	Menu compacto
+	Compilation error	Erro de compilação
+	Compilation failed (see Console)	Falha na compilação (ver Consola)
+	Compilation succeeded	Compilação concluída com sucesso
+	Compile & Load .NET DLL	Compilar e carregar DLL .NET
+	Console / Output	Consola / Saída
+	Error	Erro
+	Error in	Erro em
+	Error: cadcraft-nethost.exe not found next to the application.	Erro: cadcraft-nethost.exe não encontrado junto à aplicação.
+	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Avaliar o código LISP ou compilar o código-fonte VB.NET / C# diretamente numa DLL .NET
+	Failed to invoke compiler	Falha ao invocar o compilador
+	Failed to load	Falha ao carregar
+	Failed to save to	Falha ao guardar em
+	Failed to start .NET command	Falha ao iniciar o comando .NET
+	Failed to write source file	Falha ao gravar o ficheiro de código-fonte
+	Hide this Studio window and show the compact floating Plugin Commands menu	Ocultar esta janela do Studio e mostrar o menu flutuante compacto de Comandos de suplementos
+	Load & Run LISP	Carregar e executar LISP
+	NETLOAD .NET DLL loaded	DLL .NET do NETLOAD carregada
+	NETLOAD error in	Erro do NETLOAD em
+	NETLOAD failed to run cadcraft-nethost.exe	Falha do NETLOAD ao executar cadcraft-nethost.exe
+	Open .lsp / .vb / .cs	Abrir .lsp / .vb / .cs
+	Open NETLOAD Studio (VBAIDE)	Abrir NETLOAD Studio (VBAIDE)
+	Open Studio	Abrir Studio
+	Open the full AutoLISP / VB.NET / C# & NETLOAD Studio	Abrir o ambiente completo AutoLISP / VB.NET / C# & NETLOAD Studio
+	Plugin Commands	Comandos de suplementos
+	Plugins	Suplementos
+	Quick Expression	Expressão rápida
+	Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.	Pronto. Abra um ficheiro .dll (.NET VB.NET/C#) ou .lsp (AutoLISP) através de NETLOAD.
+	Registered commands	Comandos registados
+	Removed from Startup Suite (Auto-Load)	Removido do Conjunto de arranque (Carregamento automático)
+	Routine started	Rotina iniciada
+	Routine started from	Rotina iniciada a partir de
+	Run .NET command	Executar comando .NET
+	Run command	Executar comando
+	Save the current source code in the editor to disk	Guardar o código-fonte atual do editor no disco
+	Saved to	Guardado em
+	Select and load a .lsp, .dll, .vb, or .cs file from disk	Selecionar e carregar um ficheiro .lsp, .dll, .vb ou .cs do disco
+	Show Floating Command Menu	Mostrar menu de comandos flutuante
+	Template...	Modelo...
+	Toggle Startup Suite (Auto-Load at startup)	Alternar Conjunto de arranque (Carregamento automático no arranque)
+	Toggle Startup Suite: automatically load this file at startup and in every opened drawing	Alternar Conjunto de arranque: carregar automaticamente este ficheiro no arranque e em cada desenho aberto
+	VB.NET Plugin Editor (.vb)	Editor de suplementos VB.NET (.vb)
+	VB.NET source opened	Código-fonte VB.NET aberto
+	cadcraft-nethost.exe not found	cadcraft-nethost.exe não encontrado
+	cannot read file	não é possível ler o ficheiro
+	e.g. (+ 1 2) or + 1 2	p. ex., (+ 1 2) ou + 1 2
+	no [CommandMethod] found	nenhum [CommandMethod] encontrado

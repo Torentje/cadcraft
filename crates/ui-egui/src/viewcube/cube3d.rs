@@ -476,30 +476,30 @@ fn paint_plane_text(
     }
 }
 
-/// Localized ViewCube face label across all 17 interface languages (`TOP`, `BOTTOM`, `FRONT`,
-/// `BACK`, `LEFT`, `RIGHT`). Uses catalog entries when present and built-in translations for the
-/// remaining 3D face names.
+/// Localized ViewCube face label across all 18 interface languages (`TOP`, `BOTTOM`, `FRONT`,
+/// `BACK`, `LEFT`, `RIGHT`). Uses catalog entries when present and built-in fallback translations
+/// if a catalog omits one of the 3D face names.
 fn localized_face_label(key: &'static str) -> &'static str {
     match key {
         "TOP" => crate::tl!("TOP"),
         "LEFT" => {
-            let s = crate::i18n::t("Left");
+            let s = crate::tl!("Left");
             if s != "Left" { s } else { face_fallback("LEFT") }
         }
         "RIGHT" => {
-            let s = crate::i18n::t("Right");
+            let s = crate::tl!("Right");
             if s != "Right" { s } else { face_fallback("RIGHT") }
         }
         "FRONT" => {
-            let s = crate::i18n::t("Front");
+            let s = crate::tl!("Front");
             if s != "Front" { s } else { face_fallback("FRONT") }
         }
         "BACK" => {
-            let s = crate::i18n::t("Back");
+            let s = crate::tl!("Back");
             if s != "Back" { s } else { face_fallback("BACK") }
         }
         "BOTTOM" => {
-            let s = crate::i18n::t("Bottom");
+            let s = crate::tl!("Bottom");
             if s != "Bottom" { s } else { face_fallback("BOTTOM") }
         }
         other => other,

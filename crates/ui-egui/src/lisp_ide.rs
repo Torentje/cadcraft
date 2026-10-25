@@ -11,7 +11,6 @@ use egui::{RichText, vec2};
 use serde_json::Value;
 
 use crate::CadApp;
-use crate::i18n::t;
 use crate::theme::Tokens;
 
 /// Loopback TCP port of the active `control_server` in `cadcraft`, used by `cadcraft-nethost.exe`
@@ -145,7 +144,7 @@ impl Default for LispIdeState {
             loaded_code: None,
             quick_expr: String::new(),
             output: vec![
-                t("Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.").to_string(),
+                crate::tl!("Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.").to_string(),
             ],
             commands: Vec::new(),
             loaded_dlls: Vec::new(),
@@ -245,7 +244,7 @@ fn nethost_command(host: &std::path::Path) -> std::process::Command {
 /// Spawn `cadcraft-nethost.exe` to execute `[CommandMethod]` `cmd` inside `dll_path`.
 pub fn spawn_dotnet_command(app: &mut CadApp, dll_path: &str, cmd: &str) {
     let Some(host) = find_nethost_exe() else {
-        let msg = t("Error: cadcraft-nethost.exe not found next to the application.").to_string();
+        let msg = crate::tl!("Error: cadcraft-nethost.exe not found next to the application.").to_string();
         if let Some(ide) = &mut app.lisp_ide {
             ide.output.push(msg.clone());
             ide.status = Some(msg.clone());
@@ -262,7 +261,7 @@ pub fn spawn_dotnet_command(app: &mut CadApp, dll_path: &str, cmd: &str) {
     }
     match command.spawn() {
         Ok(_) => {
-            let msg = format!("▶ {}: {cmd} ({dll_path})", t(".NET command started"));
+            let msg = format!("▶ {}: {cmd} ({dll_path})", crate::tl!(".NET command started"));
             if let Some(ide) = &mut app.lisp_ide {
                 ide.output.push(msg.clone());
                 ide.status = Some(msg.clone());
@@ -270,7 +269,7 @@ pub fn spawn_dotnet_command(app: &mut CadApp, dll_path: &str, cmd: &str) {
             app.session.echo(msg);
         }
         Err(e) => {
-            let msg = format!("{} {cmd}: {e}", t("Failed to start .NET command"));
+            let msg = format!("{} {cmd}: {e}", crate::tl!("Failed to start .NET command"));
             if let Some(ide) = &mut app.lisp_ide {
                 ide.output.push(msg.clone());
                 ide.status = Some(msg.clone());
@@ -287,7 +286,7 @@ pub fn load_dll_into_ide(app: &mut CadApp, path: &str) {
         .map(|n| n.to_string_lossy().to_string())
         .unwrap_or_else(|| path.to_string());
     let Some(host) = find_nethost_exe() else {
-        let msg = format!("NETLOAD: {} ({name})", t("cadcraft-nethost.exe not found"));
+        let msg = format!("NETLOAD: {} ({name})", crate::tl!("cadcraft-nethost.exe not found"));
         let ide = app.lisp_ide.get_or_insert_with(LispIdeState::default);
         ide.output.push(msg.clone());
         ide.status = Some(msg.clone());
@@ -326,14 +325,14 @@ pub fn load_dll_into_ide(app: &mut CadApp, path: &str) {
                 let msg = if cmds.is_empty() {
                     format!(
                         "{}: {name} ({})",
-                        t("NETLOAD .NET DLL loaded"),
-                        t("no [CommandMethod] found")
+                        crate::tl!("NETLOAD .NET DLL loaded"),
+                        crate::tl!("no [CommandMethod] found")
                     )
                 } else {
                     format!(
                         "{}: {name} — {}: {}",
-                        t("NETLOAD .NET DLL loaded"),
-                        t("Commands"),
+                        crate::tl!("NETLOAD .NET DLL loaded"),
+                        crate::tl!("Commands"),
                         cmds.join(", ")
                     )
                 };
@@ -359,14 +358,14 @@ pub fn load_dll_into_ide(app: &mut CadApp, path: &str) {
                             stdout
                         }
                     });
-                let msg = format!("{} {name}: {err_detail}", t("NETLOAD error in"));
+                let msg = format!("{} {name}: {err_detail}", crate::tl!("NETLOAD error in"));
                 ide.output.push(msg.clone());
                 ide.status = Some(msg.clone());
                 app.session.echo(msg);
             }
         }
         Err(e) => {
-            let msg = format!("{}: {e}", t("NETLOAD failed to run cadcraft-nethost.exe"));
+            let msg = format!("{}: {e}", crate::tl!("NETLOAD failed to run cadcraft-nethost.exe"));
             ide.output.push(msg.clone());
             ide.status = Some(msg.clone());
             app.session.echo(msg);
@@ -397,7 +396,7 @@ fn compile_and_load_dotnet_source(app: &mut CadApp) {
     let dll_path = temp_dir.join(format!("{stem}.dll"));
     if let Err(e) = std::fs::write(&src_path, &code) {
         if let Some(ide) = &mut app.lisp_ide {
-            let msg = format!("{}: {e}", t("Failed to write source file"));
+            let msg = format!("{}: {e}", crate::tl!("Failed to write source file"));
             ide.output.push(msg.clone());
             ide.status = Some(msg);
         }
@@ -405,7 +404,7 @@ fn compile_and_load_dotnet_source(app: &mut CadApp) {
     }
     let Some(host) = find_nethost_exe() else {
         if let Some(ide) = &mut app.lisp_ide {
-            let msg = t("Error: cadcraft-nethost.exe not found next to the application.").to_string();
+            let msg = crate::tl!("Error: cadcraft-nethost.exe not found next to the application.").to_string();
             ide.output.push(msg.clone());
             ide.status = Some(msg);
         }
@@ -425,7 +424,7 @@ fn compile_and_load_dotnet_source(app: &mut CadApp) {
             {
                 let dll_str = dll_path.to_string_lossy().into_owned();
                 if let Some(ide) = &mut app.lisp_ide {
-                    ide.output.push(format!("{}: {dll_str}", t("Compilation succeeded")));
+                    ide.output.push(format!("{}: {dll_str}", crate::tl!("Compilation succeeded")));
                 }
                 load_dll_into_ide(app, &dll_str);
             } else {
@@ -436,14 +435,14 @@ fn compile_and_load_dotnet_source(app: &mut CadApp) {
                     .unwrap_or(&stdout)
                     .to_string();
                 if let Some(ide) = &mut app.lisp_ide {
-                    ide.output.push(format!("{}:\n{err_msg}", t("Compilation error")));
-                    ide.status = Some(t("Compilation failed (see Console)").to_string());
+                    ide.output.push(format!("{}:\n{err_msg}", crate::tl!("Compilation error")));
+                    ide.status = Some(crate::tl!("Compilation failed (see Console)").to_string());
                 }
             }
         }
         Err(e) => {
             if let Some(ide) = &mut app.lisp_ide {
-                let msg = format!("{}: {e}", t("Failed to invoke compiler"));
+                let msg = format!("{}: {e}", crate::tl!("Failed to invoke compiler"));
                 ide.output.push(msg.clone());
                 ide.status = Some(msg);
             }
@@ -501,7 +500,7 @@ pub fn toggle_startup_plugin(app: &mut CadApp, path: &str) {
         app.ui
             .startup_plugins
             .retain(|p| !p.eq_ignore_ascii_case(clean));
-        let msg = format!("{}: {clean}", t("Removed from Startup Suite (Auto-Load)"));
+        let msg = format!("{}: {clean}", crate::tl!("Removed from Startup Suite (Auto-Load)"));
         if let Some(ide) = app.lisp_ide.as_mut() {
             ide.output.push(msg.clone());
             ide.status = Some(msg.clone());
@@ -509,7 +508,7 @@ pub fn toggle_startup_plugin(app: &mut CadApp, path: &str) {
         app.session.echo(msg);
     } else {
         app.ui.startup_plugins.push(clean.to_string());
-        let msg = format!("{}: {clean}", t("Added to Startup Suite (Auto-Load at startup & per drawing)"));
+        let msg = format!("{}: {clean}", crate::tl!("Added to Startup Suite (Auto-Load at startup & per drawing)"));
         if let Some(ide) = app.lisp_ide.as_mut() {
             ide.output.push(msg.clone());
             ide.status = Some(msg.clone());
@@ -578,14 +577,14 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
             ide.code = text.clone();
             if lower.ends_with(".vb") {
                 ide.lang = IdeLang::VbNet;
-                let msg = format!("{}: {name}", t("VB.NET source opened"));
+                let msg = format!("{}: {name}", crate::tl!("VB.NET source opened"));
                 ide.output.push(msg.clone());
                 ide.status = Some(msg);
                 return;
             }
             if lower.ends_with(".cs") {
                 ide.lang = IdeLang::CSharp;
-                let msg = format!("{}: {name}", t("C# source opened"));
+                let msg = format!("{}: {name}", crate::tl!("C# source opened"));
                 ide.output.push(msg.clone());
                 ide.status = Some(msg);
                 return;
@@ -609,12 +608,12 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
                     }
                     let val_str = cadcraft_engine::lisp::value::to_text(&v, true);
                     let msg = if cmds.is_empty() {
-                        format!("{} {name} → {val_str}", t("Loaded"))
+                        format!("{} {name} → {val_str}", crate::tl!("Loaded"))
                     } else {
                         format!(
                             "{} {name} — {}: {}",
-                            t("Loaded"),
-                            t("Commands"),
+                            crate::tl!("Loaded"),
+                            crate::tl!("Commands"),
                             cmds.join(", ")
                         )
                     };
@@ -635,7 +634,7 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
                     for l in new_logs {
                         ide.output.push(l);
                     }
-                    let err_msg = format!("{} {name}: {e}", t("Error in"));
+                    let err_msg = format!("{} {name}: {e}", crate::tl!("Error in"));
                     ide.output.push(err_msg.clone());
                     ide.status = Some(err_msg);
                 }
@@ -646,7 +645,7 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
                     for cmd in &cmds {
                         app.cmd.push_history(cmd);
                     }
-                    let msg = format!("{} {name}...", t("Routine started from"));
+                    let msg = format!("{} {name}...", crate::tl!("Routine started from"));
                     ide.output.push(msg.clone());
                     ide.status = Some(msg);
                     if app.ui.dialog.as_deref() == Some("vbaide") {
@@ -656,7 +655,7 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
                 Err(e) => {
                     ide.commands.clear();
                     ide.loaded_code = None;
-                    let err_msg = format!("{} {name}: {e}", t("Failed to load"));
+                    let err_msg = format!("{} {name}: {e}", crate::tl!("Failed to load"));
                     ide.output.push(err_msg.clone());
                     ide.status = Some(err_msg);
                 }
@@ -664,7 +663,7 @@ pub fn load_path_into_ide(app: &mut CadApp, path: &str) {
         }
         None => {
             let ide = app.lisp_ide.get_or_insert_with(LispIdeState::default);
-            let msg = format!("NETLOAD: {} {path}", t("cannot read file"));
+            let msg = format!("NETLOAD: {} {path}", crate::tl!("cannot read file"));
             ide.output.push(msg.clone());
             ide.status = Some(msg.clone());
             app.session.echo(msg);
@@ -702,7 +701,7 @@ fn execute_current_code(app: &mut CadApp) -> bool {
             } else {
                 format!(
                     "⇒ {val_str}  ({}: {})",
-                    t("Registered commands"),
+                    crate::tl!("Registered commands"),
                     cmds.join(", ")
                 )
             };
@@ -716,7 +715,7 @@ fn execute_current_code(app: &mut CadApp) -> bool {
         Ok(Some(Err(e))) => {
             ide.commands.clear();
             ide.loaded_code = None;
-            let err_msg = format!("{}: {e}", t("Error"));
+            let err_msg = format!("{}: {e}", crate::tl!("Error"));
             ide.output.push(err_msg.clone());
             ide.status = Some(err_msg);
             false
@@ -724,7 +723,7 @@ fn execute_current_code(app: &mut CadApp) -> bool {
         Ok(None) => {
             ide.commands = cmds.clone();
             ide.loaded_code = Some(code);
-            ide.status = Some(format!("{} ({name})...", t("Routine started")));
+            ide.status = Some(format!("{} ({name})...", crate::tl!("Routine started")));
             for cmd in &cmds {
                 app.cmd.push_history(cmd);
             }
@@ -733,7 +732,7 @@ fn execute_current_code(app: &mut CadApp) -> bool {
         Err(e) => {
             ide.commands.clear();
             ide.loaded_code = None;
-            let err_msg = format!("{}: {e}", t("Error"));
+            let err_msg = format!("{}: {e}", crate::tl!("Error"));
             ide.output.push(err_msg.clone());
             ide.status = Some(err_msg);
             false
@@ -763,10 +762,10 @@ fn eval_quick_expr(app: &mut CadApp) {
     }
     match res {
         Ok(Some(Err(e))) => {
-            ide.output.push(format!("  {}: {e}", t("Error")));
+            ide.output.push(format!("  {}: {e}", crate::tl!("Error")));
         }
         Err(e) => {
-            ide.output.push(format!("  {}: {e}", t("Error")));
+            ide.output.push(format!("  {}: {e}", crate::tl!("Error")));
         }
         _ => {}
     }
@@ -793,7 +792,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
         .is_some_and(|p| is_in_startup_suite(app, p));
     let startup_list_snapshot = app.ui.startup_plugins.clone();
 
-    egui::Window::new(t("AutoLISP / VB.NET / C# IDE & NETLOAD Studio"))
+    egui::Window::new(crate::tl!("AutoLISP / VB.NET / C# IDE & NETLOAD Studio"))
         .id(egui::Id::new("vbaide_window"))
         .open(open)
         .default_size(vec2(820.0, 620.0))
@@ -806,25 +805,25 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             ui.horizontal_wrapped(|ui| {
                 if ui
                     .button(
-                        RichText::new(format!("📂 {}", t("Open .lsp / .vb / .cs")))
+                        RichText::new(format!("📂 {}", crate::tl!("Open .lsp / .vb / .cs")))
                             .strong()
                             .color(egui::Color32::from_rgb(0x38, 0xb6, 0xff)),
                     )
-                    .on_hover_text(t("Select and load a .lsp, .dll, .vb, or .cs file from disk"))
+                    .on_hover_text(crate::tl!("Select and load a .lsp, .dll, .vb, or .cs file from disk"))
                     .clicked()
                 {
                     do_open_file = true;
                 }
                 if ui
-                    .button(format!("💾 {}", t("Save")))
-                    .on_hover_text(t("Save the current source code in the editor to disk"))
+                    .button(format!("💾 {}", crate::tl!("Save")))
+                    .on_hover_text(crate::tl!("Save the current source code in the editor to disk"))
                     .clicked()
                 {
                     do_save_file = true;
                 }
                 let run_label = match ide.lang {
-                    IdeLang::Lisp => format!("▶ {}", t("Load & Run LISP")),
-                    IdeLang::VbNet | IdeLang::CSharp => format!("▶ {}", t("Compile & Load .NET DLL")),
+                    IdeLang::Lisp => format!("▶ {}", crate::tl!("Load & Run LISP")),
+                    IdeLang::VbNet | IdeLang::CSharp => format!("▶ {}", crate::tl!("Compile & Load .NET DLL")),
                 };
                 if ui
                     .button(
@@ -832,15 +831,15 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                             .strong()
                             .color(egui::Color32::from_rgb(0x4e, 0xc9, 0x6f)),
                     )
-                    .on_hover_text(t("Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL"))
+                    .on_hover_text(crate::tl!("Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL"))
                     .clicked()
                 {
                     do_run_code = true;
                 }
                 if (!ide.loaded_dlls.is_empty() || !ide.commands.is_empty())
                     && ui
-                        .button(RichText::new(format!("⬇ {}", t("Compact Menu"))).strong())
-                        .on_hover_text(t("Hide this Studio window and show the compact floating Plugin Commands menu"))
+                        .button(RichText::new(format!("⬇ {}", crate::tl!("Compact Menu"))).strong())
+                        .on_hover_text(crate::tl!("Hide this Studio window and show the compact floating Plugin Commands menu"))
                         .clicked()
                 {
                     ide.show_plugin_menu = true;
@@ -848,15 +847,15 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 }
                 if let Some(fp) = &ide.file_path {
                     let pin_label = if cur_file_pinned {
-                        RichText::new(format!("📌 ✓ {}", t("Auto-Load")))
+                        RichText::new(format!("📌 ✓ {}", crate::tl!("Auto-Load")))
                             .strong()
                             .color(egui::Color32::from_rgb(0x4e, 0xc9, 0x6f))
                     } else {
-                        RichText::new(format!("📌 {}", t("Auto-Load")))
+                        RichText::new(format!("📌 {}", crate::tl!("Auto-Load")))
                     };
                     if ui
                         .button(pin_label)
-                        .on_hover_text(t("Toggle Startup Suite: automatically load this file at startup and in every opened drawing"))
+                        .on_hover_text(crate::tl!("Toggle Startup Suite: automatically load this file at startup and in every opened drawing"))
                         .clicked()
                     {
                         toggle_startup_path = Some(fp.clone());
@@ -885,9 +884,9 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
 
                 ui.separator();
                 egui::ComboBox::from_id_salt("lisp_template_combo")
-                    .selected_text(t("Template..."))
+                    .selected_text(crate::tl!("Template..."))
                     .show_ui(ui, |ui| {
-                        if ui.selectable_label(false, t("0. Empty file (New)")).clicked() {
+                        if ui.selectable_label(false, crate::tl!("0. Empty file (New)")).clicked() {
                             ide.file_name = match ide.lang {
                                 IdeLang::Lisp => "Nieuw.lsp".into(),
                                 IdeLang::VbNet => "Nieuw.vb".into(),
@@ -898,14 +897,14 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                             ide.loaded_code = None;
                             ide.commands.clear();
                         }
-                        if ui.selectable_label(false, t("1. AutoLISP: Basic Math & Commands")).clicked() {
+                        if ui.selectable_label(false, crate::tl!("1. AutoLISP: Basic Math & Commands")).clicked() {
                             ide.lang = IdeLang::Lisp;
                             ide.file_name = "routine.lsp".into();
                             ide.code = DEFAULT_LISP.to_string();
                             ide.loaded_code = None;
                             ide.commands = extract_c_commands(&ide.code);
                         }
-                        if ui.selectable_label(false, t("2. AutoLISP: Survey Marker (c:meetpunt)")).clicked() {
+                        if ui.selectable_label(false, crate::tl!("2. AutoLISP: Survey Marker (c:meetpunt)")).clicked() {
                             ide.lang = IdeLang::Lisp;
                             ide.file_name = "meetpunt.lsp".into();
                             ide.code = r#";; Draws a circle with crosshair at a picked point
@@ -927,12 +926,12 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                             ide.loaded_code = None;
                             ide.commands = extract_c_commands(&ide.code);
                         }
-                        if ui.selectable_label(false, t("3. VB.NET Plugin (.vb -> .dll)")).clicked() {
+                        if ui.selectable_label(false, crate::tl!("3. VB.NET Plugin (.vb -> .dll)")).clicked() {
                             ide.lang = IdeLang::VbNet;
                             ide.file_name = "MyCadPlugin.vb".into();
                             ide.code = DEFAULT_VBNET.to_string();
                         }
-                        if ui.selectable_label(false, t("4. C# Plugin (.cs -> .dll)")).clicked() {
+                        if ui.selectable_label(false, crate::tl!("4. C# Plugin (.cs -> .dll)")).clicked() {
                             ide.lang = IdeLang::CSharp;
                             ide.file_name = "MyCSharpPlugin.cs".into();
                             ide.code = DEFAULT_CSHARP.to_string();
@@ -957,7 +956,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                         let pin_btn = if dll_pinned { "📌 ✓" } else { "📌" };
                         if ui
                             .small_button(pin_btn)
-                            .on_hover_text(t("Toggle Startup Suite (Auto-Load at startup)"))
+                            .on_hover_text(crate::tl!("Toggle Startup Suite (Auto-Load at startup)"))
                             .clicked()
                         {
                             toggle_startup_path = Some(dll.path.clone());
@@ -972,7 +971,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                 )
                                 .on_hover_text(format!(
                                     "{} {cmd} ({})",
-                                    t("Run .NET command"),
+                                    crate::tl!("Run .NET command"),
                                     dll.name
                                 ))
                                 .clicked()
@@ -988,11 +987,11 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             if ide.lang == IdeLang::Lisp && !ide.commands.is_empty() {
                 ui.separator();
                 ui.horizontal_wrapped(|ui| {
-                    ui.label(RichText::new(format!("{}:", t("AutoLISP Commands (click to run)"))).strong());
+                    ui.label(RichText::new(format!("{}:", crate::tl!("AutoLISP Commands (click to run)"))).strong());
                     for cmd in &ide.commands {
                         if ui
                             .button(RichText::new(format!("▶ {cmd}")).monospace().strong())
-                            .on_hover_text(format!("{} {cmd}", t("Run command")))
+                            .on_hover_text(format!("{} {cmd}", crate::tl!("Run command")))
                             .clicked()
                         {
                             run_lisp_cmd = Some(cmd.clone());
@@ -1005,9 +1004,9 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
 
             // Code editor
             let editor_title = match ide.lang {
-                IdeLang::Lisp => t("AutoLISP Editor (.lsp)"),
-                IdeLang::VbNet => t("VB.NET Plugin Editor (.vb)"),
-                IdeLang::CSharp => t("C# Plugin Editor (.cs)"),
+                IdeLang::Lisp => crate::tl!("AutoLISP Editor (.lsp)"),
+                IdeLang::VbNet => crate::tl!("VB.NET Plugin Editor (.vb)"),
+                IdeLang::CSharp => crate::tl!("C# Plugin Editor (.cs)"),
             };
             ui.horizontal(|ui| {
                 ui.label(RichText::new(format!("{editor_title}:")).strong());
@@ -1033,19 +1032,19 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
 
             // Quick expression bar (`(+ 1 2)` or `+ 1 2`)
             ui.horizontal(|ui| {
-                ui.label(RichText::new(format!("{}:", t("Quick Expression"))).strong());
+                ui.label(RichText::new(format!("{}:", crate::tl!("Quick Expression"))).strong());
                 let resp = ui.add(
                     egui::TextEdit::singleline(&mut ide.quick_expr)
                         .font(egui::TextStyle::Monospace)
                         .desired_width(340.0)
-                        .hint_text(t("e.g. (+ 1 2) or + 1 2")),
+                        .hint_text(crate::tl!("e.g. (+ 1 2) or + 1 2")),
                 );
                 if (resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)))
-                    || ui.button(t("Evaluate")).clicked()
+                    || ui.button(crate::tl!("Evaluate")).clicked()
                 {
                     do_eval_quick = true;
                 }
-                if ui.button(t("Clear Log")).clicked() {
+                if ui.button(crate::tl!("Clear Log")).clicked() {
                     ide.output.clear();
                 }
             });
@@ -1053,7 +1052,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
             ui.separator();
 
             // Output console
-            ui.label(RichText::new(format!("{}:", t("Console / Output"))).strong());
+            ui.label(RichText::new(format!("{}:", crate::tl!("Console / Output"))).strong());
             egui::Frame::NONE
                 .fill(tok.chrome_dark)
                 .inner_margin(egui::Margin::same(6))
@@ -1095,12 +1094,12 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     if let Some(name) = std::path::Path::new(&path).file_name() {
                         ide.file_name = name.to_string_lossy().to_string();
                     }
-                    let msg = format!("{}: {path}", t("Saved to"));
+                    let msg = format!("{}: {path}", crate::tl!("Saved to"));
                     ide.output.push(msg.clone());
                     ide.status = Some(msg);
                 }
                 Err(e) => {
-                    let msg = format!("{} {path}: {e}", t("Failed to save to"));
+                    let msg = format!("{} {path}: {e}", crate::tl!("Failed to save to"));
                     ide.output.push(msg.clone());
                     ide.status = Some(msg);
                 }
@@ -1193,10 +1192,10 @@ pub fn plugin_menu_overlay(app: &mut CadApp, ctx: &egui::Context) {
             } else if ide.loaded_dlls.is_empty() && !ide.commands.is_empty() {
                 format!("📜 {}", ide.file_name)
             } else {
-                format!("🧩 {}", t("Plugin Commands"))
+                format!("🧩 {}", crate::tl!("Plugin Commands"))
             }
         })
-        .unwrap_or_else(|| format!("🧩 {}", t("Plugin Commands")));
+        .unwrap_or_else(|| format!("🧩 {}", crate::tl!("Plugin Commands")));
 
     egui::Window::new(window_title)
         .id(egui::Id::new("cc_plugin_mini_menu"))
@@ -1230,7 +1229,7 @@ pub fn plugin_menu_overlay(app: &mut CadApp, ctx: &egui::Context) {
                             )
                             .on_hover_text(format!(
                                 "{} {cmd} ({})",
-                                t("Run .NET command"),
+                                crate::tl!("Run .NET command"),
                                 dll.name
                             ))
                             .clicked()
@@ -1259,7 +1258,7 @@ pub fn plugin_menu_overlay(app: &mut CadApp, ctx: &egui::Context) {
                                     .strong()
                                     .color(egui::Color32::from_rgb(0x4e, 0xc9, 0x6f)),
                             )
-                            .on_hover_text(format!("{} {cmd}", t("Run command")))
+                            .on_hover_text(format!("{} {cmd}", crate::tl!("Run command")))
                             .clicked()
                         {
                             run_lisp_cmd = Some(cmd.clone());
@@ -1270,28 +1269,28 @@ pub fn plugin_menu_overlay(app: &mut CadApp, ctx: &egui::Context) {
             ui.separator();
             ui.horizontal(|ui| {
                 if ui
-                    .small_button(format!("📂 {}", t("Open .lsp / .vb / .cs")))
-                    .on_hover_text(t("Select and load a .lsp, .dll, .vb, or .cs file from disk"))
+                    .small_button(format!("📂 {}", crate::tl!("Open .lsp / .vb / .cs")))
+                    .on_hover_text(crate::tl!("Select and load a .lsp, .dll, .vb, or .cs file from disk"))
                     .clicked()
                 {
                     do_netload = true;
                 }
                 if ui
-                    .small_button(format!("🛠 {}", t("Open Studio")))
-                    .on_hover_text(t("Open the full AutoLISP / VB.NET / C# & NETLOAD Studio"))
+                    .small_button(format!("🛠 {}", crate::tl!("Open Studio")))
+                    .on_hover_text(crate::tl!("Open the full AutoLISP / VB.NET / C# & NETLOAD Studio"))
                     .clicked()
                 {
                     do_open_studio = true;
                 }
                 if let Some(fp) = &ide.file_path {
                     let pin_txt = if cur_file_pinned {
-                        format!("📌 ✓ {}", t("Auto-Load"))
+                        format!("📌 ✓ {}", crate::tl!("Auto-Load"))
                     } else {
-                        format!("📌 {}", t("Auto-Load"))
+                        format!("📌 {}", crate::tl!("Auto-Load"))
                     };
                     if ui
                         .small_button(pin_txt)
-                        .on_hover_text(t("Toggle Startup Suite: automatically load this file at startup and in every opened drawing"))
+                        .on_hover_text(crate::tl!("Toggle Startup Suite: automatically load this file at startup and in every opened drawing"))
                         .clicked()
                     {
                         toggle_startup_path = Some(fp.clone());
@@ -1370,17 +1369,17 @@ pub fn plugin_menubar_item(app: &mut CadApp, ui: &mut egui::Ui) {
         ide.loaded_dlls.len() + usize::from(ide.loaded_code.is_some() && !ide.commands.is_empty())
     });
     let label = if plugin_count > 0 {
-        RichText::new(format!("🧩 {} ({plugin_count})", t("Plugins")))
+        RichText::new(format!("🧩 {} ({plugin_count})", crate::tl!("Plugins")))
             .strong()
             .color(egui::Color32::from_rgb(0x38, 0xb6, 0xff))
     } else {
-        RichText::new(format!("🧩 {}", t("Plugins")))
+        RichText::new(format!("🧩 {}", crate::tl!("Plugins")))
     };
 
     ui.menu_button(label, |ui| {
         if ui
             .button(
-                RichText::new(format!("📂 {}...", t("Open .lsp / .vb / .cs")))
+                RichText::new(format!("📂 {}...", crate::tl!("Open .lsp / .vb / .cs")))
                     .strong()
                     .color(egui::Color32::from_rgb(0x38, 0xb6, 0xff)),
             )
@@ -1390,7 +1389,7 @@ pub fn plugin_menubar_item(app: &mut CadApp, ui: &mut egui::Ui) {
             ui.close();
         }
         if ui
-            .button(format!("🛠 {}...", t("Open NETLOAD Studio (VBAIDE)")))
+            .button(format!("🛠 {}...", crate::tl!("Open NETLOAD Studio (VBAIDE)")))
             .clicked()
         {
             do_open_studio = true;
@@ -1401,9 +1400,9 @@ pub fn plugin_menubar_item(app: &mut CadApp, ui: &mut egui::Ui) {
                 || (ide.loaded_code.is_some() && !ide.commands.is_empty()))
         {
             let float_label = if ide.show_plugin_menu {
-                format!("✓ {}", t("Show Floating Command Menu"))
+                format!("✓ {}", crate::tl!("Show Floating Command Menu"))
             } else {
-                format!("  {}", t("Show Floating Command Menu"))
+                format!("  {}", crate::tl!("Show Floating Command Menu"))
             };
             if ui.button(float_label).clicked() {
                 toggle_floating = true;

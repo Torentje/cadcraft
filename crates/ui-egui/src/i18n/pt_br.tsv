@@ -1327,3 +1327,277 @@
 	✔ XData saved to entity (Undoable)	✔ XData salvos na entidade (Ctrl+Z disponível)
 	Error: {err}	Erro: {err}
 	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Os XData mudaram fora do editor — clique em Reverter antes de salvar.
+	+  |  {view} ({yaw}°, {pitch}°)  |  3D Orbit Wireframe	+  |  {view} ({yaw}°, {pitch}°)  |  Estrutura de arame de órbita 3D
+	.NET Plugin Bridge	Ponte de plug-ins .NET
+	3D Orbit	Órbita 3D
+	3D Views	Vistas 3D
+	Add: Pick points	Adicionar: Selecionar pontos
+	Add: Select objects	Adicionar: Selecionar objetos
+	Add…	Adicionar…
+	Adjust Image...	Ajustar imagem...
+	Adjust...	Ajustar...
+	Alias	Alias
+	Alias file: {file}	Arquivo de alias: {file}
+	Align Multileaders	Alinhar linhas de chamada múltiplas
+	Analyze Usage	Analisar uso
+	Angstroms	Angstroms
+	Apply to Layout	Aplicar ao layout
+	Architectural	Arquitetura
+	Arrow size	Tamanho da seta
+	Associate	Associar
+	Associative	Associativo
+	Astronomical Units	Unidades astronômicas
+	Attach Image...	Anexar imagem...
+	AutoLISP (LSP)	AutoLISP (LSP)
+	AutoLISP / VB.NET / C# IDE...	IDE AutoLISP / VB.NET / C#...
+	AutoLISP / VBA IDE...	IDE AutoLISP / VBA...
+	Back	Posterior
+	Block to create or edit	Bloco a criar ou editar
+	Bottom left	Inferior esquerdo
+	Bottom right	Inferior direito
+	Boundaries	Contornos
+	Boundaries picked: {n}	Contornos selecionados: {n}
+	Break-line Symbol	Símbolo de linha de interrupção
+	Center the plot	Centralizar a plotagem
+	Centered	Centralizado
+	Centimeters	Centímetros
+	Change Properties	Alterar propriedades
+	Choose the command the alias starts.	Escolha o comando que o alias inicia.
+	Clear Recent Files	Limpar arquivos recentes
+	Click the ruler to add a tab stop, right-click to remove one	Clique na régua para adicionar uma parada de tabulação, clique com o botão direito para remover
+	Click to set new origin	Clique para definir nova origem
+	Clip Image	Recortar imagem
+	Close Block Editor	Fechar editor de blocos
+	Collect	Coletar
+	Collect Multileaders	Coletar linhas de chamada múltiplas
+	Color 1	Cor 1
+	Color 2	Cor 2
+	Command	Comando
+	Convert Text to Mtext	Converter texto em Mtext
+	Create separate hatches	Criar hachuras separadas
+	Crossing selection color:	Cor da seleção intersecção:
+	Curved	Curvo
+	Custom	Personalizado
+	Customize	Personalizar
+	Decameters	Decâmetros
+	Decimal	Decimal
+	Decimal Degrees	Graus decimais
+	Decimeters	Decímetros
+	Default to boundary extents	Padrão para os limites do contorno
+	Deg/Min/Sec	Grau/Min/Seg
+	Dim scale overall	Escala geral de cotas
+	Discard	Descartar
+	Drag Dynamic Grip	Arrastar alça dinâmica
+	Drawing Units	Unidades do desenho
+	Dynamic Block Data	Dados do bloco dinâmico
+	Dynamic Block Grips	Alças do bloco dinâmico
+	Dynamic Block Reference	Referência de bloco dinâmico
+	Edit Block Definition	Editar definição de bloco
+	Edit Command Aliases (PGP)...	Editar aliases de comando (PGP)...
+	Edit Multileader	Editar linha de chamada múltipla
+	Edit…	Editar…
+	Engineering	Engenharia
+	Enter block names to extract	Insira os nomes dos blocos a extrair
+	Enter geometric characteristic	Insira a característica geométrica
+	Enter name of LISP file to load	Insira o nome do arquivo LISP a carregar
+	Evaluate LISP	Avaliar LISP
+	Exclude:	Excluir:
+	Explode Attributes to Text	Explodir atributos em texto
+	Express Tools	Express Tools
+	Feet	Pés
+	First corner	Primeiro canto
+	Fit to paper	Ajustar ao papel
+	Fractional	Fracionário
+	Frame	Moldura
+	Front	Frontal
+	Gigameters	Gigâmetros
+	Grads	Grados
+	Grips	Alças
+	Groups	Grupos
+	Hatch Pick	Seleção de hachura
+	Hatch and Gradient	Hachura e gradiente
+	Hatch origin	Origem da hachura
+	Hatches	Hachuras
+	Hectometers	Hectômetros
+	Hemispherical	Hemisférico
+	Ignore	Ignorar
+	Image	Imagem
+	Image Frame	Moldura da imagem
+	Imperial (inches)	Imperial (polegadas)
+	Implied Loops	Loops implícitos
+	Inches	Polegadas
+	Indicate selection area	Indicar área de seleção
+	Insertion scale	Escala de inserção
+	Interface scale	Escala da interface
+	Inverted	Invertido
+	Island	Ilha
+	Island detection	Detecção de ilhas
+	Italic	Itálico
+	Justify	Justificar
+	Kilometers	Quilômetros
+	Landscape	Paisagem
+	Layouts	Layouts
+	Light Years	Anos-luz
+	Limits	Limites
+	Load .NET DLL / LISP Application (NETLOAD)...	Carregar aplicativo .NET DLL / LISP (NETLOAD)...
+	Load Application (NETLOAD)...	Carregar aplicativo (NETLOAD)...
+	Load Application...	Carregar aplicativo...
+	Meters	Metros
+	Metric (millimetres)	Métrico (milímetros)
+	Microinches	Micropolegadas
+	Microns	Mícrons
+	Miles	Milhas
+	Millimeters	Milímetros
+	Mils	Mils
+	Model Tab	Guia Modelo
+	More than {n} aliases.	Mais de {n} aliases.
+	Move/Copy/Rotate	Mover/Copiar/Rotacionar
+	Multiline text	Texto de múltiplas linhas
+	NE Isometric	Isométrico NE
+	NW Isometric	Isométrico NO
+	Nanometers	Nanômetros
+	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Os novos desenhos e o primeiro desenho na inicialização usam estas unidades, a menos que um modelo padrão esteja definido (QNEWTEMPLATE).
+	New block	Novo bloco
+	No alias file loaded. REINIT replaces these aliases with a file's.	Nenhum arquivo de alias carregado. REINIT substitui esses aliases pelos de um arquivo.
+	Normal	Normal
+	Object grouping	Agrupamento de objetos
+	Object selection limit for display of grips	Limite de seleção de objetos para exibição de alças
+	Objects on locked layers	Objetos em camadas bloqueadas
+	Open Recent	Abrir recentes
+	Open in Block Editor	Abrir no editor de blocos
+	Opposite corner	Canto oposto
+	Orientation	Orientação
+	Origin: {x}, {y}	Origem: {x}, {y}
+	Outer	Externo
+	Overline	Sobrelinha
+	Paper size	Tamanho do papel
+	Parsecs	Parsecs
+	Plot area	Área de plotagem
+	Plot object lineweights	Plotar espessuras de linha do objeto
+	Plot offset	Deslocamento de plotagem
+	Plot transparency	Plotar transparência
+	Portrait	Retrato
+	Precision	Precisão
+	Preview	Visualizar
+	Printer/plotter	Impressora/plotadora
+	Radians	Radianos
+	Raster Image Reference...	Referência de imagem raster...
+	SE Isometric	Isométrico SE
+	SW Isometric	Isométrico SO
+	Sample output	Exemplo de saída
+	Save Block	Salvar bloco
+	Save Block As	Salvar bloco como
+	Save alias	Salvar alias
+	Scientific	Científico
+	Select boundaries to remove	Selecione os contornos a remover
+	Selection Area Effect	Efeito da área de seleção
+	Selection Preview Filter	Filtro de visualização da seleção
+	Selection area opacity:	Opacidade da área de seleção:
+	Selection effect color	Cor do efeito de seleção
+	Selection modes	Modos de seleção
+	Selection preview	Visualização da seleção
+	Set Dynamic Property	Definir propriedade dinâmica
+	Shape	Forma
+	Sheet Books to PDF...	Cadernos de pranchas para PDF...
+	Show grips	Exibir alças
+	Specified origin	Origem especificada
+	Spherical	Esférico
+	Surveyor's Units	Unidades topográficas
+	Tables	Tabelas
+	Text color	Cor do texto
+	This drawing	Este desenho
+	Top (2D Plan)	Superior (Planta 2D)
+	Top left	Superior esquerdo
+	Top right	Superior direito
+	Type an alias name.	Digite um nome de alias.
+	US Survey Feet	Pés de pesquisa dos EUA
+	US Survey Inch	Polegadas de pesquisa dos EUA
+	US Survey Mile	Milhas de pesquisa dos EUA
+	US Survey Yard	Jardas de pesquisa dos EUA
+	Underline	Sublinhado
+	Unitless	Sem unidade
+	Units of new drawings	Unidades de novos desenhos
+	Units to scale inserted content	Unidades para escalonar o conteúdo inserido
+	Unsaved changes	Alterações não salvas
+	Use current origin	Usar origem atual
+	View Resolution	Resolução da vista
+	Visual Effect Settings	Configurações de efeitos visuais
+	Visual Effect Settings...	Configurações de efeitos visuais...
+	When a command is active	Quando um comando está ativo
+	When no command is active	Quando nenhum comando está ativo
+	Window <	Janela <
+	Window selection color:	Cor da seleção por janela:
+	X offset (mm)	Deslocamento X (mm)
+	Xrefs	RefEx
+	Y offset (mm)	Deslocamento Y (mm)
+	Yards	Jardas
+	built-in	integrado
+	contains authoring elements. Open in Block Editor?	contém elementos de criação. Abrir no editor de blocos?
+	overrides built-in	substitui o integrado
+	{alias} is already defined; select it and use Edit.	{alias} já está definido; selecione-o e use Editar.
+	{command} is an unknown command.	{command} é um comando desconhecido.
+	📋 Copy All	📋 Copiar tudo
+	🗑 Clear	🗑 Limpar
+	.NET command started	Comando .NET iniciado
+	0. Empty file (New)	0. Arquivo vazio (Novo)
+	1. AutoLISP: Basic Math & Commands	1. AutoLISP: Matemática básica e comandos
+	2. AutoLISP: Survey Marker (c:meetpunt)	2. AutoLISP: Marco topográfico (c:meetpunt)
+	3. VB.NET Plugin (.vb -> .dll)	3. Plug-in VB.NET (.vb -> .dll)
+	4. C# Plugin (.cs -> .dll)	4. Plug-in C# (.cs -> .dll)
+	Added to Startup Suite (Auto-Load at startup & per drawing)	Adicionado ao grupo de inicialização (carregamento automático ao iniciar e por desenho)
+	Auto-Load	Carregamento automático
+	AutoLISP / VB.NET / C# IDE & NETLOAD Studio	IDE AutoLISP / VB.NET / C# e NETLOAD Studio
+	AutoLISP Commands (click to run)	Comandos AutoLISP (clique para executar)
+	AutoLISP Editor (.lsp)	Editor AutoLISP (.lsp)
+	Bottom	Inferior
+	C# Plugin Editor (.cs)	Editor de plug-in C# (.cs)
+	C# source opened	Código-fonte C# aberto
+	Clear Log	Limpar registro
+	Commands	Comandos
+	Compact Menu	Menu compacto
+	Compilation error	Erro de compilação
+	Compilation failed (see Console)	Falha na compilação (veja o Console)
+	Compilation succeeded	Compilação concluída com êxito
+	Compile & Load .NET DLL	Compilar e carregar DLL .NET
+	Console / Output	Console / Saída
+	Error	Erro
+	Error in	Erro em
+	Error: cadcraft-nethost.exe not found next to the application.	Erro: cadcraft-nethost.exe não encontrado ao lado do aplicativo.
+	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Avaliar o código LISP ou compilar o código-fonte VB.NET / C# diretamente em uma DLL .NET
+	Failed to invoke compiler	Falha ao chamar o compilador
+	Failed to load	Falha ao carregar
+	Failed to save to	Falha ao salvar em
+	Failed to start .NET command	Falha ao iniciar o comando .NET
+	Failed to write source file	Falha ao gravar o arquivo de código-fonte
+	Hide this Studio window and show the compact floating Plugin Commands menu	Ocultar esta janela do Studio e mostrar o menu flutuante compacto de Comandos de plug-in
+	Load & Run LISP	Carregar e executar LISP
+	NETLOAD .NET DLL loaded	DLL .NET do NETLOAD carregada
+	NETLOAD error in	Erro do NETLOAD em
+	NETLOAD failed to run cadcraft-nethost.exe	Falha do NETLOAD ao executar cadcraft-nethost.exe
+	Open .lsp / .vb / .cs	Abrir .lsp / .vb / .cs
+	Open NETLOAD Studio (VBAIDE)	Abrir NETLOAD Studio (VBAIDE)
+	Open Studio	Abrir Studio
+	Open the full AutoLISP / VB.NET / C# & NETLOAD Studio	Abrir o ambiente completo AutoLISP / VB.NET / C# & NETLOAD Studio
+	Plugin Commands	Comandos de plug-in
+	Plugins	Plug-ins
+	Quick Expression	Expressão rápida
+	Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.	Pronto. Abra um arquivo .dll (.NET VB.NET/C#) ou .lsp (AutoLISP) via NETLOAD.
+	Registered commands	Comandos registrados
+	Removed from Startup Suite (Auto-Load)	Removido do Conjunto de inicialização (Carregamento automático)
+	Routine started	Rotina iniciada
+	Routine started from	Rotina iniciada a partir de
+	Run .NET command	Executar comando .NET
+	Run command	Executar comando
+	Save the current source code in the editor to disk	Salvar o código-fonte atual do editor no disco
+	Saved to	Salvo em
+	Select and load a .lsp, .dll, .vb, or .cs file from disk	Selecionar e carregar um arquivo .lsp, .dll, .vb ou .cs do disco
+	Show Floating Command Menu	Mostrar menu de comandos flutuante
+	Template...	Modelo...
+	Toggle Startup Suite (Auto-Load at startup)	Alternar Conjunto de inicialização (Carregamento automático ao iniciar)
+	Toggle Startup Suite: automatically load this file at startup and in every opened drawing	Alternar Conjunto de inicialização: carregar automaticamente este arquivo ao iniciar e em cada desenho aberto
+	VB.NET Plugin Editor (.vb)	Editor de plug-in VB.NET (.vb)
+	VB.NET source opened	Código-fonte VB.NET aberto
+	cadcraft-nethost.exe not found	cadcraft-nethost.exe não encontrado
+	cannot read file	não é possível ler o arquivo
+	e.g. (+ 1 2) or + 1 2	ex.: (+ 1 2) ou + 1 2
+	no [CommandMethod] found	nenhum [CommandMethod] encontrado

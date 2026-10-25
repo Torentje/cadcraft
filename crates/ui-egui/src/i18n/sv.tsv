@@ -1474,3 +1474,142 @@ menu	Modify	Ändra
 	✔ XData saved to entity (Undoable)	✔ XData sparade i objektet (Ctrl+Z möjligt)
 	Error: {err}	Fel: {err}
 	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Objektets XData ändrades utanför redigeraren — klicka på Återställ innan du sparar.
+	+  |  {view} ({yaw}°, {pitch}°)  |  3D Orbit Wireframe	+  |  {view} ({yaw}°, {pitch}°)  |  3D-bana trådmodell
+	.NET Plugin Bridge	.NET-insticksbrygga
+	3D Orbit	3D-bana
+	3D Views	3D-vyer
+	Adjust Image...	Justera bild...
+	Adjust...	Justera...
+	Analyze Usage	Analysera användning
+	Angstroms	Ångström
+	Architectural	Arkitektoniska
+	Associate	Associera
+	Astronomical Units	Astronomiska enheter
+	Attach Image...	Bifoga bild...
+	AutoLISP (LSP)	AutoLISP (LSP)
+	AutoLISP / VB.NET / C# IDE...	AutoLISP / VB.NET / C# IDE...
+	AutoLISP / VBA IDE...	AutoLISP / VBA IDE...
+	Back	Bakifrån
+	Centimeters	Centimeter
+	Change Properties	Ändra egenskaper
+	Clip Image	Klipp bild
+	Decameters	Dekameter
+	Decimal	Decimal
+	Decimal Degrees	Decimalgrader
+	Decimeters	Decimeter
+	Deg/Min/Sec	Grader/min/sek
+	Drawing Units	Ritningsenheter
+	Engineering	Tekniska
+	Feet	Fot
+	Fractional	Bråk
+	Frame	Ram
+	Front	Framifrån
+	Gigameters	Gigameter
+	Grads	Gon
+	Hectometers	Hektometer
+	Image	Bild
+	Image Frame	Bildram
+	Imperial (inches)	Imperiska (tum)
+	Implied Loops	Implicita slingor
+	Inches	Tum
+	Insertion scale	Infogningsskala
+	Kilometers	Kilometer
+	Layouts	Layouter
+	Light Years	Ljusår
+	Load .NET DLL / LISP Application (NETLOAD)...	Läs in .NET DLL- / LISP-program (NETLOAD)...
+	Load Application (NETLOAD)...	Läs in program (NETLOAD)...
+	Meters	Meter
+	Metric (millimetres)	Metriska (millimeter)
+	Microinches	Mikrotum
+	Microns	Mikrometer
+	Miles	Engelska mil
+	Millimeters	Millimeter
+	Mils	Mil
+	Model Tab	Fliken Modell
+	NE Isometric	NO isometrisk
+	NW Isometric	NV isometrisk
+	Nanometers	Nanometer
+	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Nya ritningar och den första ritningen vid start använder dessa enheter om inte en standardmall är angiven (QNEWTEMPLATE).
+	Parsecs	Parsec
+	Radians	Radianer
+	Raster Image Reference...	Rasterbildsreferens...
+	SE Isometric	SO isometrisk
+	SW Isometric	SV isometrisk
+	Sample output	Exempelutdata
+	Scientific	Vetenskapliga
+	Surveyor's Units	Lantmäterienheter
+	Top (2D Plan)	Uppifrån (2D-plan)
+	US Survey Feet	Amerikanska lantmäterifot
+	US Survey Inch	Amerikanska lantmäteritum
+	US Survey Mile	Amerikanska lantmäterimil
+	US Survey Yard	Amerikanska lantmäteriyard
+	Unitless	Enhetslös
+	Units of new drawings	Enheter för nya ritningar
+	Units to scale inserted content	Enheter för att skala infogat innehåll
+	View Resolution	Vyupplösning
+	Yards	Yard
+	📋 Copy All	📋 Kopiera allt
+	🗑 Clear	🗑 Rensa
+	.NET command started	.NET-kommando startat
+	0. Empty file (New)	0. Tom fil (Ny)
+	1. AutoLISP: Basic Math & Commands	1. AutoLISP: Grundläggande matematik & kommandon
+	2. AutoLISP: Survey Marker (c:meetpunt)	2. AutoLISP: Mätpunkt (c:meetpunt)
+	3. VB.NET Plugin (.vb -> .dll)	3. VB.NET-insticksmodul (.vb -> .dll)
+	4. C# Plugin (.cs -> .dll)	4. C#-insticksmodul (.cs -> .dll)
+	Added to Startup Suite (Auto-Load at startup & per drawing)	Tillagd i startgruppen (automatisk inläsning vid start & per ritning)
+	Auto-Load	Läs in automatiskt
+	AutoLISP / VB.NET / C# IDE & NETLOAD Studio	AutoLISP / VB.NET / C# IDE & NETLOAD Studio
+	AutoLISP Commands (click to run)	AutoLISP-kommandon (klicka för att köra)
+	AutoLISP Editor (.lsp)	AutoLISP-redigerare (.lsp)
+	Bottom	Underifrån
+	C# Plugin Editor (.cs)	C#-insticksredigerare (.cs)
+	C# source opened	C#-källkod öppnad
+	Clear Log	Rensa logg
+	Commands	Kommandon
+	Compact Menu	Kompakt meny
+	Compilation error	Kompileringsfel
+	Compilation failed (see Console)	Kompilering misslyckades (se Konsol)
+	Compilation succeeded	Kompilering lyckades
+	Compile & Load .NET DLL	Kompilera & läs in .NET-DLL
+	Console / Output	Konsol / Utdata
+	Error	Fel
+	Error in	Fel i
+	Error: cadcraft-nethost.exe not found next to the application.	Fel: cadcraft-nethost.exe hittades inte bredvid programmet.
+	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Utvärdera LISP-koden eller kompilera VB.NET- / C#-källkoden direkt till en .NET-DLL
+	Failed to invoke compiler	Det gick inte att starta kompilatorn
+	Failed to load	Det gick inte att läsa in
+	Failed to save to	Det gick inte att spara till
+	Failed to start .NET command	Det gick inte att starta .NET-kommandot
+	Failed to write source file	Det gick inte att skriva källfilen
+	Hide this Studio window and show the compact floating Plugin Commands menu	Dölj detta Studio-fönster och visa den kompakta flytande menyn Instickskommandon
+	Load & Run LISP	Läs in och kör LISP
+	NETLOAD .NET DLL loaded	NETLOAD .NET DLL inläst
+	NETLOAD error in	NETLOAD-fel i
+	NETLOAD failed to run cadcraft-nethost.exe	NETLOAD kunde inte köra cadcraft-nethost.exe
+	Open .lsp / .vb / .cs	Öppna .lsp / .vb / .cs
+	Open NETLOAD Studio (VBAIDE)	Öppna NETLOAD Studio (VBAIDE)
+	Open Studio	Öppna Studio
+	Open the full AutoLISP / VB.NET / C# & NETLOAD Studio	Öppna hela AutoLISP / VB.NET / C# & NETLOAD Studio
+	Plugin Commands	Instickskommandon
+	Plugins	Insticksprogram
+	Quick Expression	Snabbuttryck
+	Ready. Open a .dll (.NET VB.NET/C#) or .lsp (AutoLISP) file via NETLOAD.	Redo. Öppna en .dll- (.NET VB.NET/C#) eller .lsp-fil (AutoLISP) via NETLOAD.
+	Registered commands	Registrerade kommandon
+	Removed from Startup Suite (Auto-Load)	Borttagen från startgruppen (automatisk inläsning)
+	Routine started	Rutin startad
+	Routine started from	Rutin startad från
+	Run .NET command	Kör .NET-kommando
+	Run command	Kör kommando
+	Save the current source code in the editor to disk	Spara den aktuella källkoden i redigeraren till disk
+	Saved to	Sparad till
+	Select and load a .lsp, .dll, .vb, or .cs file from disk	Välj och läs in en .lsp-, .dll-, .vb- eller .cs-fil från disk
+	Show Floating Command Menu	Visa flytande kommandomeny
+	Template...	Mall...
+	Toggle Startup Suite (Auto-Load at startup)	Växla startgrupp (läs in automatiskt vid start)
+	Toggle Startup Suite: automatically load this file at startup and in every opened drawing	Växla startgrupp: läs in denna fil automatiskt vid start och i varje öppnad ritning
+	VB.NET Plugin Editor (.vb)	VB.NET-insticksredigerare (.vb)
+	VB.NET source opened	VB.NET-källkod öppnad
+	cadcraft-nethost.exe not found	cadcraft-nethost.exe hittades inte
+	cannot read file	kan inte läsa filen
+	e.g. (+ 1 2) or + 1 2	t.ex. (+ 1 2) eller + 1 2
+	no [CommandMethod] found	ingen [CommandMethod] hittades
