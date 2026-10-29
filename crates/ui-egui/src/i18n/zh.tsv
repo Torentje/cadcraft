@@ -1385,7 +1385,7 @@
 	Copy all XData as text to clipboard	将全部 XData 作为文字复制到剪贴板
 	✓ XData text copied to clipboard	✓ XData 文字已复制到剪贴板
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	新 AppID (例如 Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	新 AppID (例如 CAD_XDATA)
 	+ Add AppID	+ 添加 AppID
 	🗑 Delete AppID	🗑 删除 AppID
 	Remove this Application and its XData from the entity	从对象中删除此应用程序及其 XData
@@ -1399,7 +1399,7 @@
 	Smart Key=Value Columns	智能 名称=数值 列
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	将 'KEY=VALUE' 或 'Key: Value' 拆分为可编辑字段
 	This object currently has no user XData.	此对象当前没有用户 XData。
-	+ Create Lumi_KLIC Application	+ 创建 Lumi_KLIC 应用程序
+	+ Create CAD_XDATA Application	+ 创建 CAD_XDATA 应用程序
 	DXF Code	DXF 代码
 	Property / Key ⇔	特性 / 名称 ⇔
 	Value (Selectable & Editable) ⇔	数值 (可选择与编辑) ⇔

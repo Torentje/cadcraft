@@ -1286,7 +1286,7 @@ menu	Modify	수정
 	Copy all XData as text to clipboard	전체 XData 문자 클립보드 복사
 	✓ XData text copied to clipboard	✓ XData 문자 클립보드 복사됨
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	새 AppID (예: Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	새 AppID (예: CAD_XDATA)
 	+ Add AppID	+ AppID 추가
 	🗑 Delete AppID	🗑 AppID 삭제
 	Remove this Application and its XData from the entity	객체에서 이 AppID 및 XData 삭제
@@ -1300,7 +1300,7 @@ menu	Modify	수정
 	Smart Key=Value Columns	이름=값 열 분리
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	'KEY=VALUE' 항목을 이름과 값 필드로 분리
 	This object currently has no user XData.	이 객체에는 사용자 XData가 없습니다.
-	+ Create Lumi_KLIC Application	+ Lumi_KLIC 작성
+	+ Create CAD_XDATA Application	+ CAD_XDATA 작성
 	DXF Code	DXF 코드
 	Property / Key ⇔	특성 / 이름 ⇔
 	Value (Selectable & Editable) ⇔	값 (선택 및 편집) ⇔

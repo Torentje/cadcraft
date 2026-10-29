@@ -1058,7 +1058,7 @@
 	Copy all XData as text to clipboard	Копировать все XData как текст в буфер обмена
 	✓ XData text copied to clipboard	✓ Текст XData скопирован в буфер обмена
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Новый AppID (напр. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Новый AppID (напр. CAD_XDATA)
 	+ Add AppID	+ Добавить AppID
 	🗑 Delete AppID	🗑 Удалить AppID
 	Remove this Application and its XData from the entity	Удалить это приложение и его XData из объекта
@@ -1072,7 +1072,7 @@
 	Smart Key=Value Columns	Умные столбцы Ключ=Значение
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Разделять 'KEY=VALUE' или 'Key: Value' на отдельные поля Ключ и Значение
 	This object currently has no user XData.	У этого объекта нет пользовательских XData.
-	+ Create Lumi_KLIC Application	+ Создать приложение Lumi_KLIC
+	+ Create CAD_XDATA Application	+ Создать приложение CAD_XDATA
 	DXF Code	Код DXF
 	Property / Key ⇔	Свойство / Ключ ⇔
 	Value (Selectable & Editable) ⇔	Значение (Выбор и редактирование) ⇔

@@ -1266,7 +1266,7 @@ menu	Modify	Modifikace
 	Copy all XData as text to clipboard	Kopírovat všechna XData jako text do schránky
 	✓ XData text copied to clipboard	✓ Text XData zkopírován do schránky
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Nové AppID (např. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Nové AppID (např. CAD_XDATA)
 	+ Add AppID	+ Přidat AppID
 	🗑 Delete AppID	🗑 Smazat AppID
 	Remove this Application and its XData from the entity	Odebrat tuto aplikaci a její XData z objektu
@@ -1280,7 +1280,7 @@ menu	Modify	Modifikace
 	Smart Key=Value Columns	Chytré sloupce Klíč=Hodnota
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Rozdělit 'KEY=VALUE' nebo 'Key: Value' do samostatných polí Klíč a Hodnota
 	This object currently has no user XData.	Tento objekt momentálně nemá žádná uživatelská XData.
-	+ Create Lumi_KLIC Application	+ Vytvořit aplikaci Lumi_KLIC
+	+ Create CAD_XDATA Application	+ Vytvořit aplikaci CAD_XDATA
 	DXF Code	Kód DXF
 	Property / Key ⇔	Vlastnost / Klíč ⇔
 	Value (Selectable & Editable) ⇔	Hodnota (Vybratelná a Upravitelná) ⇔

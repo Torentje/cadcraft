@@ -1281,7 +1281,7 @@ menu	View	عرض
 	Copy all XData as text to clipboard	نسخ XData كنص إلى الحافظة
 	✓ XData text copied to clipboard	✓ تم نسخ نص XData إلى الحافظة
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	AppID جديد (مثل Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	AppID جديد (مثل CAD_XDATA)
 	+ Add AppID	+ إضافة AppID
 	🗑 Delete AppID	🗑 حذف AppID
 	Remove this Application and its XData from the entity	إزالة هذا التطبيق وبيانات XData من الكائن
@@ -1295,7 +1295,7 @@ menu	View	عرض
 	Smart Key=Value Columns	أعمدة مفتاح=قيمة ذكية
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	فصل المفتاح والقيمة في حقول قابلة للتحرير
 	This object currently has no user XData.	لا توجد بيانات XData لهذا الكائن.
-	+ Create Lumi_KLIC Application	+ إنشاء تطبيق Lumi_KLIC
+	+ Create CAD_XDATA Application	+ إنشاء تطبيق CAD_XDATA
 	DXF Code	رمز DXF
 	Property / Key ⇔	خاصية / مفتاح ⇔
 	Value (Selectable & Editable) ⇔	قيمة (قابلة للتحرير) ⇔

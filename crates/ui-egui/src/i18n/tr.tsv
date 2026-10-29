@@ -1391,7 +1391,7 @@ menu	View	Görünüm
 	Copy all XData as text to clipboard	Tüm XData'yı metin olarak panoya kopyala
 	✓ XData text copied to clipboard	✓ XData metni panoya kopyalandı
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Yeni AppID (örn. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Yeni AppID (örn. CAD_XDATA)
 	+ Add AppID	+ AppID Ekle
 	🗑 Delete AppID	🗑 AppID Sil
 	Remove this Application and its XData from the entity	Bu uygulamayı ve XData verilerini nesneden kaldır
@@ -1405,7 +1405,7 @@ menu	View	Görünüm
 	Smart Key=Value Columns	Akıllı Anahtar=Değer Sütunları
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	'KEY=VALUE' veya 'Key: Value' ifadelerini ayrı düzenlenebilir alanlara böl
 	This object currently has no user XData.	Bu nesnede şu anda kullanıcı XData verisi yok.
-	+ Create Lumi_KLIC Application	+ Lumi_KLIC Uygulaması Oluştur
+	+ Create CAD_XDATA Application	+ CAD_XDATA Uygulaması Oluştur
 	DXF Code	DXF Kodu
 	Property / Key ⇔	Özellik / Anahtar ⇔
 	Value (Selectable & Editable) ⇔	Değer (Seçilebilir ve Düzenlenebilir) ⇔

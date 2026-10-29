@@ -1377,7 +1377,7 @@ menu	View	Προβολή
 	Copy all XData as text to clipboard	Αντιγραφή όλων των XData ως κείμενο στο πρόχειρο
 	✓ XData text copied to clipboard	✓ Το κείμενο XData αντιγράφηκε στο πρόχειρο
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Νέο AppID (π.χ. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Νέο AppID (π.χ. CAD_XDATA)
 	+ Add AppID	+ Προσθήκη AppID
 	🗑 Delete AppID	🗑 Διαγραφή AppID
 	Remove this Application and its XData from the entity	Αφαίρεση αυτής της εφαρμογής και των XData από το αντικείμενο
@@ -1391,7 +1391,7 @@ menu	View	Προβολή
 	Smart Key=Value Columns	Έξυπνες στήλες Κλειδί=Τιμή
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Διαχωρισμός 'KEY=VALUE' ή 'Key: Value' σε ξεχωριστά πεδία Κλειδιού και Τιμής
 	This object currently has no user XData.	Αυτό το αντικείμενο δεν έχει XData χρήστη.
-	+ Create Lumi_KLIC Application	+ Δημιουργία εφαρμογής Lumi_KLIC
+	+ Create CAD_XDATA Application	+ Δημιουργία εφαρμογής CAD_XDATA
 	DXF Code	Κωδικός DXF
 	Property / Key ⇔	Ιδιότητα / Κλειδί ⇔
 	Value (Selectable & Editable) ⇔	Τιμή (Επιλέξιμη & Επεξεργάσιμη) ⇔

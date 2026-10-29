@@ -45,7 +45,8 @@ pub fn specs() -> Vec<CommandSpec> {
             .alias(&["xdl", "xdata"])
             .params("{handles?, app?}")
             .noundo()
-            .interactive(|_| Ok(Box::new(XdListM::default()))),        CommandSpec::new("xdedit", "Edit Xdata", run_xdedit)
+            .interactive(|_| Ok(Box::new(XdListM::default()))),
+        CommandSpec::new("xdedit", "Edit Xdata", run_xdedit)
             .menu(&["Tools", "Inquiry", "Edit Xdata (XDEDIT)"])
             .alias(&["xde"])
             .params("{handle?, xdata?: [{code, value}]}")
@@ -1561,7 +1562,7 @@ mod tests {
         assert!(
             s.execute(
                 "xdedit",
-                &json!({ "handles": [&h_str, &h2_str], "xdata": [{ "code": 1001, "value": "Lumi_KLIC" }] })
+                &json!({ "handles": [&h_str, &h2_str], "xdata": [{ "code": 1001, "value": "CAD_XDATA" }] })
             )
             .is_err()
         );
@@ -1615,7 +1616,7 @@ mod tests {
             &json!({
                 "handles": [&h_str],
                 "xdata": [
-                    { "code": 1001, "value": "Lumi_KLIC" },
+                    { "code": 1001, "value": "CAD_XDATA" },
                     { "code": 1000, "value": "THEMA=Laagspanning" },
                     { "code": 1040, "value": 1.25 },
                     { "code": 1001, "value": "OTHER_APP" },
@@ -1631,7 +1632,7 @@ mod tests {
             .ok()
             .and_then(|v| v["message"].as_str().map(str::to_string))
             .unwrap_or_default();
-        assert!(all_msg.contains("Lumi_KLIC"));
+        assert!(all_msg.contains("CAD_XDATA"));
         assert!(all_msg.contains("OTHER_APP"));
         assert!(!all_msg.contains("OLD_USER_APP"));
         assert!(!all_msg.contains("Application Name: ACAD"));
@@ -1639,11 +1640,11 @@ mod tests {
 
         // Filtered XDLIST only shows the requested application.
         let filtered_msg = s
-            .execute("xdlist", &json!({ "handles": [&h_str], "app": "Lumi_KLIC" }))
+            .execute("xdlist", &json!({ "handles": [&h_str], "app": "CAD_XDATA" }))
             .ok()
             .and_then(|v| v["message"].as_str().map(str::to_string))
             .unwrap_or_default();
-        assert!(filtered_msg.contains("Lumi_KLIC"));
+        assert!(filtered_msg.contains("CAD_XDATA"));
         assert!(filtered_msg.contains("THEMA=Laagspanning"));
         assert!(filtered_msg.contains("1.25"));
         assert!(!filtered_msg.contains("OTHER_APP"));

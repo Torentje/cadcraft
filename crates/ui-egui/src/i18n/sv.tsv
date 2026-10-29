@@ -1487,7 +1487,7 @@ menu	Modify	Ändra
 	Copy all XData as text to clipboard	Kopiera alla XData som text till urklipp
 	✓ XData text copied to clipboard	✓ XData-text kopierad till urklipp
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Nytt AppID (t.ex. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Nytt AppID (t.ex. CAD_XDATA)
 	+ Add AppID	+ Lägg till AppID
 	🗑 Delete AppID	🗑 Ta bort AppID
 	Remove this Application and its XData from the entity	Ta bort detta program och dess XData från objektet
@@ -1501,7 +1501,7 @@ menu	Modify	Ändra
 	Smart Key=Value Columns	Smarta Nyckel=Värde-kolumner
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Dela upp 'KEY=VALUE' eller 'Key: Value' i separata redigerbara fält
 	This object currently has no user XData.	Detta objekt har för närvarande inga användar-XData.
-	+ Create Lumi_KLIC Application	+ Skapa Lumi_KLIC-program
+	+ Create CAD_XDATA Application	+ Skapa CAD_XDATA-program
 	DXF Code	DXF-kod
 	Property / Key ⇔	Egenskap / Nyckel ⇔
 	Value (Selectable & Editable) ⇔	Värde (Markerbart & Redigerbart) ⇔

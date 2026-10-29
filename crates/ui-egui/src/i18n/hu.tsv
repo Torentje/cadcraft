@@ -1388,7 +1388,7 @@ menu	View	Nézet
 	Copy all XData as text to clipboard	Összes XData másolása szövegként a vágólapra
 	✓ XData text copied to clipboard	✓ XData-szöveg a vágólapra másolva
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Új AppID (pl. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Új AppID (pl. CAD_XDATA)
 	+ Add AppID	+ AppID hozzáadása
 	🗑 Delete AppID	🗑 AppID törlése
 	Remove this Application and its XData from the entity	Alkalmazás és XData-adatainak eltávolítása az objektumról
@@ -1402,7 +1402,7 @@ menu	View	Nézet
 	Smart Key=Value Columns	Intelligens Kulcs=Érték oszlopok
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	'KEY=VALUE' vagy 'Key: Value' felosztása külön szerkeszthető Kulcs és Érték mezőkre
 	This object currently has no user XData.	Ennek az objektumnak jelenleg nincs felhasználói XData-ja.
-	+ Create Lumi_KLIC Application	+ Lumi_KLIC alkalmazás létrehozása
+	+ Create CAD_XDATA Application	+ CAD_XDATA alkalmazás létrehozása
 	DXF Code	DXF-kód
 	Property / Key ⇔	Tulajdonság / Kulcs ⇔
 	Value (Selectable & Editable) ⇔	Érték (Kijelölhető és Szerkeszthető) ⇔

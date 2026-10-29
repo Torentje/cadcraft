@@ -93,7 +93,6 @@ fn missing_marked_ui_literals(language: &str) -> BTreeSet<String> {
         "options/dialog",
         "closing",
         "xdedit",
-        "viewcube",
         "context_menu",
         "plotstyles",
         "spacemouse",

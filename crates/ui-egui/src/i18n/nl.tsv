@@ -1371,7 +1371,7 @@ menu	Modify	Wijzigen
 	Copy all XData as text to clipboard	Kopieer alle XData als tekst naar klembord
 	✓ XData text copied to clipboard	✓ XData-tekst gekopieerd naar klembord
 	AppID (1001):	AppID (1001):
-	New AppID (e.g. Lumi_KLIC)	Nieuwe AppID (bijv. Lumi_KLIC)
+	New AppID (e.g. CAD_XDATA)	Nieuwe AppID (bijv. CAD_XDATA)
 	+ Add AppID	+ AppID toevoegen
 	🗑 Delete AppID	🗑 AppID verwijderen
 	Remove this Application and its XData from the entity	Verwijder deze applicatie en bijbehorende XData van het object
@@ -1385,7 +1385,7 @@ menu	Modify	Wijzigen
 	Smart Key=Value Columns	Slimme Key=Value kolommen
 	Split 'KEY=VALUE' or 'Key: Value' into separate editable Key and Value fields	Splits 'KEY=VALUE' of 'Key: Value' in losse bewerkbare Key- en Value-velden
 	This object currently has no user XData.	Dit object heeft momenteel geen gebruikers-XData.
-	+ Create Lumi_KLIC Application	+ Lumi_KLIC applicatie aanmaken
+	+ Create CAD_XDATA Application	+ CAD_XDATA applicatie aanmaken
 	DXF Code	DXF-code
 	Property / Key ⇔	Property / Key ⇔
 	Value (Selectable & Editable) ⇔	Value (Selecteerbaar & Bewerkbaar) ⇔

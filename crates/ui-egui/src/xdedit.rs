@@ -1,5 +1,5 @@
 //! Extended Entity Data Editor (`XDEDIT`): visual viewer and editor for DXF/DWG XData (1001..1071).
-//! Supports Smart Key=Value editing (for `Lumi_KLIC` and GIS attributes), Raw DXF Tag editing,
+//! Supports Smart Key=Value editing (for `CAD_XDATA` and GIS attributes), Raw DXF Tag editing,
 //! user-resizable columns (drag column header divider `⇔`), one-click clipboard copy, search
 //! filtering, adding/removing Registered Applications (AppIDs), object picking/stepping, and Undo/Redo.
 
@@ -548,14 +548,14 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 let resp = ui.add_sized(
                     [155.0, 22.0],
                     egui::TextEdit::singleline(&mut st.new_app_name)
-                        .hint_text(crate::tl!("New AppID (e.g. Lumi_KLIC)"))
+                        .hint_text(crate::tl!("New AppID (e.g. CAD_XDATA)"))
                         .desired_width(f32::INFINITY),
                 );
                 let add_clicked = ui.button(crate::tl!("+ Add AppID")).clicked()
                     || (resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !st.new_app_name.trim().is_empty());
                 if add_clicked {
                     let name = if st.new_app_name.trim().is_empty() {
-                        "Lumi_KLIC".to_string()
+                        "CAD_XDATA".to_string()
                     } else {
                         st.new_app_name.trim().to_string()
                     };
@@ -617,9 +617,9 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     ui.add_space(30.0);
                     ui.label(RichText::new(crate::tl!("This object currently has no user XData.")).color(t.text_dim));
                     ui.add_space(8.0);
-                    if ui.button(crate::tl!("+ Create Lumi_KLIC Application")).clicked() {
+                    if ui.button(crate::tl!("+ Create CAD_XDATA Application")).clicked() {
                         st.groups.push(XdAppGroup {
-                            app: "Lumi_KLIC".into(),
+                            app: "CAD_XDATA".into(),
                             rows: vec![
                                 XdRow { code: 1000, key: "THEMA".into(), val: String::new(), sep: "=".into(), original_raw: None },
                                 XdRow { code: 1000, key: "NETBEHEERDER".into(), val: String::new(), sep: "=".into(), original_raw: None },
@@ -1063,7 +1063,7 @@ mod tests {
     fn xdedit_state_preserves_1002_control_strings_and_formats_csv() {
         let common = Common {
             xdata: vec![
-                RawTag { code: 1001, value: "Lumi_KLIC".into() },
+                RawTag { code: 1001, value: "CAD_XDATA".into() },
                 RawTag { code: 1002, value: "{".into() },
                 RawTag { code: 1000, value: "THEMA=Middenspanning".into() },
                 RawTag { code: 1002, value: "}".into() },
@@ -1090,7 +1090,7 @@ mod tests {
 
         // External entity XData modification is detected via loaded_xdata and reloaded cleanly.
         e.common.xdata = vec![
-            RawTag { code: 1001, value: "Lumi_KLIC".into() },
+            RawTag { code: 1001, value: "CAD_XDATA".into() },
             RawTag { code: 1000, value: "THEMA=Laagspanning".into() },
         ];
         assert_ne!(st.loaded_xdata, e.common.xdata);
