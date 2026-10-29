@@ -45,7 +45,8 @@ pub fn specs() -> Vec<CommandSpec> {
             .alias(&["xdl", "xdata"])
             .params("{handles?, app?}")
             .noundo()
-            .interactive(|_| Ok(Box::new(XdListM::default()))),        CommandSpec::new("xdedit", "Edit Xdata", run_xdedit)
+            .interactive(|_| Ok(Box::new(XdListM::default()))),
+        CommandSpec::new("xdedit", "Edit Xdata", run_xdedit)
             .menu(&["Tools", "Inquiry", "Edit Xdata (XDEDIT)"])
             .alias(&["xde"])
             .params("{handle?, xdata?: [{code, value}]}")
