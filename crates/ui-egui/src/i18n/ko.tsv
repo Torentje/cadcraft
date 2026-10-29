@@ -92,6 +92,7 @@
 	Blend	곡선 연결
 	Block	블록
 	Block Attribute Manager...	블록 속성 관리자...
+	Block Description...	블록 설명...
 	Block Editor	블록 편집기
 	Block Reference	블록 참조
 	Block...	블록...
@@ -141,6 +142,7 @@
 	Close All Other Drawings	다른 도면 모두 닫기
 	Closed	닫힘
 	Close Comparison	비교 닫기
+	Export Comparison	비교 내보내기
 	Coincident	일치
 	Collapse Palettes	팔레트 접기
 	Collapse Tool Sets	도구 세트 접기
@@ -187,6 +189,7 @@
 	Current selection	현재 선택 항목
 	Current: {color}	현재: {color}
 	Cut	잘라내기
+	Cut with Base Point	기준점을 지정하여 잘라내기
 	Cyan	청록색
 	Cylinder	원기둥
 	DWG	DWG
@@ -537,6 +540,7 @@
 	N	북
 	Name	이름
 	Name (A–Z)	이름(A–Z)
+	Named Viewports...	명명된 뷰포트...
 	Named Views...	명명된 뷰...
 	Nearest	근처점
 	New	새로 만들기
@@ -560,6 +564,7 @@
 	No selection	선택 항목 없음
 	Node	노드
 	None	없음
+	Normal	보통
 	Not available	사용할 수 없음
 	Not available yet	아직 사용할 수 없음
 	Numbered list	번호 매기기 목록
@@ -732,6 +737,7 @@
 	Rename Text Style	문자 스타일 이름 바꾸기
 	Rename...	이름 바꾸기...
 	Repeat {command}	{command} 반복
+	Replace Block...	블록 바꾸기...
 	Requires a point (x,y, @dx,dy or @d<a).	점이 필요합니다(x,y, @dx,dy 또는 @d<a).
 	Reset Palettes	팔레트 초기화
 	Restore	복원
@@ -1238,6 +1244,9 @@ menu	View	보기
 menu	Draw	그리기
 menu	Dimension	치수
 menu	Modify	수정
+	Check for Updates…	업데이트 확인…
+	CADCraft is up to date.	CADCraft가 최신 버전입니다.
+	Could not check for updates.	업데이트를 확인하지 못했습니다.
 	Copy All	모두 복사
 	Copy history output to clipboard	명령 기록 클립보드 복사
 	Close History Window (F2)	명령 기록 닫기 (F2)
@@ -1456,7 +1465,6 @@ menu	Modify	수정
 	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	기본 템플릿(QNEWTEMPLATE)이 설정되지 않은 경우 시작할 때 첫 도면과 새 도면에 이 단위를 사용합니다.
 	New block	새 블록
 	No alias file loaded. REINIT replaces these aliases with a file's.	로드된 별칭 파일이 없습니다. REINIT로 파일의 별칭을 적용합니다.
-	Normal	표준
 	Not a number or distance: {text}	숫자 또는 거리 입력 오류: {text}
 	Object grouping	객체 그룹
 	Object selection limit for display of grips	그립 표시를 위한 객체 선택 한계
@@ -1604,3 +1612,5 @@ menu	Modify	수정
 	cannot read file	파일을 읽을 수 없음
 	e.g. (+ 1 2) or + 1 2	예: (+ 1 2) 또는 + 1 2
 	no [CommandMethod] found	[CommandMethod]를 찾을 수 없음
+	Font	글꼴
+	Save Layout as Template	배치를 템플릿으로 저장

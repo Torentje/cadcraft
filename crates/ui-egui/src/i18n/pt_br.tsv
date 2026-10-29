@@ -86,6 +86,7 @@
 	Blend	Curva de transição
 	Block	Bloco
 	Block Attribute Manager...	Gerenciador de atributos de bloco...
+	Block Description...	Descrição do bloco...
 	Block Editor	Editor de blocos
 	Block Reference	Referência de bloco
 	Block...	Bloco...
@@ -139,6 +140,7 @@
 	Close All Other Drawings	Fechar todos os outros desenhos
 	Close Array Editing	Fechar edição de matriz
 	Close Comparison	Fechar comparação
+	Export Comparison	Exportar comparação
 	Closed	Fechada
 	Coincident	Coincidente
 	Collapse Palettes	Recolher paletas
@@ -191,6 +193,7 @@
 	Current selection	Seleção atual
 	Current: {color}	Atual: {color}
 	Cut	Recortar
+	Cut with Base Point	Recortar com ponto base
 	Cyan	Ciano
 	Cylinder	Cilindro
 	DWG	DWG
@@ -563,6 +566,7 @@
 	N	N
 	Name	Nome
 	Name (A–Z)	Nome (A–Z)
+	Named Viewports...	Viewports nomeados...
 	Named Views...	Vistas nomeadas...
 	Nearest	Mais próximo
 	New	Novo
@@ -587,6 +591,7 @@
 	No selection	Nenhuma seleção
 	Node	Nó
 	None	Nenhum
+	Normal	Normal
 	Not Found	Não encontrado
 	Not available	Não disponível
 	Not available yet	Ainda não disponível
@@ -820,6 +825,7 @@
 	Rename Text Style	Renomear estilo de texto
 	Rename...	Renomear...
 	Repeat {command}	Repetir {command}
+	Replace Block...	Substituir bloco...
 	Requires a point (x,y, @dx,dy or @d<a).	Requer um ponto (x,y, @dx,dy ou @d<a).
 	Reset Palettes	Redefinir paletas
 	Restore	Restaurar
@@ -1247,6 +1253,9 @@
 	Not a number or distance: {text}	Não é um número nem uma distância: {text}
 	Select using two clicks only	Selecionar apenas com dois cliques
 	Define each corner of the selection window with a separate click.	Defina cada canto da janela de seleção com um clique separado.
+	Check for Updates…	Verificar atualizações…
+	CADCraft is up to date.	O CADCraft está atualizado.
+	Could not check for updates.	Não foi possível verificar atualizações.
 	Copy All	Copiar tudo
 	Copy history output to clipboard	Copiar histórico para a área de transferência
 	Close History Window (F2)	Fechar janela de histórico (F2)
@@ -1459,7 +1468,6 @@
 	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Os novos desenhos e o primeiro desenho na inicialização usam estas unidades, a menos que um modelo padrão esteja definido (QNEWTEMPLATE).
 	New block	Novo bloco
 	No alias file loaded. REINIT replaces these aliases with a file's.	Nenhum arquivo de alias carregado. REINIT substitui esses aliases pelos de um arquivo.
-	Normal	Normal
 	Object grouping	Agrupamento de objetos
 	Object selection limit for display of grips	Limite de seleção de objetos para exibição de alças
 	Objects on locked layers	Objetos em camadas bloqueadas
@@ -1601,3 +1609,5 @@
 	cannot read file	não é possível ler o arquivo
 	e.g. (+ 1 2) or + 1 2	ex.: (+ 1 2) ou + 1 2
 	no [CommandMethod] found	nenhum [CommandMethod] encontrado
+	Font	Fonte
+	Save Layout as Template	Salvar layout como modelo

@@ -18,7 +18,8 @@ use cadcraft_render::raster::{RasterOptions, View};
 use serde_json::{Value, json};
 
 use super::file::{base64_decode, base64_encode, io};
-use super::*;
+use super::{CommandSpec, bad, point_value, str_param};
+
 use crate::{EngineError, Result, Session};
 
 /// Formats EXPORT writes (the io layer picks the writer from the extension).
@@ -64,10 +65,6 @@ pub fn specs() -> Vec<CommandSpec> {
         })
         .params("not available yet")
         .noundo(),
-        CommandSpec::new("3dorbit", "Orbit", |_, _| Err(EngineError::Other("3DORBIT is not available yet: CADCraft draws in 2D (plan view) only".into())))
-            .alias(&["3do", "orbit"])
-            .params("not available yet")
-            .noundo(),
     ]
 }
 
@@ -560,7 +557,10 @@ mod tests {
     use cadcraft_geom::Vec3;
 
     use super::super::file::{IoHooks, set_io};
+
+    use super::super::resolve_alias;
     use super::*;
+    use serde_json::json;
 
     static DELIVERED: std::sync::Mutex<Vec<(String, String, usize)>> = std::sync::Mutex::new(Vec::new());
 
@@ -796,9 +796,9 @@ mod tests {
     }
 
     #[test]
-    fn attach_share_and_orbit_say_they_are_not_available_yet() {
+    fn attach_and_share_are_not_available_yet() {
         let mut s = session();
-        for c in ["attach", "share", "3dorbit", "orbit"] {
+        for c in ["attach", "share"] {
             let e = s.execute(&resolve_alias(c), &Value::Null).unwrap_err().to_string();
             assert!(e.contains("not available yet"), "{c}: {e}");
         }

@@ -793,7 +793,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
     let startup_list_snapshot = app.ui.startup_plugins.clone();
 
     egui::Window::new(crate::tl!("AutoLISP / VB.NET / C# IDE & NETLOAD Studio"))
-        .id(egui::Id::new("vbaide_window"))
+        .id(egui::Id::unique("vbaide_window"))
         .open(open)
         .default_size(vec2(820.0, 620.0))
         .min_size(vec2(560.0, 420.0))
@@ -883,7 +883,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 }
 
                 ui.separator();
-                egui::ComboBox::from_id_salt("lisp_template_combo")
+                craft_ui::ComboBox::from_id_salt("lisp_template_combo")
                     .selected_text(crate::tl!("Template..."))
                     .show_ui(ui, |ui| {
                         if ui.selectable_label(false, crate::tl!("0. Empty file (New)")).clicked() {
@@ -1198,7 +1198,7 @@ pub fn plugin_menu_overlay(app: &mut CadApp, ctx: &egui::Context) {
         .unwrap_or_else(|| format!("🧩 {}", crate::tl!("Plugin Commands")));
 
     egui::Window::new(window_title)
-        .id(egui::Id::new("cc_plugin_mini_menu"))
+        .id(egui::Id::unique("cc_plugin_mini_menu"))
         .open(&mut open_menu)
         .default_pos(egui::pos2(260.0, 62.0))
         .resizable(false)

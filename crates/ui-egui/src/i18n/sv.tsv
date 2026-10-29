@@ -90,6 +90,7 @@
 	Blend	Mjuk övergång
 	Block	Block
 	Block Attribute Manager...	Hantera blockattribut...
+	Block Description...	Blockbeskrivning...
 	Block Editor	Blockredigerare
 	Block Reference	Blockreferens
 	Block...	Block...
@@ -143,6 +144,7 @@
 	Close All Other Drawings	Stäng alla andra ritningar
 	Close Array Editing	Avsluta redigering av array
 	Close Comparison	Stäng jämförelse
+	Export Comparison	Exportera jämförelse
 	Closed	Sluten
 	Coincident	Sammanfallande
 	Collapse Palettes	Fäll ihop paletter
@@ -195,6 +197,7 @@
 	Current selection	Aktuell markering
 	Current: {color}	Aktuell: {color}
 	Cut	Klipp ut
+	Cut with Base Point	Klipp ut med baspunkt
 	Cyan	Cyan
 	Cylinder	Cylinder
 	DWG	DWG
@@ -567,6 +570,7 @@
 	N	N
 	Name	Namn
 	Name (A–Z)	Namn (A–Ö)
+	Named Viewports...	Namngivna vyfönster...
 	Named Views...	Namngivna vyer...
 	Nearest	Närmaste
 	New	Ny
@@ -824,6 +828,7 @@
 	Rename Text Style	Byt namn på textstil
 	Rename...	Byt namn...
 	Repeat {command}	Upprepa {command}
+	Replace Block...	Ersätt block...
 	Requires a point (x,y, @dx,dy or @d<a).	Kräver en punkt (x,y, @dx,dy eller @d<a).
 	Reset Palettes	Återställ paletter
 	Restore	Återställ
@@ -1394,15 +1399,64 @@ menu	Modify	Ändra
 	Window <	Fönster <
 	X offset (mm)	X-förskjutning (mm)
 	Y offset (mm)	Y-förskjutning (mm)
+	AutoLISP (LSP)	AutoLISP (LSP)
+	Units of new drawings	Enheter för nya ritningar
+	Imperial (inches)	Anglosaxiskt (tum)
+	Metric (millimetres)	Metriskt (millimeter)
+	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Nya ritningar och den första ritningen vid start använder dessa enheter om ingen standardmall är angiven (QNEWTEMPLATE).
+	Analyze Usage	Analysera användning
+	Implied Loops	Implicita slingor
+	Angstroms	Ångström
+	Architectural	Arkitektonisk
+	Astronomical Units	Astronomiska enheter
+	Centimeters	Centimeter
+	Decameters	Dekameter
+	Decimal	Decimal
+	Decimal Degrees	Decimalgrader
+	Decimeters	Decimeter
+	Deg/Min/Sec	Grad/min/sek
+	Don't Save	Spara inte
+	Drawing Units	Ritningsenheter
+	Engineering	Teknisk
+	Feet	Fot
+	Fractional	Bråk
+	Gigameters	Gigameter
+	Grads	Gon
+	Hectometers	Hektometer
+	Inches	Tum
+	Insertion scale	Insättningsskala
+	Kilometers	Kilometer
+	Light Years	Ljusår
+	Meters	Meter
+	Microinches	Mikrotum
+	Microns	Mikrometer
+	Miles	Engelska mil
+	Millimeters	Millimeter
+	Mils	Tusendels tum
+	Nanometers	Nanometer
+	Parsecs	Parsek
+	Radians	Radianer
+	Sample output	Exempel på utdata
+	Save changes to {name}?	Spara ändringar i {name}?
+	Scientific	Vetenskaplig
+	Surveyor's Units	Lantmäterienheter
+	Unitless	Enhetslös
+	Units to scale inserted content	Enheter för skalning av infogat innehåll
+	US Survey Feet	Lantmäterifot (USA)
+	US Survey Inch	Lantmäteritum (USA)
+	US Survey Mile	Engelsk lantmäterimil (USA)
+	US Survey Yard	Lantmäteriyard (USA)
+	Yards	Yard
+	Your changes will be lost if you don't save them.	Dina ändringar går förlorade om du inte sparar dem.
+	Check for Updates…	Sök efter uppdateringar…
+	CADCraft is up to date.	CADCraft är uppdaterat.
+	Could not check for updates.	Det gick inte att söka efter uppdateringar.
 	Copy All	Kopiera allt
 	Copy history output to clipboard	Kopiera historik till urklipp
 	Close History Window (F2)	Stäng historikfönster (F2)
 	Edit XData (XDEDIT)	Redigera XData (XDEDIT)
 	Open visual XData Editor for selected object	Öppna visuell XData-redigerare för valt objekt
 	Command & XData Output (select text + Ctrl+C to copy)	Kommando- & XData-utdata (markera text + Ctrl+C för att kopiera)
-	Save changes to {name}?	Spara ändringar i {name}?
-	Your changes will be lost if you don't save them.	Dina ändringar går förlorade om du inte sparar dem.
-	Don't Save	Spara inte
 	List Xdata	Lista XData
 	Edit Xdata	Redigera XData
 	Edit Xdata (XDEDIT)	Redigera XData (XDEDIT)
@@ -1480,74 +1534,28 @@ menu	Modify	Ändra
 	3D Views	3D-vyer
 	Adjust Image...	Justera bild...
 	Adjust...	Justera...
-	Analyze Usage	Analysera användning
-	Angstroms	Ångström
-	Architectural	Arkitektoniska
 	Associate	Associera
-	Astronomical Units	Astronomiska enheter
 	Attach Image...	Bifoga bild...
-	AutoLISP (LSP)	AutoLISP (LSP)
 	AutoLISP / VB.NET / C# IDE...	AutoLISP / VB.NET / C# IDE...
 	AutoLISP / VBA IDE...	AutoLISP / VBA IDE...
 	Back	Bakifrån
-	Centimeters	Centimeter
 	Change Properties	Ändra egenskaper
 	Clip Image	Klipp bild
-	Decameters	Dekameter
-	Decimal	Decimal
-	Decimal Degrees	Decimalgrader
-	Decimeters	Decimeter
-	Deg/Min/Sec	Grader/min/sek
-	Drawing Units	Ritningsenheter
-	Engineering	Tekniska
-	Feet	Fot
-	Fractional	Bråk
 	Frame	Ram
 	Front	Framifrån
-	Gigameters	Gigameter
-	Grads	Gon
-	Hectometers	Hektometer
 	Image	Bild
 	Image Frame	Bildram
-	Imperial (inches)	Imperiska (tum)
-	Implied Loops	Implicita slingor
-	Inches	Tum
-	Insertion scale	Infogningsskala
-	Kilometers	Kilometer
 	Layouts	Layouter
-	Light Years	Ljusår
 	Load .NET DLL / LISP Application (NETLOAD)...	Läs in .NET DLL- / LISP-program (NETLOAD)...
 	Load Application (NETLOAD)...	Läs in program (NETLOAD)...
-	Meters	Meter
-	Metric (millimetres)	Metriska (millimeter)
-	Microinches	Mikrotum
-	Microns	Mikrometer
-	Miles	Engelska mil
-	Millimeters	Millimeter
-	Mils	Mil
 	Model Tab	Fliken Modell
 	NE Isometric	NO isometrisk
 	NW Isometric	NV isometrisk
-	Nanometers	Nanometer
-	New and the first drawing at startup use these units unless a default template is set (QNEWTEMPLATE).	Nya ritningar och den första ritningen vid start använder dessa enheter om inte en standardmall är angiven (QNEWTEMPLATE).
-	Parsecs	Parsec
-	Radians	Radianer
 	Raster Image Reference...	Rasterbildsreferens...
 	SE Isometric	SO isometrisk
 	SW Isometric	SV isometrisk
-	Sample output	Exempelutdata
-	Scientific	Vetenskapliga
-	Surveyor's Units	Lantmäterienheter
 	Top (2D Plan)	Uppifrån (2D-plan)
-	US Survey Feet	Amerikanska lantmäterifot
-	US Survey Inch	Amerikanska lantmäteritum
-	US Survey Mile	Amerikanska lantmäterimil
-	US Survey Yard	Amerikanska lantmäteriyard
-	Unitless	Enhetslös
-	Units of new drawings	Enheter för nya ritningar
-	Units to scale inserted content	Enheter för att skala infogat innehåll
 	View Resolution	Vyupplösning
-	Yards	Yard
 	📋 Copy All	📋 Kopiera allt
 	🗑 Clear	🗑 Rensa
 	.NET command started	.NET-kommando startat
@@ -1613,3 +1621,5 @@ menu	Modify	Ändra
 	cannot read file	kan inte läsa filen
 	e.g. (+ 1 2) or + 1 2	t.ex. (+ 1 2) eller + 1 2
 	no [CommandMethod] found	ingen [CommandMethod] hittades
+	Font	Teckensnitt
+	Save Layout as Template	Spara layout som mall

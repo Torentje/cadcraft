@@ -1,10 +1,3 @@
-# CADCraft Dutch interface catalog — original translations by "The old Dutch Guy".
-# License: MIT OR Apache-2.0 (the repository LICENSE-MIT and LICENSE-APACHE).
-# Written from CADCraft's English strings; no proprietary translations were copied.
-# UTF-8: context<TAB>English source<TAB>Dutch translation.
-# Empty context = ordinary label; @plural = one|other forms with {n}.
-# Keep command IDs, keywords, technology/product names and user data unchanged.
-# External References palette (#525).
 	Apply	Toepassen
 	Attach DWG...	DWG koppelen...
 	Bind	Invoegen
@@ -490,7 +483,6 @@
 	Lines of Command History	Regels opdrachtgeschiedenis
 	Linetype	Lijntype
 	Linetype Scale	Lijntypeschaal
-	Linetype scale	Lijntypeschaal
 	Ltscale	Lijntypeschaal
 	Linetype...	Lijntype...
 	Lineweight	Lijndikte
@@ -530,7 +522,6 @@
 	Mid Between 2 Points	Midden tussen 2 punten
 	Midpoint	Middenpunt
 	Mirror	Spiegelen
-	Model	Model
 	Model Space (in viewport)	Modelruimte (in kijkvenster)
 	Modeling	Modelleren
 	Models	Modellen
@@ -562,7 +553,6 @@
 	New VP Freeze	Bevriezen in nieuwe KV
 	New Viewports...	Nieuwe kijkvensters...
 	New from Template...	Nieuw uit sjabloon...
-	New layout	Nieuwe lay-out
 	New state name	Nieuwe statusnaam
 	Next Change	Volgende wijziging
 	No	Nee
@@ -595,7 +585,6 @@
 	Only in {name}: {n}	Alleen in {name}: {n}
 	Open (⌘O)	Openen (⌘O)
 	Open Sample Drawing	Voorbeeldtekening openen
-	Open sample drawing	Voorbeeldtekening openen
 	Open Xref	Xref openen
 	Open...	Openen...
 	Open Recent	Recent geopend
@@ -821,7 +810,6 @@
 	Select object to measure	Selecteer af te passen object
 	Select object to offset	Selecteer parallel te kopiëren object
 	Select object to trim or shift-select to extend	Selecteer bij te snijden object of Shift-selecteer om te verlengen
-	Select objects	Selecteer objecten
 	Select objects (crossing window first corner)	Selecteer objecten (eerste hoek kruisvenster)
 	Select objects to array.	Selecteer objecten voor reeks.
 	Select objects to stretch by crossing-window or crossing-polygon...	Selecteer uit te rekken objecten met kruisvenster of kruisveelhoek...
@@ -942,7 +930,6 @@
 	Specify included angle	Geef ingesloten hoek op
 	Specify insertion base point	Geef invoegbasispunt op
 	Specify insertion point	Geef invoegpunt op
-# Options dialog (OPTIONS).
 	A drawing opened from a file keeps that file's format.	Een uit een bestand geopende tekening behoudt het formaat van dat bestand.
 	An array that would create more objects than this is refused.	Een reeks die meer objecten dan dit zou aanmaken wordt geweigerd.
 	CADCraft keeps these preferences, object snap modes and drafting toggles for your user account and restores them when it starts.	CADCraft bewaart deze voorkeuren, objectvangmodi en tekenopties voor uw gebruikersaccount en herstelt ze bij het opstarten.
@@ -959,13 +946,10 @@
 	Hatches	Arceringen
 	Hold Shift to add to the selection	Houd Shift ingedrukt om aan selectie toe te voegen
 	Indicate selection area	Selectiegebied weergeven
-	Interface language	Interfacetaal
-	Interface theme	Interfacethema
 	Keep the system cursor visible over the drawing area	Systeemcursor zichtbaar houden boven het tekengebied
 	Largest array	Grootste reeks
 	Layout paper	Lay-outpapier
 	Model background	Modelachtergrond
-	Multiline text	Meerregelige tekst
 	Object grouping	Objectgroepering
 	Object selection limit for display of grips	Selectielimiet voor weergave van grepen
 	Object snap aperture	Opening voor objectvangfunctie
@@ -1113,7 +1097,6 @@
 	Text Editor	Teksteditor
 	Text Height	Teksthoogte
 	Text Style...	Tekststijl...
-	Text height	Teksthoogte
 	Text override	Tekstoverschrijving
 	Text style	Tekststijl
 	Thaw All Layers	Alle lagen ontdooien
@@ -1223,7 +1206,6 @@
 	Accessibility	Toegankelijkheid
 	Show System Cursor	Systeemcursor tonen
 	Animation Effects	Animatie-effecten
-	Animation effects	Animatie-effecten
 	Interface scale	Interfaceschaal
 	Import...	Importeren...
 	Export...	Exporteren...
@@ -1269,7 +1251,6 @@
 	Move sideways to pan; push/pull or twist to zoom.	Beweeg zijwaarts om te verschuiven; duw/trek of draai om te zoomen.
 	Left device button: zoom extents. Right device button: calibrate.	Linkerknop: omvang zoomen. Rechterknop: kalibreren.
 	More toolbar commands	Meer werkbalkopdrachten
-	Default save version	Standaard opslagversie
 	Automatic save every	Automatisch opslaan elke
 	min	min
 	Automatic save file location	Bestandslocatie voor automatisch opslaan
@@ -1282,7 +1263,6 @@
 	Query Texts	Teksten opvragen
 	Analyze Shapes	Vormen analyseren
 	Hatch Pick	Arcering kiezen
-# Hatch and Gradient dialog
 	Hatch and Gradient	Arcering en kleurverloop
 	Color 1	Kleur 1
 	Color 2	Kleur 2
@@ -1322,7 +1302,6 @@
 	Set Dynamic Property	Dynamische eigenschap instellen
 	Dynamic Block Grips	Grepen dynamisch blok
 	Drag Dynamic Grip	Dynamische greep slepen
-# Block Editor (BEDIT).
 	Save Block	Blok opslaan
 	Save Block As	Blok opslaan als
 	Close Block Editor	Blokeditor sluiten
@@ -1436,7 +1415,6 @@ menu	Modify	Wijzigen
 	Close History Window (F2)	Geschiedenisvenster sluiten (F2)
 	Open visual XData Editor for selected object	Open visuele XData-editor voor geselecteerd object
 	Copy All	Alles kopiëren
-	Edit XData (XDEDIT)	XData bewerken (XDEDIT)
 	Copy history output to clipboard	Kopieer geschiedenisuitvoer naar klembord
 	⚠ Entity XData changed outside editor — click Revert before saving.	⚠ Object-XData is buiten de editor gewijzigd — klik op Herstellen vóór het opslaan.
 	Save changes to {name}?	Wijzigingen in {name} opslaan?
@@ -1566,7 +1544,6 @@ menu	Modify	Wijzigen
 	Compilation succeeded	Compilatie geslaagd
 	Compile & Load .NET DLL	.NET-DLL compileren & laden
 	Console / Output	Console / Uitvoer
-	Error	Fout
 	Error in	Fout in
 	Error: cadcraft-nethost.exe not found next to the application.	Fout: cadcraft-nethost.exe niet gevonden naast de applicatie.
 	Evaluate the LISP code or compile the VB.NET / C# source directly into a .NET DLL	Evalueer de LISP-code of compileer de VB.NET- / C#-broncode rechtstreeks naar een .NET-DLL
@@ -1607,3 +1584,28 @@ menu	Modify	Wijzigen
 	cannot read file	kan bestand niet lezen
 	e.g. (+ 1 2) or + 1 2	bijv. (+ 1 2) of + 1 2
 	no [CommandMethod] found	geen [CommandMethod] gevonden
+	Block Description...	Blokbeschrijving...
+	Export Comparison	Vergelijking exporteren
+	Cut with Base Point	Knippen met basispunt
+	Named Viewports...	Benoemde viewports...
+	Replace Block...	Blok vervangen...
+	Check for Updates…	Controleren op updates…
+	CADCraft is up to date.	CADCraft is up-to-date.
+	Could not check for updates.	Kan niet controleren op updates.
+	Linetype scale	Lijntypeschaal
+	Model	Model
+	New layout	Nieuwe lay-out
+	Open sample drawing	Voorbeeldtekening openen
+	Select objects	Objecten selecteren
+	Text height	Teksthoogte
+	Animation effects	Animatie-effecten
+	Edit XData (XDEDIT)	XData bewerken (XDEDIT)
+	Default save version	Standaard opslagversie
+	Interface language	Interfacetaal
+	Interface theme	Interfacethema
+	Multiline text	Meerregelige tekst
+	📋 Copy All	📋 Alles kopiëren
+	🗑 Clear	🗑 Wissen
+	Error	Fout
+	Font	Lettertype
+	Save Layout as Template	Lay-out opslaan als sjabloon

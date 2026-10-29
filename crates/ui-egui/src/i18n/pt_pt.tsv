@@ -1,9 +1,3 @@
-# CADCraft European Portuguese (pt-PT) interface catalog.
-# License: MIT OR Apache-2.0 (the repository LICENSE-MIT and LICENSE-APACHE).
-# Written from CADCraft's English strings; no proprietary translations were copied.
-# UTF-8: context<TAB>English source<TAB>Portuguese translation.
-# Empty context = ordinary label; @plural = one|other forms with {n}.
-# Keep command IDs, keywords, technology/product names and user data unchanged.
 	  Cancel  	  Cancelar  
 	  OK  	  OK  
 	 or [	 ou [
@@ -1601,3 +1595,13 @@
 	cannot read file	não é possível ler o ficheiro
 	e.g. (+ 1 2) or + 1 2	p. ex., (+ 1 2) ou + 1 2
 	no [CommandMethod] found	nenhum [CommandMethod] encontrado
+	Block Description...	Descrição do bloco...
+	Export Comparison	Exportar comparação
+	Cut with Base Point	Recortar com ponto base
+	Named Viewports...	Viewports nomeados...
+	Replace Block...	Substituir bloco...
+	Check for Updates…	Verificar atualizações…
+	CADCraft is up to date.	O CADCraft está atualizado.
+	Could not check for updates.	Não foi possível verificar atualizações.
+	Font	Tipo de letra
+	Save Layout as Template	Guardar apresentação como modelo

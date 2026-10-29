@@ -256,71 +256,8 @@ pub fn osnap_in_orbit_with_proj(
             continue;
         }
         let elev = cadcraft_render::entity_elevation(&e.kind);
-        if osmode & mode::INS != 0 {
-            match &e.kind {
-                EntityKind::Text(t) => cands3.push((mode::INS, t.justify_point(), t.insert.z)),
-                EntityKind::MText(t) => cands3.push((mode::INS, t.insert.xy(), t.insert.z)),
-                EntityKind::Tolerance(t) => cands3.push((mode::INS, t.insert.xy(), t.insert.z)),
-                EntityKind::Insert(i) => {
-                    cands3.push((mode::INS, i.insert.xy(), i.insert.z));
-                    cands3.extend(i.attribs.iter().filter(|a| !a.invisible).map(|a| (mode::INS, a.text.justify_point(), a.text.insert.z)));
-                }
-                EntityKind::AttDef(a) => cands3.push((mode::INS, a.text.justify_point(), a.text.insert.z)),
-                EntityKind::MLeader(m) => {
-                    cands3.extend(m.text.iter().map(|t| (mode::INS, t.insert.xy(), t.insert.z)));
-                    cands3.extend(m.block.iter().map(|b| (mode::INS, b.insert.xy(), b.insert.z)));
-                }
-                _ => {}
-            }
-        }
-        match &e.kind {
-            EntityKind::Line(l) if (l.a.z - l.b.z).abs() > 1e-12 => {
-                if osmode & mode::END != 0 {
-                    cands3.push((mode::END, l.a.xy(), l.a.z));
-                    cands3.push((mode::END, l.b.xy(), l.b.z));
-                }
-                if osmode & mode::MID != 0 {
-                    let mid = (l.a + l.b) * 0.5;
-                    cands3.push((mode::MID, mid.xy(), mid.z));
-                }
-                continue;
-            }
-            EntityKind::Polyline3d(pl) => {
-                if osmode & mode::END != 0 {
-                    for p in &pl.points {
-                        cands3.push((mode::END, p.xy(), p.z));
-                    }
-                }
-                if osmode & mode::MID != 0 {
-                    for w in pl.points.windows(2) {
-                        if let [a, b] = w {
-                            let m = (*a + *b) * 0.5;
-                            cands3.push((mode::MID, m.xy(), m.z));
-                        }
-                    }
-                    if pl.closed
-                        && let (Some(first), Some(last)) = (pl.points.first(), pl.points.last())
-                    {
-                        let m = (*first + *last) * 0.5;
-                        cands3.push((mode::MID, m.xy(), m.z));
-                    }
-                }
-                continue;
-            }
-            EntityKind::Face3d(f) => {
-                if osmode & mode::END != 0 {
-                    for c in &f.corners {
-                        cands3.push((mode::END, c.xy(), c.z));
-                    }
-                }
-                continue;
-            }
-            EntityKind::Solid(s) | EntityKind::Trace(s) if osmode & mode::END != 0 => {
-                for c in &s.corners {
-                    cands3.push((mode::END, c.xy(), c.z));
-                }
-            }
-            _ => {}
+        if push_orbit_3d_entity(&e.kind, osmode, &mut cands3) {
+            continue;
         }
         let mut flat: Vec<(u32, Vec2)> = Vec::new();
         let mut ent_prims: Vec<Prim> = Vec::new();
@@ -376,72 +313,10 @@ pub fn osnap_in_orbit_with_proj(
         }
     }
     if osmode & (mode::INT | mode::APP) != 0 {
-        let segs: Vec<(Vec<Segment>, f64)> = near_prims.iter().take(200).map(|(p, z)| (prim_segments(p), *z)).collect();
-        for i in 0..segs.len() {
-            for j in i + 1..segs.len() {
-                let extend = osmode & mode::APP != 0 && [i, j].iter().all(|k| near_prims.get(*k).is_some_and(|(p, _)| extendable(p)));
-                let (Some((sa, za)), Some((sb, zb))) = (segs.get(i), segs.get(j)) else { continue };
-                let same_z = (*za - *zb).abs() <= 1e-9;
-                let z = (*za + *zb) * 0.5;
-                let real_mode = if same_z && osmode & mode::INT != 0 {
-                    Some(mode::INT)
-                } else if osmode & mode::APP != 0 {
-                    Some(mode::APP)
-                } else {
-                    None
-                };
-                for a in sa {
-                    for b in sb {
-                        if let Some(m) = real_mode {
-                            for x in intersect_ext(&fix_circle(a), &fix_circle(b), false) {
-                                if orbit.project(x.to3(z)).dist(view_cursor) <= aperture {
-                                    cands3.push((m, x, z));
-                                }
-                            }
-                        }
-                        if extend {
-                            for x in intersect_ext(a, b, true) {
-                                if x.is_finite() && orbit.project(x.to3(z)).dist(view_cursor) <= aperture {
-                                    cands3.push((mode::APP, x, z));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        push_orbit_intersections(&near_prims, orbit, view_cursor, aperture, osmode, &mut cands3);
     }
     if let Some(bp) = base {
-        for (p, z) in &near_prims {
-            if osmode & mode::PER != 0 {
-                match p {
-                    Prim::Seg(Segment::Line(l)) => cands3.push((mode::PER, l.project(bp), *z)),
-                    Prim::Seg(Segment::Arc { arc, .. }) => {
-                        let curve = SnapCurve::Arc { center: arc.center, radius: arc.radius, start: arc.start, end: arc.end };
-                        cands3.extend(curve.perpendiculars(bp, bp).into_iter().map(|q| (mode::PER, q, *z)));
-                    }
-                    Prim::Circle(c) => cands3.push((mode::PER, c.closest(bp), *z)),
-                    Prim::Infinite { base: b0, dir, .. } => cands3.push((mode::PER, *b0 + *dir * (bp - *b0).dot(*dir), *z)),
-                    Prim::Ellipse(e) => cands3.extend(curves::ellipse_perpendiculars(e, bp).into_iter().map(|q| (mode::PER, q, *z))),
-                    Prim::Spline(s) => cands3.extend(curves::spline_perpendiculars(s, bp).into_iter().map(|q| (mode::PER, q, *z))),
-                    _ => {}
-                }
-            }
-            if osmode & mode::TAN != 0 {
-                let pts = match p {
-                    Prim::Seg(Segment::Arc { arc, .. }) => Circle::new(arc.center, arc.radius)
-                        .tangent_points(bp)
-                        .into_iter()
-                        .filter(|t| arc.contains_angle(arc.center.angle_to(*t)))
-                        .collect(),
-                    Prim::Circle(c) => c.tangent_points(bp),
-                    Prim::Ellipse(e) => curves::ellipse_tangents(e, bp),
-                    Prim::Spline(s) => curves::spline_tangents(s, bp),
-                    _ => Vec::new(),
-                };
-                cands3.extend(pts.into_iter().map(|t| (mode::TAN, t, *z)));
-            }
-        }
+        push_orbit_base_snaps(&near_prims, bp, osmode, &mut cands3);
     }
     let best = cands3
         .into_iter()
@@ -470,34 +345,188 @@ pub fn osnap_in_orbit_with_proj(
         return Some((h, pr));
     }
     if osmode & mode::NEA != 0 {
-        let mut nb: Option<(f64, Vec2, Vec2)> = None;
-        let mut consider = |c: Vec2, z: f64| {
-            if !c.is_finite() || !z.is_finite() {
-                return;
-            }
-            let pr = orbit.project(c.to3(z));
-            let dd = pr.dist(view_cursor);
-            if dd <= aperture
-                && nb.is_none_or(|(bd, ..)| dd < bd)
-                && let Some(wp) = work_plane_point(orbit, c, z, pr)
-            {
-                nb = Some((dd, wp, pr));
-            }
-        };
-        for (p, z) in &near_prims {
-            let Some(cur_z) = orbit.unproject_z(view_cursor, *z) else { continue };
-            for s in prim_segments(p) {
-                consider(fix_circle(&s).closest(cur_z), *z);
-            }
-            if let Prim::Circle(c) = p {
-                consider(c.closest(cur_z), *z);
-            }
-        }
-        if let Some((_, p, pr)) = nb {
-            return Some((SnapHit { point: p, mode: mode::NEA, name: "Nearest", viewport: None, deferred: None }, pr));
-        }
+        return nearest_hit_in_orbit(&near_prims, orbit, view_cursor, aperture);
     }
     None
+}
+
+fn push_orbit_3d_entity(kind: &EntityKind, osmode: u32, cands3: &mut Vec<(u32, Vec2, f64)>) -> bool {
+    if osmode & mode::INS != 0 {
+        match kind {
+            EntityKind::Text(t) => cands3.push((mode::INS, t.justify_point(), t.insert.z)),
+            EntityKind::MText(t) => cands3.push((mode::INS, t.insert.xy(), t.insert.z)),
+            EntityKind::Tolerance(t) => cands3.push((mode::INS, t.insert.xy(), t.insert.z)),
+            EntityKind::Insert(i) => {
+                cands3.push((mode::INS, i.insert.xy(), i.insert.z));
+                cands3.extend(i.attribs.iter().filter(|a| !a.invisible).map(|a| (mode::INS, a.text.justify_point(), a.text.insert.z)));
+            }
+            EntityKind::AttDef(a) => cands3.push((mode::INS, a.text.justify_point(), a.text.insert.z)),
+            EntityKind::MLeader(m) => {
+                cands3.extend(m.text.iter().map(|t| (mode::INS, t.insert.xy(), t.insert.z)));
+                cands3.extend(m.block.iter().map(|b| (mode::INS, b.insert.xy(), b.insert.z)));
+            }
+            _ => {}
+        }
+    }
+    match kind {
+        EntityKind::Line(l) if (l.a.z - l.b.z).abs() > 1e-12 => {
+            if osmode & mode::END != 0 {
+                cands3.push((mode::END, l.a.xy(), l.a.z));
+                cands3.push((mode::END, l.b.xy(), l.b.z));
+            }
+            if osmode & mode::MID != 0 {
+                let mid = (l.a + l.b) * 0.5;
+                cands3.push((mode::MID, mid.xy(), mid.z));
+            }
+            true
+        }
+        EntityKind::Polyline3d(pl) => {
+            if osmode & mode::END != 0 {
+                for p in &pl.points {
+                    cands3.push((mode::END, p.xy(), p.z));
+                }
+            }
+            if osmode & mode::MID != 0 {
+                for w in pl.points.windows(2) {
+                    if let [a, b] = w {
+                        let m = (*a + *b) * 0.5;
+                        cands3.push((mode::MID, m.xy(), m.z));
+                    }
+                }
+                if pl.closed
+                    && let (Some(first), Some(last)) = (pl.points.first(), pl.points.last())
+                {
+                    let m = (*first + *last) * 0.5;
+                    cands3.push((mode::MID, m.xy(), m.z));
+                }
+            }
+            true
+        }
+        EntityKind::Face3d(f) => {
+            if osmode & mode::END != 0 {
+                for c in &f.corners {
+                    cands3.push((mode::END, c.xy(), c.z));
+                }
+            }
+            true
+        }
+        EntityKind::Solid(s) | EntityKind::Trace(s) if osmode & mode::END != 0 => {
+            for c in &s.corners {
+                cands3.push((mode::END, c.xy(), c.z));
+            }
+            false
+        }
+        _ => false,
+    }
+}
+
+fn push_orbit_intersections(
+    near_prims: &[(Prim, f64)],
+    orbit: cadcraft_render::Orbit3d,
+    view_cursor: Vec2,
+    aperture: f64,
+    osmode: u32,
+    cands3: &mut Vec<(u32, Vec2, f64)>,
+) {
+    let segs: Vec<(Vec<Segment>, f64)> = near_prims.iter().take(200).map(|(p, z)| (prim_segments(p), *z)).collect();
+    for i in 0..segs.len() {
+        for j in i + 1..segs.len() {
+            let extend = osmode & mode::APP != 0 && [i, j].iter().all(|k| near_prims.get(*k).is_some_and(|(p, _)| extendable(p)));
+            let (Some((sa, za)), Some((sb, zb))) = (segs.get(i), segs.get(j)) else { continue };
+            let same_z = (*za - *zb).abs() <= 1e-9;
+            let z = (*za + *zb) * 0.5;
+            let real_mode = if same_z && osmode & mode::INT != 0 {
+                Some(mode::INT)
+            } else if osmode & mode::APP != 0 {
+                Some(mode::APP)
+            } else {
+                None
+            };
+            for a in sa {
+                for b in sb {
+                    if let Some(m) = real_mode {
+                        for x in intersect_ext(&fix_circle(a), &fix_circle(b), false) {
+                            if orbit.project(x.to3(z)).dist(view_cursor) <= aperture {
+                                cands3.push((m, x, z));
+                            }
+                        }
+                    }
+                    if extend {
+                        for x in intersect_ext(a, b, true) {
+                            if x.is_finite() && orbit.project(x.to3(z)).dist(view_cursor) <= aperture {
+                                cands3.push((mode::APP, x, z));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn push_orbit_base_snaps(near_prims: &[(Prim, f64)], bp: Vec2, osmode: u32, cands3: &mut Vec<(u32, Vec2, f64)>) {
+    for (p, z) in near_prims {
+        if osmode & mode::PER != 0 {
+            match p {
+                Prim::Seg(Segment::Line(l)) => cands3.push((mode::PER, l.project(bp), *z)),
+                Prim::Seg(Segment::Arc { arc, .. }) => {
+                    let curve = SnapCurve::Arc { center: arc.center, radius: arc.radius, start: arc.start, end: arc.end };
+                    cands3.extend(curve.perpendiculars(bp, bp).into_iter().map(|q| (mode::PER, q, *z)));
+                }
+                Prim::Circle(c) => cands3.push((mode::PER, c.closest(bp), *z)),
+                Prim::Infinite { base: b0, dir, .. } => cands3.push((mode::PER, *b0 + *dir * (bp - *b0).dot(*dir), *z)),
+                Prim::Ellipse(e) => cands3.extend(curves::ellipse_perpendiculars(e, bp).into_iter().map(|q| (mode::PER, q, *z))),
+                Prim::Spline(s) => cands3.extend(curves::spline_perpendiculars(s, bp).into_iter().map(|q| (mode::PER, q, *z))),
+                _ => {}
+            }
+        }
+        if osmode & mode::TAN != 0 {
+            let pts = match p {
+                Prim::Seg(Segment::Arc { arc, .. }) => Circle::new(arc.center, arc.radius)
+                    .tangent_points(bp)
+                    .into_iter()
+                    .filter(|t| arc.contains_angle(arc.center.angle_to(*t)))
+                    .collect(),
+                Prim::Circle(c) => c.tangent_points(bp),
+                Prim::Ellipse(e) => curves::ellipse_tangents(e, bp),
+                Prim::Spline(s) => curves::spline_tangents(s, bp),
+                _ => Vec::new(),
+            };
+            cands3.extend(pts.into_iter().map(|t| (mode::TAN, t, *z)));
+        }
+    }
+}
+
+fn nearest_hit_in_orbit(
+    near_prims: &[(Prim, f64)],
+    orbit: cadcraft_render::Orbit3d,
+    view_cursor: Vec2,
+    aperture: f64,
+) -> Option<(SnapHit, Vec2)> {
+    let mut nb: Option<(f64, Vec2, Vec2)> = None;
+    let mut consider = |c: Vec2, z: f64| {
+        if !c.is_finite() || !z.is_finite() {
+            return;
+        }
+        let pr = orbit.project(c.to3(z));
+        let dd = pr.dist(view_cursor);
+        if dd <= aperture
+            && nb.is_none_or(|(bd, ..)| dd < bd)
+            && let Some(wp) = work_plane_point(orbit, c, z, pr)
+        {
+            nb = Some((dd, wp, pr));
+        }
+    };
+    for (p, z) in near_prims {
+        let Some(cur_z) = orbit.unproject_z(view_cursor, *z) else { continue };
+        for s in prim_segments(p) {
+            consider(fix_circle(&s).closest(cur_z), *z);
+        }
+        if let Prim::Circle(c) = p {
+            consider(c.closest(cur_z), *z);
+        }
+    }
+    nb.map(|(_, p, pr)| (SnapHit { point: p, mode: mode::NEA, name: "Nearest", viewport: None, deferred: None }, pr))
 }
 
 /// Convert a snapped point `w` at elevation `z` (with 2D view-plane projection `pr`) onto the
@@ -966,101 +995,110 @@ impl Sink<'_> {
                 }
                 None => p,
             };
-            let cands = &mut *self.cands;
-            match &p {
-                Prim::Seg(s) => {
-                    if osmode & mode::END != 0 {
-                        cands.push((mode::END, s.start()));
-                        cands.push((mode::END, s.end()));
-                    }
-                    if osmode & mode::MID != 0 {
-                        cands.push((mode::MID, s.mid()));
-                    }
-                    if let Segment::Arc { arc, .. } = s {
-                        if osmode & mode::CEN != 0 {
-                            cands.push((mode::CEN, arc.center));
-                        }
-                        if osmode & mode::QUA != 0 {
-                            for k in 0..4 {
-                                let a = k as f64 * PI / 2.0;
-                                if arc.contains_angle(a) {
-                                    cands.push((mode::QUA, Vec2::polar(arc.center, arc.radius, a)));
-                                }
-                            }
-                        }
-                    }
-                }
-                Prim::Circle(c) => {
-                    if osmode & mode::CEN != 0 {
-                        cands.push((mode::CEN, c.center));
-                    }
-                    if osmode & mode::QUA != 0 {
-                        for k in 0..4 {
-                            cands.push((mode::QUA, Vec2::polar(c.center, c.radius, k as f64 * PI / 2.0)));
-                        }
-                    }
-                }
-                Prim::Ellipse(el) => {
-                    if osmode & mode::CEN != 0 {
-                        cands.push((mode::CEN, el.center));
-                    }
-                    if osmode & mode::QUA != 0 {
-                        // Only the quadrant points the arc passes through.
-                        for k in 0..4 {
-                            let t = k as f64 * PI / 2.0;
-                            if cadcraft_geom::angle_in_sweep(t, el.start, el.end) {
-                                cands.push((mode::QUA, el.at_param(t)));
-                            }
-                        }
-                    }
-                    if osmode & mode::END != 0 && !el.is_full() {
-                        cands.push((mode::END, el.at_param(el.start)));
-                        cands.push((mode::END, el.at_param(el.end)));
-                    }
-                    if osmode & mode::MID != 0
-                        && let Some(m) = curves::ellipse_mid(el)
-                    {
-                        cands.push((mode::MID, m));
-                    }
-                }
-                Prim::Spline(s) => {
-                    if osmode & mode::END != 0 && !s.closed {
-                        let (lo, hi) = s.domain();
-                        cands.push((mode::END, s.eval(lo)));
-                        cands.push((mode::END, s.eval(hi)));
-                    }
-                    if osmode & mode::MID != 0
-                        && let Some(m) = curves::spline_mid(s)
-                    {
-                        cands.push((mode::MID, m));
-                    }
-                }
-                Prim::Point(pt) => {
-                    if osmode & mode::NOD != 0 && matches!(kind, EntityKind::Point(_)) {
-                        cands.push((mode::NOD, *pt));
-                    }
-                }
-                Prim::Infinite { base, .. } => {
-                    if osmode & mode::END != 0 && matches!(kind, EntityKind::Ray(_)) {
-                        cands.push((mode::END, *base));
-                    }
-                }
-                Prim::Fill(_) => {}
-            }
-            self.near.push(p);
+            self.primitive(kind, p);
         }
         if osmode & mode::GCEN != 0 {
-            // The centroid of the area a closed polyline or spline encloses.
-            let pts = match kind {
-                EntityKind::LwPolyline(pl) if pl.closed => {
-                    cadcraft_geom::Polyline { vertices: pl.vertices.clone(), closed: true }.tessellate(self.aperture / 10.0)
+            self.closed_centroid(kind, &at);
+        }
+    }
+
+    fn primitive(&mut self, kind: &EntityKind, p: Prim) {
+        let osmode = self.osmode;
+        let cands = &mut *self.cands;
+        match &p {
+            Prim::Seg(s) => {
+                if osmode & mode::END != 0 {
+                    cands.push((mode::END, s.start()));
+                    cands.push((mode::END, s.end()));
                 }
-                EntityKind::Spline(s) if s.closed => s.tessellate(1e-3),
-                _ => Vec::new(),
-            };
-            if let Some(c) = centroid(&pts) {
-                self.cands.push((mode::GCEN, at(c)));
+                if osmode & mode::MID != 0 {
+                    cands.push((mode::MID, s.mid()));
+                }
+                if let Segment::Arc { arc, .. } = s {
+                    if osmode & mode::CEN != 0 {
+                        cands.push((mode::CEN, arc.center));
+                    }
+                    if osmode & mode::QUA != 0 {
+                        for k in 0..4 {
+                            let a = k as f64 * PI / 2.0;
+                            if arc.contains_angle(a) {
+                                cands.push((mode::QUA, Vec2::polar(arc.center, arc.radius, a)));
+                            }
+                        }
+                    }
+                }
             }
+            Prim::Circle(c) => {
+                if osmode & mode::CEN != 0 {
+                    cands.push((mode::CEN, c.center));
+                }
+                if osmode & mode::QUA != 0 {
+                    for k in 0..4 {
+                        cands.push((mode::QUA, Vec2::polar(c.center, c.radius, k as f64 * PI / 2.0)));
+                    }
+                }
+            }
+            Prim::Ellipse(el) => {
+                if osmode & mode::CEN != 0 {
+                    cands.push((mode::CEN, el.center));
+                }
+                if osmode & mode::QUA != 0 {
+                    // Only the quadrant points the arc passes through.
+                    for k in 0..4 {
+                        let t = k as f64 * PI / 2.0;
+                        if cadcraft_geom::angle_in_sweep(t, el.start, el.end) {
+                            cands.push((mode::QUA, el.at_param(t)));
+                        }
+                    }
+                }
+                if osmode & mode::END != 0 && !el.is_full() {
+                    cands.push((mode::END, el.at_param(el.start)));
+                    cands.push((mode::END, el.at_param(el.end)));
+                }
+                if osmode & mode::MID != 0
+                    && let Some(m) = curves::ellipse_mid(el)
+                {
+                    cands.push((mode::MID, m));
+                }
+            }
+            Prim::Spline(s) => {
+                if osmode & mode::END != 0 && !s.closed {
+                    let (lo, hi) = s.domain();
+                    cands.push((mode::END, s.eval(lo)));
+                    cands.push((mode::END, s.eval(hi)));
+                }
+                if osmode & mode::MID != 0
+                    && let Some(m) = curves::spline_mid(s)
+                {
+                    cands.push((mode::MID, m));
+                }
+            }
+            Prim::Point(pt) => {
+                if osmode & mode::NOD != 0 && matches!(kind, EntityKind::Point(_)) {
+                    cands.push((mode::NOD, *pt));
+                }
+            }
+            Prim::Infinite { base, .. } => {
+                if osmode & mode::END != 0 && matches!(kind, EntityKind::Ray(_)) {
+                    cands.push((mode::END, *base));
+                }
+            }
+            Prim::Fill(_) => {}
+        }
+        self.near.push(p);
+    }
+
+    fn closed_centroid(&mut self, kind: &EntityKind, at: &impl Fn(Vec2) -> Vec2) {
+        // The centroid of the area a closed polyline or spline encloses.
+        let pts = match kind {
+            EntityKind::LwPolyline(pl) if pl.closed => {
+                cadcraft_geom::Polyline { vertices: pl.vertices.clone(), closed: true }.tessellate(self.aperture / 10.0)
+            }
+            EntityKind::Spline(s) if s.closed => s.tessellate(1e-3),
+            _ => Vec::new(),
+        };
+        if let Some(c) = centroid(&pts) {
+            self.cands.push((mode::GCEN, at(c)));
         }
     }
 }

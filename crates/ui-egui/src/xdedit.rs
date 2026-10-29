@@ -383,7 +383,7 @@ fn resizable_header(ui: &mut egui::Ui, id_salt: &str, title: &str, width: &mut f
         t.text,
     );
     let grip_rect = egui::Rect::from_min_max(pos2(rect.right() - 14.0, rect.top()), rect.max);
-    let grip_resp = ui.interact(grip_rect, ui.id().with(id_salt), Sense::click_and_drag());
+    let grip_resp = ui.interact(grip_rect, ui.scope_id().with(id_salt), Sense::click_and_drag());
     let grip_color = if grip_resp.hovered() || grip_resp.dragged() {
         ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeHorizontal);
         egui::Color32::from_rgb(96, 165, 250)
@@ -457,7 +457,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
     let mut close_clicked = false;
 
     egui::Window::new(crate::tl!("XDATA Editor (XDEDIT)"))
-        .id(egui::Id::new("xdedit_window_v3"))
+        .id(egui::Id::unique("xdedit_window_v3"))
         .open(open)
         .default_size(vec2(1100.0, 720.0))
         .min_width(860.0)
@@ -705,7 +705,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                             .find(|(c, _)| *c == r.code)
                                             .map(|(_, l)| *l)
                                             .unwrap_or("Custom");
-                                        egui::ComboBox::from_id_salt(("xd_code", i))
+                                        craft_ui::ComboBox::from_id_salt(("xd_code", i))
                                             .selected_text(code_label)
                                             .width(105.0)
                                             .show_ui(ui, |ui| {
@@ -722,7 +722,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 .add_sized(
                                                     [key_w, 22.0],
                                                     egui::TextEdit::singleline(&mut r.key)
-                                                        .id(egui::Id::new(("xd_key", i)))
+                                                        .id(egui::Id::unique(("xd_key", i)))
                                                         .desired_width(f32::INFINITY)
                                                         .hint_text("(key)"),
                                                 )
@@ -735,7 +735,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 .add_sized(
                                                     [val_w, 22.0],
                                                     egui::TextEdit::singleline(&mut r.val)
-                                                        .id(egui::Id::new(("xd_val", i)))
+                                                        .id(egui::Id::unique(("xd_val", i)))
                                                         .desired_width(f32::INFINITY),
                                                 )
                                                 .changed()
@@ -749,7 +749,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                                 .add_sized(
                                                     [key_w + val_w, 22.0],
                                                     egui::TextEdit::singleline(&mut combined)
-                                                        .id(egui::Id::new(("xd_raw", i)))
+                                                        .id(egui::Id::unique(("xd_raw", i)))
                                                         .desired_width(f32::INFINITY),
                                                 )
                                                 .changed()
@@ -821,7 +821,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new(crate::tl!("Add Row:")).strong());
                         let new_code_lbl = CODES.iter().find(|(c, _)| *c == st.new_code).map(|(_, l)| *l).unwrap_or("1000 String");
-                        egui::ComboBox::from_id_salt("xd_new_code")
+                        craft_ui::ComboBox::from_id_salt("xd_new_code")
                             .selected_text(new_code_lbl)
                             .width(105.0)
                             .show_ui(ui, |ui| {

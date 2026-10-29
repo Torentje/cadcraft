@@ -143,7 +143,7 @@ impl Interactive for ApploadM {
         "APPLOAD"
     }
     fn prompt(&self, _: &Session) -> Prompt {
-        Prompt::new("Enter name of LISP or .NET DLL file to load", Accept::TEXT)
+        Prompt::new("Enter name of LISP file to load", Accept::TEXT)
     }
     fn input(&mut self, s: &mut Session, i: Input) -> Result<Step> {
         if matches!(i, Input::Cancel | Input::Enter) {

@@ -67,6 +67,7 @@
 	Blend	Raccord lissé
 	Block	Bloc
 	Block Attribute Manager...	Gestionnaire des attributs de bloc...
+	Block Description...	Description de bloc...
 	Block Editor	Éditeur de blocs
 	Block Reference	Référence de bloc
 	Block...	Bloc...
@@ -144,6 +145,7 @@
 	Current selection	Sélection actuelle
 	Current: {color}	Actuel : {color}
 	Cut	Couper
+	Cut with Base Point	Couper avec point de base
 	Cyan	Cyan
 	Cylinder	Cylindre
 	DWG	DWG
@@ -451,6 +453,7 @@
 	N	N
 	Name	Nom
 	Name (A–Z)	Nom (A–Z)
+	Named Viewports...	Fenêtres nommées...
 	Nearest	Plus proche
 	New	Nouveau
 	New (metric)	Nouveau (métrique)
@@ -471,6 +474,7 @@
 	No selection	Aucune sélection
 	Node	Nœud
 	None	Aucun
+	Normal	Normal
 	Not available	Non disponible
 	Not available yet	Pas encore disponible
 	OK	OK
@@ -616,6 +620,7 @@
 	Rename Text Style	Renommer le style de texte
 	Rename...	Renommer...
 	Repeat {command}	Répéter {command}
+	Replace Block...	Remplacer le bloc...
 	Requires a point (x,y, @dx,dy or @d<a).	Nécessite un point (x,y, @dx,dy ou @d<a).
 	Reset Palettes	Réinitialiser les palettes
 	Restore	Restaurer
@@ -961,6 +966,7 @@
 	Viewport Properties	Propriétés de la fenêtre
 	Viewport {id}	Fenêtre {id}
 	Viewports	Fenêtres
+	Volume	Volume
 	W	O
 	WCS	SCG
 	White	Blanc
@@ -1008,6 +1014,9 @@
 	Not a number or distance: {text}	Ni un nombre ni une distance : {text}
 	Query Texts	Interroger les textes
 	Analyze Shapes	Analyser les formes
+	Check for Updates…	Rechercher des mises à jour…
+	CADCraft is up to date.	CADCraft est à jour.
+	Could not check for updates.	Impossible de rechercher les mises à jour.
 	Clear Command History	Effacer l'historique des commandes
 	Copy All	Tout copier
 	Copy history output to clipboard	Copier l'historique dans le presse-papiers
@@ -1348,7 +1357,6 @@
 	No alias file loaded. REINIT replaces these aliases with a file's.	Aucun fichier d'alias chargé. REINIT remplace ces alias par ceux d'un fichier.
 	No external references are attached.	Aucune référence externe n'est attachée.
 	No supported 3D mouse found	Aucune souris 3D prise en charge n'a été trouvée
-	Normal	Normal
 	Not Found	Introuvable
 	Not loaded	Non chargée
 	Numbered list	Liste numérotée
@@ -1515,7 +1523,6 @@
 	Viewport scale	Échelle de la fenêtre
 	Visual Effect Settings	Paramètres des effets visuels
 	Visual Effect Settings...	Paramètres des effets visuels...
-	Volume	Volume
 	When a command is active	Lorsqu'une commande est active
 	When no command is active	Lorsqu'aucune commande n'est active
 	Window <	Fenêtre <
@@ -1601,3 +1608,6 @@
 	cannot read file	impossible de lire le fichier
 	e.g. (+ 1 2) or + 1 2	p. ex. (+ 1 2) ou + 1 2
 	no [CommandMethod] found	aucun [CommandMethod] trouvé
+	Font	Police
+	Save Layout as Template	Enregistrer la présentation comme gabarit
+	Export Comparison	Exporter la comparaison

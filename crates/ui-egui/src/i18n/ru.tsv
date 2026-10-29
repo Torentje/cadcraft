@@ -67,6 +67,7 @@
 	Blend	Сгладить
 	Block	Блок
 	Block Attribute Manager...	Диспетчер атрибутов блоков...
+	Block Description...	Описание блока...
 	Block Editor	Редактор блоков
 	Block Reference	Вхождение блока
 	Block...	Блок...
@@ -144,6 +145,7 @@
 	Current selection	Текущее выделение
 	Current: {color}	Текущий: {color}
 	Cut	Вырезать
+	Cut with Base Point	Вырезать с базовой точкой
 	Cyan	Голубой
 	Cylinder	Цилиндр
 	DWG	DWG
@@ -451,6 +453,7 @@
 	N	С
 	Name	Название
 	Name (A–Z)	Название (А–Я)
+	Named Viewports...	Именованные видовые экраны...
 	Nearest	Ближайшая точка
 	New	Создать
 	New (metric)	Создать (метрический)
@@ -471,6 +474,7 @@
 	No selection	Ничего не выделено
 	Node	Узел
 	None	Нет
+	Normal	Обычный
 	Not available	Недоступно
 	Not available yet	Пока недоступно
 	OK	ОК
@@ -616,6 +620,7 @@
 	Rename Text Style	Переименовать текстовый стиль
 	Rename...	Переименовать...
 	Repeat {command}	Повторить {command}
+	Replace Block...	Заменить блок...
 	Requires a point (x,y, @dx,dy or @d<a).	Требуется точка (x,y, @dx,dy или @d<a).
 	Reset Palettes	Сбросить палитры
 	Restore	Восстановить
@@ -961,6 +966,7 @@
 	Viewport Properties	Свойства видового экрана
 	Viewport {id}	Видовой экран {id}
 	Viewports	Видовые экраны
+	Volume	Объём
 	W	З
 	WCS	МСК
 	White	Белый
@@ -1009,6 +1015,9 @@
 	Not a number or distance: {text}	Не число и не расстояние: {text}
 	Query Texts	Запрос текстов
 	Analyze Shapes	Анализ фигур
+	Check for Updates…	Проверить обновления…
+	CADCraft is up to date.	У вас последняя версия CADCraft.
+	Could not check for updates.	Не удалось проверить обновления.
 	Clear Command History	Очистить историю команд
 	Copy All	Копировать все
 	Copy history output to clipboard	Скопировать историю в буфер обмена
@@ -1349,7 +1358,6 @@
 	No alias file loaded. REINIT replaces these aliases with a file's.	Файл псевдонимов не загружен. Команда REINIT заменяет эти псевдонимы данными из файла.
 	No external references are attached.	Внешние ссылки не вставлены.
 	No supported 3D mouse found	Поддерживаемая 3D-мышь не найдена
-	Normal	Обычный
 	Not Found	Не найдена
 	Not loaded	Не загружена
 	Numbered list	Нумерованный список
@@ -1515,7 +1523,6 @@
 	Viewport scale	Масштаб видового экрана
 	Visual Effect Settings	Параметры визуальных эффектов
 	Visual Effect Settings...	Параметры визуальных эффектов...
-	Volume	Объём
 	When a command is active	Когда команда активна
 	When no command is active	Когда нет активных команд
 	Window <	Рамка <
@@ -1601,3 +1608,6 @@
 	cannot read file	не удаётся прочитать файл
 	e.g. (+ 1 2) or + 1 2	напр., (+ 1 2) или + 1 2
 	no [CommandMethod] found	[CommandMethod] не найден
+	Font	Шрифт
+	Save Layout as Template	Сохранить лист как шаблон
+	Export Comparison	Экспорт сравнения

@@ -35,6 +35,16 @@ pub struct CmdLine {
     pub options_anchor: Option<Pos2>,
     /// Highlighted row in the AutoComplete popup list.
     pub selected_index: usize,
+    /// The IME's composition (pre-edit) text: shown after the buffer while composing, never saved.
+    pub preedit: String,
+    /// The command line's editing rectangle and caret (screen) from the last frame, for the IME's
+    /// composition window (see `enable_ime`).
+    pub ime_rect: Option<(Rect, Rect)>,
+    /// The command line's IME context generation: a new one each time it starts collecting text,
+    /// as egui asks of an IME owner that (re)gains focus.
+    ime_generation: u64,
+    /// Whether the command line published an IME context last frame.
+    ime_on: bool,
 }
 
 /// The most history lines the command line shows above its bar.
@@ -56,7 +66,7 @@ pub fn dyn_frame(app: &CadApp) -> Option<crate::dyninput::Frame> {
 /// the command line deaf to typing). While no widget has focus, a pressed Tab becomes a `"\t"`
 /// text event, which keeps its place among the other keystrokes; [`keyboard`] handles it.
 pub fn capture_tab(ctx: &egui::Context, raw: &mut egui::RawInput) {
-    let hist_id = egui::Id::new("cmd_history_log_text");
+    let hist_id = egui::Id::unique("cmd_history_log_text");
     if ctx.memory(|m| m.focused()) == Some(hist_id) {
         let should_release = raw.events.iter().any(|e| match e {
             egui::Event::Text(t) => !t.is_empty(),
@@ -424,9 +434,36 @@ pub fn lisp_accepts_space(buffer: &str, prompting: bool) -> bool {
     false
 }
 
+/// Let the operating system's IME compose into the command line while a prompt asks for text.
+/// Nothing owns keyboard focus there (typing goes to the command line from anywhere), so egui
+/// never enables the IME by itself: publishing an IME output does it, with the command line's
+/// rectangle and caret for the composition window. Without this a Windows IME (Pinyin, Japanese,
+/// Korean...) cannot even switch on (#1761).
+fn enable_ime(app: &mut CadApp, ctx: &egui::Context) {
+    if !app.cmd.ime_on {
+        app.cmd.ime_on = true;
+        app.cmd.ime_generation = app.cmd.ime_generation.wrapping_add(1);
+    }
+    let (rect, cursor_rect) = app.cmd.ime_rect.unwrap_or_else(|| {
+        let r = ctx.content_rect();
+        (r, Rect::from_min_size(pos2(r.left() + 30.0, r.bottom() - 34.0), vec2(1.0, 18.0)))
+    });
+    ctx.output_mut(|o| {
+        o.ime = Some(egui::output::IMEOutput::new(
+            egui::Id::unique("cc_cmdline_ime"),
+            app.cmd.ime_generation,
+            egui::IMEPurpose::Normal,
+            rect,
+            cursor_rect,
+        ));
+    });
+}
+
 /// Handle keyboard input destined for the command line (when no text field has focus).
 pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
     if ctx.egui_wants_keyboard_input() {
+        app.cmd.preedit.clear();
+        app.cmd.ime_on = false;
         return;
     }
     let events = ctx.input(|i| i.events.clone());
@@ -434,39 +471,18 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
     app.cmd.watch_selection(&selection);
     let mac = ctx.os() == egui::os::OperatingSystem::Mac;
     let text_prompt = app.session.current_prompt().is_some_and(|p| p.accept.text && !p.accept.point && !p.accept.number);
+    if text_prompt {
+        enable_ime(app, ctx);
+    } else {
+        // No prompt is collecting text: a composition left over from one cannot belong here.
+        app.cmd.preedit.clear();
+        app.cmd.ime_on = false;
+    }
     options_still_fit(app);
     for ev in events {
         let keep_space = text_prompt || lisp_accepts_space(&app.cmd.buffer, app.session.prompting());
-        // The options menu takes the arrows, Enter and Escape; typing closes it.
-        if app.cmd.options.is_some() {
-            let space = matches!(&ev, egui::Event::Text(t) if t == " ") && !keep_space;
-            match &ev {
-                _ if space => {
-                    if let Some(k) = app.cmd.options.as_ref().and_then(|m| m.current()).map(str::to_owned) {
-                        pick_option(app, k);
-                    }
-                    continue;
-                }
-                egui::Event::Key { key: Key::Enter, pressed: true, .. } => {
-                    if let Some(k) = app.cmd.options.as_ref().and_then(|m| m.current()).map(str::to_owned) {
-                        pick_option(app, k);
-                    }
-                    continue;
-                }
-                egui::Event::Key { key: Key::Escape, pressed: true, .. } => {
-                    app.cmd.options = None;
-                    continue;
-                }
-                egui::Event::Key { key: Key::ArrowUp, pressed: true, modifiers, .. } if !modifiers.any() => {
-                    options_key(app, -1);
-                    continue;
-                }
-                egui::Event::Key { key: Key::ArrowDown | Key::ArrowUp, pressed: true, .. } => {}
-                // Space arrives as a key and as text; the text picks.
-                egui::Event::Key { key: Key::Space, .. } => {}
-                egui::Event::Text(_) | egui::Event::Key { pressed: true, .. } => app.cmd.options = None,
-                _ => {}
-            }
+        if handle_options_event(app, &ev, keep_space) {
+            continue;
         }
         match ev {
             egui::Event::Text(t) => {
@@ -484,9 +500,21 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                 } else {
                     app.cmd.history_pos = None;
                     app.cmd.selected_index = 0;
+                    app.cmd.preedit.clear();
                     app.cmd.buffer.push_str(&t);
                 }
             }
+            // IME composition: the pre-edit is shown but stays out of the buffer; the commit is
+            // the only text that is inserted. Enter/Return commits arrive separately as keys, so
+            // a newline commit is ignored (as egui's own text fields do) instead of submitting.
+            egui::Event::Ime(egui::ImeEvent::Preedit { text, .. }) => app.cmd.preedit = text,
+            egui::Event::Ime(egui::ImeEvent::Commit(text)) => {
+                app.cmd.preedit.clear();
+                if text != "\n" && text != "\r" {
+                    app.cmd.buffer.push_str(&text);
+                }
+            }
+            egui::Event::Ime(_) => {}
             egui::Event::Key { key, pressed: true, repeat, modifiers, .. } => match key {
                 Key::Enter => {
                     if !app.session.prompting() && app.cmd.history_pos.is_none() && app.cmd.selected_index > 0 {
@@ -502,6 +530,7 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
                     app.cmd.history_pos = None;
                     app.cmd.selected_index = 0;
                     app.cmd.buffer.clear();
+                    app.cmd.preedit.clear();
                     app.session.cancel();
                 }
                 Key::Backspace => {
@@ -579,8 +608,45 @@ pub fn keyboard(app: &mut CadApp, ctx: &egui::Context) {
     }
 }
 
+fn handle_options_event(app: &mut CadApp, ev: &egui::Event, keep_space: bool) -> bool {
+    if app.cmd.options.is_none() {
+        return false;
+    }
+    let space = matches!(ev, egui::Event::Text(t) if t == " ") && !keep_space;
+    match ev {
+        _ if space => {
+            if let Some(k) = app.cmd.options.as_ref().and_then(|m| m.current()).map(str::to_owned) {
+                pick_option(app, k);
+            }
+            true
+        }
+        egui::Event::Key { key: Key::Enter, pressed: true, .. } => {
+            if let Some(k) = app.cmd.options.as_ref().and_then(|m| m.current()).map(str::to_owned) {
+                pick_option(app, k);
+            }
+            true
+        }
+        egui::Event::Key { key: Key::Escape, pressed: true, .. } => {
+            app.cmd.options = None;
+            true
+        }
+        egui::Event::Key { key: Key::ArrowUp, pressed: true, modifiers, .. } if !modifiers.any() => {
+            options_key(app, -1);
+            true
+        }
+        egui::Event::Key { key: Key::ArrowDown | Key::ArrowUp, pressed: true, .. } => false,
+        egui::Event::Key { key: Key::Space, .. } => false,
+        egui::Event::Text(_) | egui::Event::Key { pressed: true, .. } => {
+            app.cmd.options = None;
+            false
+        }
+        _ => false,
+    }
+}
+
 /// Submit the current command-line buffer to the CAD session.
 pub fn submit(app: &mut CadApp) {
+    app.cmd.preedit.clear();
     // Grip dimensional input: the typed lengths and angles place the grip.
     if crate::grip_dyn::submit(app) {
         return;
@@ -624,6 +690,7 @@ fn visible_lines(app: &CadApp, canvas: Rect, bar: Rect) -> usize {
     app.ui.history_lines.min(MAX_LINES).min(available)
 }
 
+/// Draw the floating command bar and its history over the bottom-centre of `canvas`; the bar is 48 % of the canvas width, clamped to 360–760 points and never wider than the canvas minus 8 points.
 pub fn show(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect) {
     let t = Tokens::get();
     let w = (canvas.width() * 0.48).clamp(360.0, 760.0).min((canvas.width() - 8.0).max(0.0));
@@ -672,7 +739,7 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect) {
                 for (i, k) in kws.iter().enumerate() {
                     let g = p.layout_no_wrap(k.clone(), font.clone(), t.cmd_keyword);
                     let r = Rect::from_min_size(pos2(x, bar.top() + 3.0), vec2(g.size().x, h - 6.0));
-                    let resp = ui.interact(r, ui.id().with(("kw", i)), Sense::click());
+                    let resp = ui.interact(r, ui.scope_id().with(("kw", i)), Sense::click());
                     if resp.hovered() {
                         p.rect_filled(r, 2.0, t.cmd_keyword_hover);
                     }
@@ -721,14 +788,26 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect) {
             }
         }
     }
-    let g = p.layout_no_wrap(app.cmd.buffer.clone(), font, t.text);
+    let g = p.layout_no_wrap(app.cmd.buffer.clone(), font.clone(), t.text);
     let gw = g.size().x;
     p.galley(pos2(x, bar.center().y - g.size().y / 2.0), g, t.text);
+    let mut caret_x = x + gw;
+    // The IME's composition text sits after the buffer (underlined) until it is committed.
+    if !app.cmd.preedit.is_empty() {
+        let pg = p.layout_no_wrap(app.cmd.preedit.clone(), font, t.text);
+        let pw = pg.size().x;
+        p.galley(pos2(caret_x, bar.center().y - pg.size().y / 2.0), pg, t.text);
+        p.line_segment([pos2(caret_x, bar.bottom() - 7.0), pos2(caret_x + pw, bar.bottom() - 7.0)], Stroke::new(1.0, t.accent));
+        caret_x += pw;
+    }
     // Caret.
     let blink = (ui.input(|i| i.time) * 2.0).floor() as i64 % 2 == 0;
     if blink {
-        p.line_segment([pos2(x + gw + 1.0, bar.top() + 5.0), pos2(x + gw + 1.0, bar.bottom() - 5.0)], Stroke::new(1.0, t.text));
+        p.line_segment([pos2(caret_x + 1.0, bar.top() + 5.0), pos2(caret_x + 1.0, bar.bottom() - 5.0)], Stroke::new(1.0, t.text));
     }
+    // Where the IME's composition window follows: the whole command line and the caret in it.
+    let caret = Rect::from_min_size(pos2(caret_x + 1.0, bar.top() + 5.0), vec2(1.0, h - 10.0));
+    app.cmd.ime_rect = Some((bar, caret));
     // History chevron.
     crate::icons::paint(
         &p,
@@ -753,7 +832,7 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect) {
             let sel_idx = app.cmd.selected_index.min(sug.len().saturating_sub(1));
             for (i, s) in sug.iter().enumerate() {
                 let r = Rect::from_min_size(pos2(lr.left(), lr.top() + rh * i as f32), vec2(lr.width(), rh));
-                let resp = ui.interact(r, ui.id().with(("sug", i)), Sense::click());
+                let resp = ui.interact(r, ui.scope_id().with(("sug", i)), Sense::click());
                 if resp.hovered() || i == sel_idx {
                     p.rect_filled(r.shrink(1.0), 2.0, if resp.hovered() { t.cmd_keyword_hover } else { t.list_row });
                 }
@@ -819,7 +898,7 @@ fn zones(app: &CadApp, canvas: Rect, bar: Rect) -> Zones {
 fn history(app: &mut CadApp, ui: &mut egui::Ui, canvas: Rect, bar: Rect) {
     let z = zones(app, canvas, bar);
     let interact_rect = if z.window.is_some() { bar } else { z.all };
-    let resp = ui.interact(interact_rect, ui.id().with("cmdline"), Sense::click_and_drag());
+    let resp = ui.interact(interact_rect, ui.scope_id().with("cmdline"), Sense::click_and_drag());
     if let Some(r) = z.window {
         history_window(app, ui, r);
     }
@@ -863,7 +942,7 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
     let t = Tokens::get();
     // Register background interaction FIRST so clicks/drags don't pass through to the canvas,
     // while child buttons and the scrollable TextEdit registered afterwards sit on top of it.
-    let _ = ui.interact(r, ui.id().with("cmd_history_window_bg"), Sense::click_and_drag());
+    let _ = ui.interact(r, ui.scope_id().with("cmd_history_window_bg"), Sense::click_and_drag());
     ui.painter().rect_filled(r, 3.0, t.cmd_bg);
     ui.painter().rect_stroke(r, 3.0, Stroke::new(1.0, t.border), egui::StrokeKind::Inside);
     let inner = r.shrink2(vec2(8.0, 4.0));
@@ -924,7 +1003,7 @@ fn history_window(app: &mut CadApp, ui: &mut egui::Ui, r: Rect) {
             ui.add_sized(
                 ui.available_size(),
                 egui::TextEdit::multiline(&mut text_slice)
-                    .id(egui::Id::new("cmd_history_log_text"))
+                    .id(egui::Id::unique("cmd_history_log_text"))
                     .font(crate::theme::mono())
                     .text_color(t.text)
                     .frame(egui::Frame::NONE)
@@ -964,17 +1043,50 @@ mod tests {
         assert_eq!(app.ui.history_lines, 12);
     }
 
-    fn frame(app: &mut CadApp, ctx: &egui::Context, events: Vec<Event>) {
+    fn frame(app: &mut CadApp, ctx: &egui::Context, events: Vec<Event>) -> egui::FullOutput {
         let raw = egui::RawInput { screen_rect: Some(Rect::from_min_size(Pos2::ZERO, vec2(1400.0, 900.0))), events, ..Default::default() };
         let mut out = ctx.run_ui(raw, |ui| {
             app.logic(ui.ctx());
             app.ui(ui);
         });
         out.textures_delta.clear();
+        out
     }
 
     fn press(app: &mut CadApp, ctx: &egui::Context, at: Pos2, pressed: bool) {
         frame(app, ctx, vec![Event::PointerButton { pos: at, button: PointerButton::Primary, pressed, modifiers: egui::Modifiers::default() }]);
+    }
+
+    #[test]
+    fn ime_preedit_is_shown_and_its_commit_is_inserted_once() {
+        use cadcraft_engine::geom::Vec2;
+        let mut app = CadApp::new(Session::new(), crate::Services::default());
+        app.run("text", serde_json::json!({"at": [0, 0], "text": "HELLO", "height": 2.5})).unwrap();
+        app.start("textedit");
+        app.session.input(Input::Point(Vec2::new(1.0, 1.0))).unwrap();
+        assert_eq!(app.session.current_prompt().map(|p| p.message.clone()).as_deref(), Some("Enter new text"));
+        let ctx = egui::Context::default();
+        let out = frame(&mut app, &ctx, Vec::new());
+        // The IME is enabled for the command line while it is collecting text.
+        assert!(out.platform_output.ime.is_some());
+        // Composition is shown at the command line but is not part of the text being edited.
+        frame(&mut app, &ctx, vec![Event::Ime(egui::ImeEvent::Preedit { text: "zhong".into(), active_range_chars: None })]);
+        assert_eq!(app.cmd.preedit, "zhong");
+        assert!(app.cmd.buffer.is_empty());
+        // The committed text replaces the pre-edit, exactly once.
+        frame(&mut app, &ctx, vec![Event::Ime(egui::ImeEvent::Commit("中文".into()))]);
+        assert!(app.cmd.preedit.is_empty());
+        assert_eq!(app.cmd.buffer, "中文");
+        let enter = |pressed| Event::Key { key: Key::Enter, physical_key: None, pressed, repeat: false, modifiers: egui::Modifiers::NONE };
+        frame(&mut app, &ctx, vec![enter(true), enter(false)]);
+        let text = app.session.doc().unwrap().model.iter().next().map(|e| match &e.kind {
+            cadcraft_engine::doc::EntityKind::Text(t) => t.value.clone(),
+            _ => String::new(),
+        });
+        assert_eq!(text.as_deref(), Some("中文"));
+        // Back to selecting objects: the next frame lets the IME go, so it can't swallow ASCII typing.
+        let out = frame(&mut app, &ctx, Vec::new());
+        assert!(out.platform_output.ime.is_none());
     }
 
     #[test]
