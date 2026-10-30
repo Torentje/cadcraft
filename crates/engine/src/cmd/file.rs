@@ -320,10 +320,38 @@ fn read_bytes(bytes: &[u8], name: &str, path: Option<String>) -> Result<ReadFile
 
 fn add_read(s: &mut Session, drawing: Drawing, binary_dxf: bool, name: &str, path: Option<String>) -> usize {
     let notes = drawing.read_notes.clone();
-    let i = s.open_drawing(drawing, &file_name(name), path);
+    let i = s.open_drawing(drawing, &file_name(name), path.clone());
+    let mut lock_echo = None;
     if let Some(st) = s.docs.get_mut(i) {
         // QSAVE keeps a binary DXF binary.
         st.binary_dxf = binary_dxf;
+
+        #[cfg(not(target_arch = "wasm32"))]
+        if let Some(ref p) = path
+            && is_drawing_file(p)
+        {
+            let path_buf = std::path::Path::new(p);
+            match crate::drawing_lock::try_acquire_lock(path_buf) {
+                    crate::drawing_lock::LockResult::Acquired(guard) => {
+                        st.lock = Some(std::sync::Arc::new(guard));
+                        st.read_only = false;
+                    }
+                    crate::drawing_lock::LockResult::AlreadyLocked(info) => {
+                        st.read_only = true;
+                        let desc = info.description();
+                        st.lock_info = Some(desc.clone());
+                        lock_echo = Some(format!("Drawing file is write-protected ({desc}). Opened read-only."));
+                    }
+                    crate::drawing_lock::LockResult::Failed(err) => {
+                        st.read_only = true;
+                        st.lock_info = Some(err.clone());
+                        lock_echo = Some(format!("Could not lock drawing file ({err}). Opened read-only."));
+                    }
+                }
+            }
+        }
+    if let Some(echo) = lock_echo {
+        s.echo(echo);
     }
     for note in notes {
         s.echo(note);
@@ -336,14 +364,16 @@ pub(crate) fn open_bytes(s: &mut Session, bytes: &[u8], name: &str, path: Option
     Ok(add_read(s, drawing, binary_dxf, &name, path))
 }
 
-/// OPEN's reply: the drawing's index and what reading it left out.
+/// OPEN's reply: the drawing's index, entities count, warnings, read_only flag and lock_info.
 fn opened(s: &Session, i: usize, entities: bool) -> Value {
-    let d = s.docs.get(i).map(|st| &st.doc);
-    let warnings = d.map(|d| d.read_notes.clone()).unwrap_or_default();
+    let d = s.docs.get(i);
+    let warnings = d.map(|st| st.doc.read_notes.clone()).unwrap_or_default();
+    let read_only = d.map(|st| st.read_only).unwrap_or(false);
+    let lock_info = d.and_then(|st| st.lock_info.clone());
     if entities {
-        json!({ "index": i, "entities": d.map(|d| d.entity_count()), "warnings": warnings })
+        json!({ "index": i, "entities": d.map(|st| st.doc.entity_count()), "warnings": warnings, "read_only": read_only, "lock_info": lock_info })
     } else {
-        json!({ "index": i, "warnings": warnings })
+        json!({ "index": i, "warnings": warnings, "read_only": read_only, "lock_info": lock_info })
     }
 }
 
@@ -410,6 +440,17 @@ fn save_as(s: &mut Session, cmd: &str, path: &str, opts: &SaveAs) -> Result<usiz
     if s.doc()?.refedit.is_some() {
         return Err(bad(cmd, "A block reference is being edited in place: finish with REFCLOSE (Save or Discard) before saving."));
     }
+    #[cfg(not(target_arch = "wasm32"))]
+    if is_drawing_file(path) {
+        let is_same_file = s.state().ok().and_then(|st| st.path.as_deref()) == Some(path);
+        if !is_same_file {
+            let path_buf = std::path::Path::new(path);
+            if let Some(info) = crate::drawing_lock::read_lock_info(path_buf) {
+                let desc = info.description();
+                return Err(bad(cmd, format!("Cannot save over '{path}': file is write-protected ({desc})")));
+            }
+        }
+    }
     let bytes = write_bytes(s, cmd, path, opts)?;
     let n = commit_save(s, path, &bytes, store)?;
     if is_drawing_file(path) {
@@ -454,11 +495,35 @@ fn commit_save(s: &mut Session, path: &str, bytes: &[u8], store: impl FnOnce(&st
         return Ok(bytes.len());
     }
     let st = s.state_mut()?;
+    let is_same_file = st.path.as_deref() == Some(path);
     st.saved = st.drawing().clone();
     st.path = Some(path.to_string());
     st.title = file_name(path);
     // A BEgin group still open when the drawing is saved ends there.
     st.end_undo_group();
+
+    #[cfg(not(target_arch = "wasm32"))]
+    if !is_same_file || st.lock.is_none() {
+        // Drop previous lock and acquire lock for the saved path
+        st.lock = None;
+        let path_buf = std::path::Path::new(path);
+        match crate::drawing_lock::try_acquire_lock(path_buf) {
+            crate::drawing_lock::LockResult::Acquired(guard) => {
+                st.lock = Some(std::sync::Arc::new(guard));
+                st.read_only = false;
+                st.lock_info = None;
+            }
+            crate::drawing_lock::LockResult::AlreadyLocked(info) => {
+                st.read_only = true;
+                st.lock_info = Some(info.description());
+            }
+            crate::drawing_lock::LockResult::Failed(err) => {
+                st.read_only = true;
+                st.lock_info = Some(err);
+            }
+        }
+    }
+
     Ok(bytes.len())
 }
 
@@ -472,6 +537,12 @@ fn saved(path: &str, bytes: usize) -> Value {
 }
 
 fn run_save(s: &mut Session, p: &Value) -> Result<Value> {
+    if let Ok(st) = s.state()
+        && st.read_only
+    {
+        let reason = st.lock_info.as_deref().unwrap_or("file is write-protected or in use");
+        return Err(bad("qsave", format!("Drawing is read-only ({reason}). Use SAVEAS to save with a different name.")));
+    }
     let path = match str_param(p, "path") {
         Some(p) => p.to_string(),
         None => s.state()?.path.clone().ok_or_else(|| bad("qsave", "drawing has no file name yet; use saveas {path}"))?,

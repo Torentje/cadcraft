@@ -37,6 +37,12 @@ pub struct DocState {
     pub block_edit: Option<blockedit::BlockEdit>,
     /// 3D Orbit orientation of model space (`Orbit3d::default()` = Top 2D plan view).
     pub orbit: cadcraft_render::Orbit3d,
+    /// Whether this drawing is opened read-only (e.g. write-protected or locked by another user).
+    pub read_only: bool,
+    /// Details about the lock holder if the file was locked when opened.
+    pub lock_info: Option<String>,
+    /// Active AutoCAD-compatible drawing lock guard (`.dwl` / `.dwl2`).
+    pub lock: Option<Arc<crate::drawing_lock::DrawingLockGuard>>,
 }
 
 static NEXT_UID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -64,6 +70,9 @@ impl DocState {
             binary_dxf: false,
             block_edit: None,
             orbit: cadcraft_render::Orbit3d::default(),
+            read_only: false,
+            lock_info: None,
+            lock: None,
         }
     }
     /// The drawing has changes not saved to its file, or the Block Editor has changes not yet
