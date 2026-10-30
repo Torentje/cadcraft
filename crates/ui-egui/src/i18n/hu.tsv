@@ -1626,3 +1626,8 @@ menu	View	Nézet
 	no [CommandMethod] found	nem található [CommandMethod]
 	Font	Betűtípus
 	Save Layout as Template	Elrendezés mentése sablonként
+
+	Drawing File is Write-Protected	A rajzfájl írásvédett
+	The drawing file '{name}' is currently in use by:	A(z) '{name}' rajzfájlt jelenleg a következő használja:
+	The drawing will be opened in read-only mode. Changes cannot be saved to the original file.	A rajz csak olvasható módban nyílik meg. A módosítások nem menthetők az eredeti fájlba.
+	Open (Read-Only)	Megnyitás (csak olvasható)

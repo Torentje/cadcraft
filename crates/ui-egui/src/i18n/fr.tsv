@@ -1611,3 +1611,8 @@
 	Font	Police
 	Save Layout as Template	Enregistrer la présentation comme gabarit
 	Export Comparison	Exporter la comparaison
+
+	Drawing File is Write-Protected	Le fichier dessin est protégé en écriture
+	The drawing file '{name}' is currently in use by:	Le fichier dessin '{name}' est actuellement utilisé par :
+	The drawing will be opened in read-only mode. Changes cannot be saved to the original file.	Le dessin sera ouvert en lecture seule. Les modifications ne peuvent pas être enregistrées dans le fichier d'origine.
+	Open (Read-Only)	Ouvrir (lecture seule)

@@ -1609,3 +1609,8 @@ menu	Modify	Wijzigen
 	Error	Fout
 	Font	Lettertype
 	Save Layout as Template	Lay-out opslaan als sjabloon
+
+	Drawing File is Write-Protected	Tekeningbestand is beveiligd tegen schrijven
+	The drawing file '{name}' is currently in use by:	Het tekeningbestand '{name}' is momenteel in gebruik door:
+	The drawing will be opened in read-only mode. Changes cannot be saved to the original file.	De tekening wordt geopend in de modus Alleen-lezen. Wijzigingen kunnen niet worden opgeslagen in het originele bestand.
+	Open (Read-Only)	Openen (alleen-lezen)

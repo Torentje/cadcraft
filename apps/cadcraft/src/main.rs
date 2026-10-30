@@ -50,6 +50,7 @@ struct App {
     /// The `movable` flag last set on the main window.
     #[cfg(target_os = "macos")]
     movable: Option<bool>,
+    current_title: String,
     #[cfg(target_os = "windows")]
     hwnd: Option<isize>,
     #[cfg(target_os = "windows")]
@@ -100,6 +101,17 @@ impl eframe::App for App {
                 windows_theme::apply(hwnd, current != egui::Theme::Light);
                 self.windows_theme_applied = Some(current);
             }
+        }
+        let title = match self.cad.session.state() {
+            Ok(st) if !self.cad.ui.start_tab => {
+                let ro = if st.read_only { " [Read-Only]" } else { "" };
+                format!("CADCraft - {}{}{ro}", st.title, if st.title.contains('.') { "" } else { ".dwg" })
+            }
+            _ => "CADCraft".to_string(),
+        };
+        if self.current_title != title {
+            ctx.send_viewport_cmd(egui::ViewportCommand::Title(title.clone()));
+            self.current_title = title;
         }
         // Host frame work runs here, once per frame, and so also on a hidden logic-only tick (which
         // never reaches `App::ui`): native menus stay current, the spacemouse still navigates and a
@@ -451,6 +463,7 @@ fn main() -> eframe::Result {
                 menus_in_window: vars.no_native_menu == Switch::On,
                 #[cfg(target_os = "macos")]
                 movable: None,
+                current_title: "CADCraft".to_string(),
                 #[cfg(target_os = "windows")]
                 hwnd,
                 #[cfg(target_os = "windows")]

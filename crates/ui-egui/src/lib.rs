@@ -283,6 +283,7 @@ pub struct CadApp {
     pub quit_confirmed: bool,
     /// A close request waiting for "Save changes?" answers ([`closing`]).
     pub closing: Option<closing::Closing>,
+    pub lock_prompt: Option<closing::LockPrompt>,
     /// Autosave (desktop; `None` until [`Self::enable_autosave`]).
     pub autosave: Option<cadcraft_engine::autosave::Autosaver>,
     /// Drawing Recovery: autosave files a crashed app left behind.
@@ -345,6 +346,7 @@ impl CadApp {
             quit_requested: false,
             quit_confirmed: false,
             closing: None,
+            lock_prompt: None,
             autosave: None,
             recovery: autosave::Recovery::default(),
             gpu_faults: std::sync::Arc::default(),
@@ -677,6 +679,17 @@ impl CadApp {
                 if let Some(w) = v.get("warnings").and_then(Value::as_array).and_then(|w| w.first()).and_then(Value::as_str) {
                     self.set_status(w.to_string());
                 }
+                if v.get("read_only").and_then(Value::as_bool) == Some(true) {
+                    if let Some(info) = v.get("lock_info").and_then(Value::as_str) {
+                        let doc_idx = v.get("index").and_then(Value::as_u64).map(|i| i as usize).unwrap_or(self.session.active);
+                        let title = self.session.docs.get(doc_idx).map(|d| d.title.clone()).unwrap_or_default();
+                        self.lock_prompt = Some(closing::LockPrompt {
+                            doc_index: doc_idx,
+                            title,
+                            info: info.to_string(),
+                        });
+                    }
+                }
                 // A dynamic block's own drawing: ask whether to open it in the Block Editor.
                 if self.session.state().is_ok_and(|st| cadcraft_engine::blockedit::has_authoring_elements(&st.doc)) {
                     self.ui.dialog = Some("authoring".into());
@@ -971,6 +984,7 @@ impl CadApp {
         dialogs::show(self, ui.ctx());
         palettes::patterns::prompt_picker(self, ui.ctx());
         closing::prompt(self, ui.ctx());
+        closing::lock_prompt(self, ui.ctx());
         autosave::show(self, ui.ctx());
         autosave::gpu_notice(self, ui.ctx());
         self.frame_ms = now_ms() - t0;

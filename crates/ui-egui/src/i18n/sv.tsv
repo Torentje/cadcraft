@@ -1623,3 +1623,8 @@ menu	Modify	Ändra
 	no [CommandMethod] found	ingen [CommandMethod] hittades
 	Font	Teckensnitt
 	Save Layout as Template	Spara layout som mall
+
+	Drawing File is Write-Protected	Ritningsfilen är skrivskyddad
+	The drawing file '{name}' is currently in use by:	Ritningsfilen '{name}' används för närvarande av:
+	The drawing will be opened in read-only mode. Changes cannot be saved to the original file.	Ritningen öppnas i skrivskyddat läge. Ändringar kan inte sparas i originalfilen.
+	Open (Read-Only)	Öppna (skrivskyddad)
