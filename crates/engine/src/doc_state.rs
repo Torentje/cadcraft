@@ -35,6 +35,12 @@ pub struct DocState {
     /// The Block Editor (BEDIT), when it is open: `doc` is then the editor's drawing, and the
     /// drawing itself waits in it ([`DocState::drawing`]).
     pub block_edit: Option<blockedit::BlockEdit>,
+    /// Whether this drawing is opened read-only (e.g. write-protected or locked by another user).
+    pub read_only: bool,
+    /// Details about the lock holder if the file was locked when opened.
+    pub lock_info: Option<String>,
+    /// Active AutoCAD-compatible drawing lock guard (`.dwl` / `.dwl2`).
+    pub lock: Option<Arc<crate::drawing_lock::DrawingLockGuard>>,
 }
 
 static NEXT_UID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -61,6 +67,9 @@ impl DocState {
             uid: NEXT_UID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             binary_dxf: false,
             block_edit: None,
+            read_only: false,
+            lock_info: None,
+            lock: None,
         }
     }
     /// The drawing has changes not saved to its file, or the Block Editor has changes not yet
