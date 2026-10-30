@@ -19,6 +19,8 @@ mod desktop_theme;
 mod env;
 #[cfg(any(target_os = "windows", test))]
 mod graphics;
+#[cfg(target_os = "windows")]
+mod windows_theme;
 mod launch_args;
 mod logging;
 #[cfg(target_os = "macos")]
@@ -48,6 +50,10 @@ struct App {
     /// The `movable` flag last set on the main window.
     #[cfg(target_os = "macos")]
     movable: Option<bool>,
+    #[cfg(target_os = "windows")]
+    hwnd: Option<isize>,
+    #[cfg(target_os = "windows")]
+    windows_theme_applied: Option<egui::Theme>,
 }
 
 impl App {
@@ -87,6 +93,14 @@ impl eframe::App for App {
         self.cad.system_animations = self.system_animations.current();
         // Consume control/open/screenshot queues and time-based autosave, including hidden ticks.
         self.cad.logic(ctx);
+        #[cfg(target_os = "windows")]
+        if let Some(hwnd) = self.hwnd {
+            let current = self.cad.shown_theme();
+            if self.windows_theme_applied != Some(current) {
+                windows_theme::apply(hwnd, current != egui::Theme::Light);
+                self.windows_theme_applied = Some(current);
+            }
+        }
         // Host frame work runs here, once per frame, and so also on a hidden logic-only tick (which
         // never reaches `App::ui`): native menus stay current, the spacemouse still navigates and a
         // workspace changed while hidden is persisted. `current_pass_index()` is zero on the first
@@ -290,19 +304,25 @@ fn main() -> eframe::Result {
         cadcraft_engine::fonts::ttf::set_fallback_fonts(list);
     }
     let surface = cadcraft_ui_egui::gpu::surface_config(vars.vsync, cfg!(all(unix, not(target_os = "macos"))));
+    #[allow(unused_mut)]
+    let mut viewport = egui::ViewportBuilder::default()
+        .with_title("CADCraft")
+        .with_inner_size([1600.0, 1000.0])
+        .with_min_inner_size([900.0, 560.0])
+        .with_drag_and_drop(true)
+        .with_app_id(APP_ID);
+    #[cfg(target_os = "macos")]
+    {
+        viewport = viewport
+            .with_fullsize_content_view(true)
+            .with_titlebar_shown(false)
+            .with_title_shown(false);
+    }
     let mut options = eframe::NativeOptions {
         // The crosshair is drawn by the app: present without a queue on Linux/BSD, where X11
         // swapchains hold two frames back under vsync (`CADCRAFT_VSYNC=1` restores vsync).
         wgpu_options: eframe::egui_wgpu::WgpuConfiguration::default().with_surface_config(surface),
-        viewport: egui::ViewportBuilder::default()
-            .with_title("CADCraft")
-            .with_inner_size([1600.0, 1000.0])
-            .with_min_inner_size([900.0, 560.0])
-            .with_drag_and_drop(true)
-            .with_fullsize_content_view(true)
-            .with_titlebar_shown(false)
-            .with_title_shown(false)
-            .with_app_id(APP_ID),
+        viewport,
         persist_window: false,
         // CADCraft installs its own capped font chain (`theme::install_fonts`); never run
         // system-font discovery as a hidden fallback.
@@ -404,6 +424,20 @@ fn main() -> eframe::Result {
             let desktop_theme = desktop_theme::DesktopTheme::start(move || ctx.request_repaint());
             let ctx = cc.egui_ctx.clone();
             let system_animations = system_animations::SystemAnimations::start(move || ctx.request_repaint());
+            #[cfg(target_os = "windows")]
+            let shown_theme = app.shown_theme();
+            #[cfg(target_os = "windows")]
+            let hwnd = {
+                use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+                let hwnd = cc.window_handle().ok().and_then(|h| match h.as_raw() {
+                    RawWindowHandle::Win32(w) => Some(w.hwnd.get()),
+                    _ => None,
+                });
+                if let Some(h) = hwnd {
+                    windows_theme::apply(h, shown_theme != egui::Theme::Light);
+                }
+                hwnd
+            };
             Ok(Box::new(App {
                 desktop_theme,
                 system_animations,
@@ -417,6 +451,10 @@ fn main() -> eframe::Result {
                 menus_in_window: vars.no_native_menu == Switch::On,
                 #[cfg(target_os = "macos")]
                 movable: None,
+                #[cfg(target_os = "windows")]
+                hwnd,
+                #[cfg(target_os = "windows")]
+                windows_theme_applied: Some(shown_theme),
             }))
         }),
     )
