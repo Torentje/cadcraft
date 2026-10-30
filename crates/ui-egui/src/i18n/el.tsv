@@ -1620,3 +1620,4 @@ menu	View	Προβολή
 	Drawing file is write-protected ({info}). Opened read-only.	Το αρχείο σχεδίου προστατεύεται από εγγραφή ({info}). Άνοιξε μόνο για ανάγνωση.
 	in use by {user} on {machine} ({time})	σε χρήση από {user} σε {machine} ({time})
 	in use by {user} ({time})	σε χρήση από {user} ({time})
+	Save changes to block "{name}"?	Αποθήκευση αλλαγών στο μπλοκ «{name}»;

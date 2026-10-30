@@ -1623,3 +1623,4 @@ menu	Modify	Modifikace
 	Drawing file is write-protected ({info}). Opened read-only.	Soubor výkresu je chráněn proti zápisu ({info}). Otevřeno pouze pro čtení.
 	in use by {user} on {machine} ({time})	používá {user} na {machine} ({time})
 	in use by {user} ({time})	používá {user} ({time})
+	Save changes to block "{name}"?	Uložit změny v bloku „{name}“?

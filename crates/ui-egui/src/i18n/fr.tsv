@@ -1620,3 +1620,4 @@
 	Drawing file is write-protected ({info}). Opened read-only.	Le fichier dessin est protégé en écriture ({info}). Ouvert en lecture seule.
 	in use by {user} on {machine} ({time})	utilisé par {user} sur {machine} ({time})
 	in use by {user} ({time})	utilisé par {user} ({time})
+	Save changes to block "{name}"?	Enregistrer les modifications apportées au bloc « {name} » ?

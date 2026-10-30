@@ -1624,3 +1624,4 @@ menu	View	عرض
 	Drawing file is write-protected ({info}). Opened read-only.	ملف الرسم محمي ضد الكتابة ({info}). تم فتحه للقراءة فقط.
 	in use by {user} on {machine} ({time})	قيد الاستخدام بواسطة {user} على {machine} ({time})
 	in use by {user} ({time})	قيد الاستخدام بواسطة {user} ({time})
+	Save changes to block "{name}"?	هل تريد حفظ التغييرات في الكتلة "{name}"؟

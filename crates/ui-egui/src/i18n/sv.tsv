@@ -1632,3 +1632,4 @@ menu	Modify	Ändra
 	Drawing file is write-protected ({info}). Opened read-only.	Ritningsfilen är skrivskyddad ({info}). Öppnad i skrivskyddat läge.
 	in use by {user} on {machine} ({time})	används av {user} på {machine} ({time})
 	in use by {user} ({time})	används av {user} ({time})
+	Save changes to block "{name}"?	Spara ändringar i blocket "{name}"?

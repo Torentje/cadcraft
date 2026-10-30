@@ -1634,3 +1634,4 @@ menu	View	Görünüm
 	Drawing file is write-protected ({info}). Opened read-only.	Çizim dosyası yazmaya karşı korumalı ({info}). Salt okunur olarak açıldı.
 	in use by {user} on {machine} ({time})	kullanımda: {user} / {machine} ({time})
 	in use by {user} ({time})	kullanımda: {user} ({time})
+	Save changes to block "{name}"?	"{name}" bloğundaki değişiklikler kaydedilsin mi?

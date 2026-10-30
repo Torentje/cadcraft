@@ -1618,3 +1618,4 @@ menu	Modify	Wijzigen
 	Drawing file is write-protected ({info}). Opened read-only.	Tekeningbestand is beveiligd tegen schrijven ({info}). Geopend als alleen-lezen.
 	in use by {user} on {machine} ({time})	in gebruik door {user} op {machine} ({time})
 	in use by {user} ({time})	in gebruik door {user} ({time})
+	Save changes to block "{name}"?	Wijzigingen opslaan in blok "{name}"?

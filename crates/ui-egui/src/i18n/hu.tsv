@@ -1635,3 +1635,4 @@ menu	View	Nézet
 	Drawing file is write-protected ({info}). Opened read-only.	A rajzfájl írásvédett ({info}). Csak olvasható módban megnyitva.
 	in use by {user} on {machine} ({time})	használja: {user} ezen: {machine} ({time})
 	in use by {user} ({time})	használja: {user} ({time})
+	Save changes to block "{name}"?	Menti a módosításokat a(z) „{name}” blokkba?

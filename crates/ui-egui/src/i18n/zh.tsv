@@ -1620,3 +1620,4 @@
 	Drawing file is write-protected ({info}). Opened read-only.	图形文件受写保护（{info}）。以只读方式打开。
 	in use by {user} on {machine} ({time})	正由 {user} 在 {machine} 上使用（{time}）
 	in use by {user} ({time})	正由 {user} 使用（{time}）
+	Save changes to block "{name}"?	是否保存对块“{name}”的更改？

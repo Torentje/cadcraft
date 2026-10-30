@@ -1625,3 +1625,4 @@ menu	Modify	Edita
 	Drawing file is write-protected ({info}). Opened read-only.	Il file di disegno è protetto da scrittura ({info}). Aperto in sola lettura.
 	in use by {user} on {machine} ({time})	in uso da {user} su {machine} ({time})
 	in use by {user} ({time})	in uso da {user} ({time})
+	Save changes to block "{name}"?	Salvare le modifiche al blocco "{name}"?

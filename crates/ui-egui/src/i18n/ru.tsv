@@ -1620,3 +1620,4 @@
 	Drawing file is write-protected ({info}). Opened read-only.	Файл чертежа защищен от записи ({info}). Открыт только для чтения.
 	in use by {user} on {machine} ({time})	используется {user} на {machine} ({time})
 	in use by {user} ({time})	используется {user} ({time})
+	Save changes to block "{name}"?	Сохранить изменения в блоке «{name}»?
