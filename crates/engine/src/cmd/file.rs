@@ -511,14 +511,17 @@ fn commit_save(s: &mut Session, path: &str, bytes: &[u8], store: impl FnOnce(&st
                 st.lock = Some(std::sync::Arc::new(guard));
                 st.read_only = false;
                 st.lock_info = None;
+                st.lock_holder = None;
             }
             crate::drawing_lock::LockResult::AlreadyLocked(info) => {
                 st.read_only = true;
                 st.lock_info = Some(info.description());
+                st.lock_holder = Some(info);
             }
             crate::drawing_lock::LockResult::Failed(err) => {
                 st.read_only = true;
                 st.lock_info = Some(err);
+                st.lock_holder = None;
             }
         }
     }

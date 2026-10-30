@@ -15,7 +15,6 @@ const SWP_NOSIZE: u32 = 0x0001;
 const SWP_NOMOVE: u32 = 0x0002;
 const SWP_NOZORDER: u32 = 0x0004;
 const SWP_FRAMECHANGED: u32 = 0x0020;
-const WM_NCACTIVATE: u32 = 0x0086;
 
 #[link(name = "dwmapi")]
 unsafe extern "system" {
@@ -38,12 +37,6 @@ unsafe extern "system" {
         cy: i32,
         flags: u32,
     ) -> i32;
-    fn SendMessageW(
-        hwnd: isize,
-        msg: u32,
-        wparam: usize,
-        lparam: isize,
-    ) -> isize;
 }
 
 /// Apply dark or light theme to the native Windows title bar.
@@ -113,6 +106,5 @@ pub fn apply(hwnd: isize, dark: bool) {
             0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED,
         );
-        SendMessageW(hwnd, WM_NCACTIVATE, 1, 0);
     }
 }

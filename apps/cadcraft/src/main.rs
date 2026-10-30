@@ -105,7 +105,9 @@ impl eframe::App for App {
         let title = match self.cad.session.state() {
             Ok(st) if !self.cad.ui.start_tab => {
                 let ro = if st.read_only { " [Read-Only]" } else { "" };
-                format!("CADCraft - {}{}{ro}", st.title, if st.title.contains('.') { "" } else { ".dwg" })
+                let lower = st.title.to_ascii_lowercase();
+                let ext = if lower.ends_with(".dwg") || lower.ends_with(".dxf") { "" } else { ".dwg" };
+                format!("CADCraft - {}{ext}{ro}", st.title)
             }
             _ => "CADCraft".to_string(),
         };

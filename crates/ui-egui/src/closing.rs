@@ -237,7 +237,7 @@ pub fn prompt(app: &mut CadApp, ctx: &egui::Context) {
 /// A prompt shown when a drawing was opened that is already locked by another process/user.
 #[derive(Clone, Debug)]
 pub struct LockPrompt {
-    pub doc_index: usize,
+    pub doc_uid: u64,
     pub title: String,
     pub user: String,
     pub machine: String,
@@ -245,20 +245,27 @@ pub struct LockPrompt {
     pub raw_info: String,
 }
 
+impl LockPrompt {
+    /// Formatted localized description of who holds the lock or the raw error.
+    pub fn description(&self) -> String {
+        if !self.user.is_empty() {
+            if !self.machine.is_empty() {
+                crate::tf!("in use by {user} on {machine} ({time})", user = self.user, machine = self.machine, time = self.date_time)
+            } else {
+                crate::tf!("in use by {user} ({time})", user = self.user, time = self.date_time)
+            }
+        } else {
+            self.raw_info.clone()
+        }
+    }
+}
+
 /// The "Drawing File is Write-Protected" modal while a locked drawing prompt waits for an answer.
 pub fn lock_prompt(app: &mut CadApp, ctx: &egui::Context) {
     let Some(prompt) = app.lock_prompt.clone() else { return };
     let t = Tokens::get();
     let mut choice = None;
-    let holder_desc = if !prompt.user.is_empty() {
-        if !prompt.machine.is_empty() {
-            crate::tf!("in use by {user} on {machine} ({time})", user = prompt.user, machine = prompt.machine, time = prompt.date_time)
-        } else {
-            crate::tf!("in use by {user} ({time})", user = prompt.user, time = prompt.date_time)
-        }
-    } else {
-        prompt.raw_info.clone()
-    };
+    let holder_desc = prompt.description();
     crate::modal::instant(ctx, egui::Id::unique("cc_lock_prompt")).show(ctx, |ui| {
         ui.set_width(440.0);
         ui.label(RichText::new(crate::tl!("Drawing File is Write-Protected")).strong());
@@ -284,8 +291,10 @@ pub fn lock_prompt(app: &mut CadApp, ctx: &egui::Context) {
     });
     if let Some(keep_open) = choice {
         app.lock_prompt = None;
-        if !keep_open {
-            let _ = app.run("close", json!({ "index": prompt.doc_index }));
+        if !keep_open
+            && let Some(i) = app.doc_index(prompt.doc_uid)
+        {
+            let _ = app.run("close", json!({ "index": i }));
         }
         ctx.request_repaint();
     }
