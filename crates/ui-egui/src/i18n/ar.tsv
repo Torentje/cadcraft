@@ -1620,3 +1620,7 @@ menu	View	عرض
 	The drawing file '{name}' is currently in use by:	ملف الرسم '{name}' قيد الاستخدام حاليًا بواسطة:
 	The drawing will be opened in read-only mode. Changes cannot be saved to the original file.	سيتم فتح الرسم في وضع القراءة فقط. لا يمكن حفظ التغييرات في الملف الأصلي.
 	Open (Read-Only)	فتح (للقراءة فقط)
+
+	Drawing file is write-protected ({info}). Opened read-only.	ملف الرسم محمي ضد الكتابة ({info}). تم فتحه للقراءة فقط.
+	in use by {user} on {machine} ({time})	قيد الاستخدام بواسطة {user} على {machine} ({time})
+	in use by {user} ({time})	قيد الاستخدام بواسطة {user} ({time})

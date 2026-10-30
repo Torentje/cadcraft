@@ -239,7 +239,10 @@ pub fn prompt(app: &mut CadApp, ctx: &egui::Context) {
 pub struct LockPrompt {
     pub doc_index: usize,
     pub title: String,
-    pub info: String,
+    pub user: String,
+    pub machine: String,
+    pub date_time: String,
+    pub raw_info: String,
 }
 
 /// The "Drawing File is Write-Protected" modal while a locked drawing prompt waits for an answer.
@@ -247,13 +250,22 @@ pub fn lock_prompt(app: &mut CadApp, ctx: &egui::Context) {
     let Some(prompt) = app.lock_prompt.clone() else { return };
     let t = Tokens::get();
     let mut choice = None;
+    let holder_desc = if !prompt.user.is_empty() {
+        if !prompt.machine.is_empty() {
+            crate::tf!("in use by {user} on {machine} ({time})", user = prompt.user, machine = prompt.machine, time = prompt.date_time)
+        } else {
+            crate::tf!("in use by {user} ({time})", user = prompt.user, time = prompt.date_time)
+        }
+    } else {
+        prompt.raw_info.clone()
+    };
     crate::modal::instant(ctx, egui::Id::unique("cc_lock_prompt")).show(ctx, |ui| {
         ui.set_width(440.0);
         ui.label(RichText::new(crate::tl!("Drawing File is Write-Protected")).strong());
         ui.add_space(4.0);
         ui.label(crate::tf!("The drawing file '{name}' is currently in use by:", name = prompt.title));
         ui.add_space(2.0);
-        ui.label(RichText::new(&prompt.info).color(t.text_dim));
+        ui.label(RichText::new(&holder_desc).color(t.text_dim));
         ui.add_space(4.0);
         ui.label(RichText::new(crate::tl!("The drawing will be opened in read-only mode. Changes cannot be saved to the original file.")).color(t.text_dim));
         ui.add_space(12.0);

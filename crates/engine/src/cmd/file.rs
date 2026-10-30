@@ -321,7 +321,6 @@ fn read_bytes(bytes: &[u8], name: &str, path: Option<String>) -> Result<ReadFile
 fn add_read(s: &mut Session, drawing: Drawing, binary_dxf: bool, name: &str, path: Option<String>) -> usize {
     let notes = drawing.read_notes.clone();
     let i = s.open_drawing(drawing, &file_name(name), path.clone());
-    let mut lock_echo = None;
     if let Some(st) = s.docs.get_mut(i) {
         // QSAVE keeps a binary DXF binary.
         st.binary_dxf = binary_dxf;
@@ -335,24 +334,23 @@ fn add_read(s: &mut Session, drawing: Drawing, binary_dxf: bool, name: &str, pat
                     crate::drawing_lock::LockResult::Acquired(guard) => {
                         st.lock = Some(std::sync::Arc::new(guard));
                         st.read_only = false;
+                        st.lock_info = None;
+                        st.lock_holder = None;
                     }
                     crate::drawing_lock::LockResult::AlreadyLocked(info) => {
                         st.read_only = true;
                         let desc = info.description();
-                        st.lock_info = Some(desc.clone());
-                        lock_echo = Some(format!("Drawing file is write-protected ({desc}). Opened read-only."));
+                        st.lock_info = Some(desc);
+                        st.lock_holder = Some(info);
                     }
                     crate::drawing_lock::LockResult::Failed(err) => {
                         st.read_only = true;
-                        st.lock_info = Some(err.clone());
-                        lock_echo = Some(format!("Could not lock drawing file ({err}). Opened read-only."));
+                        st.lock_info = Some(err);
+                        st.lock_holder = None;
                     }
                 }
             }
         }
-    if let Some(echo) = lock_echo {
-        s.echo(echo);
-    }
     for note in notes {
         s.echo(note);
     }
@@ -364,16 +362,17 @@ pub(crate) fn open_bytes(s: &mut Session, bytes: &[u8], name: &str, path: Option
     Ok(add_read(s, drawing, binary_dxf, &name, path))
 }
 
-/// OPEN's reply: the drawing's index, entities count, warnings, read_only flag and lock_info.
+/// OPEN's reply: the drawing's index, entities count, warnings, read_only flag, lock_info and lock_holder.
 fn opened(s: &Session, i: usize, entities: bool) -> Value {
     let d = s.docs.get(i);
     let warnings = d.map(|st| st.doc.read_notes.clone()).unwrap_or_default();
     let read_only = d.map(|st| st.read_only).unwrap_or(false);
     let lock_info = d.and_then(|st| st.lock_info.clone());
+    let lock_holder = d.and_then(|st| st.lock_holder.clone());
     if entities {
-        json!({ "index": i, "entities": d.map(|st| st.doc.entity_count()), "warnings": warnings, "read_only": read_only, "lock_info": lock_info })
+        json!({ "index": i, "entities": d.map(|st| st.doc.entity_count()), "warnings": warnings, "read_only": read_only, "lock_info": lock_info, "lock_holder": lock_holder })
     } else {
-        json!({ "index": i, "warnings": warnings, "read_only": read_only, "lock_info": lock_info })
+        json!({ "index": i, "warnings": warnings, "read_only": read_only, "lock_info": lock_info, "lock_holder": lock_holder })
     }
 }
 

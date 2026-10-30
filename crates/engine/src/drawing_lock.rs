@@ -14,7 +14,7 @@
 use std::path::{Path, PathBuf};
 
 /// Drawing lock information parsed from an existing `.dwl` or `.dwl2` file.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct LockInfo {
     pub user: String,
     pub machine: String,

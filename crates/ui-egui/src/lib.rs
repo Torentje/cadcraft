@@ -680,15 +680,35 @@ impl CadApp {
                     self.set_status(w.to_string());
                 }
                 if v.get("read_only").and_then(Value::as_bool) == Some(true) {
-                    if let Some(info) = v.get("lock_info").and_then(Value::as_str) {
-                        let doc_idx = v.get("index").and_then(Value::as_u64).map(|i| i as usize).unwrap_or(self.session.active);
-                        let title = self.session.docs.get(doc_idx).map(|d| d.title.clone()).unwrap_or_default();
-                        self.lock_prompt = Some(closing::LockPrompt {
-                            doc_index: doc_idx,
-                            title,
-                            info: info.to_string(),
-                        });
-                    }
+                    let doc_idx = v.get("index").and_then(Value::as_u64).map(|i| i as usize).unwrap_or(self.session.active);
+                    let title = self.session.docs.get(doc_idx).map(|d| d.title.clone()).unwrap_or_default();
+                    let raw_info = v.get("lock_info").and_then(Value::as_str).unwrap_or("").to_string();
+                    let holder = v.get("lock_holder");
+                    let user = holder.and_then(|h| h.get("user")).and_then(Value::as_str).unwrap_or("").to_string();
+                    let machine = holder.and_then(|h| h.get("machine")).and_then(Value::as_str).unwrap_or("").to_string();
+                    let date_time = holder.and_then(|h| h.get("date_time")).and_then(Value::as_str).unwrap_or("").to_string();
+
+                    let holder_desc = if !user.is_empty() {
+                        if !machine.is_empty() {
+                            crate::tf!("in use by {user} on {machine} ({time})", user = user, machine = machine, time = date_time)
+                        } else {
+                            crate::tf!("in use by {user} ({time})", user = user, time = date_time)
+                        }
+                    } else {
+                        raw_info.clone()
+                    };
+
+                    let echo_msg = crate::tf!("Drawing file is write-protected ({info}). Opened read-only.", info = holder_desc);
+                    self.session.echo(echo_msg);
+
+                    self.lock_prompt = Some(closing::LockPrompt {
+                        doc_index: doc_idx,
+                        title,
+                        user,
+                        machine,
+                        date_time,
+                        raw_info,
+                    });
                 }
                 // A dynamic block's own drawing: ask whether to open it in the Block Editor.
                 if self.session.state().is_ok_and(|st| cadcraft_engine::blockedit::has_authoring_elements(&st.doc)) {

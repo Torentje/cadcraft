@@ -41,6 +41,7 @@ pub struct DocState {
     pub read_only: bool,
     /// Details about the lock holder if the file was locked when opened.
     pub lock_info: Option<String>,
+    pub lock_holder: Option<crate::drawing_lock::LockInfo>,
     /// Active AutoCAD-compatible drawing lock guard (`.dwl` / `.dwl2`).
     pub lock: Option<Arc<crate::drawing_lock::DrawingLockGuard>>,
 }
@@ -72,6 +73,7 @@ impl DocState {
             orbit: cadcraft_render::Orbit3d::default(),
             read_only: false,
             lock_info: None,
+            lock_holder: None,
             lock: None,
         }
     }
