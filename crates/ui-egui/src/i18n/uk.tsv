@@ -1624,3 +1624,4 @@
 	Drawing file is write-protected ({info}). Opened read-only.	Файл креслення захищено від запису ({info}). Відкрито лише для читання.
 	in use by {user} on {machine} ({time})	використовується {user} на {machine} ({time})
 	in use by {user} ({time})	використовується {user} ({time})
+	Save changes to block "{name}"?	Зберегти зміни в блоці «{name}»?
