@@ -1651,3 +1651,6 @@ menu	View	视图
 	in use by {user} ({time})	正由 {user} 使用（{time}）
 	New AppID (e.g. CAD_XDATA)	新 AppID (例如 CAD_XDATA)
 	+ Create CAD_XDATA Application	+ 创建 CAD_XDATA 应用程序
+
+# ArtCraft feature naming
+	Additional Tools	其他工具
