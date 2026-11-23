@@ -1426,3 +1426,7 @@ menu	View	Προβολή
 
 # ArtCraft feature naming
 	Additional Tools	Πρόσθετα εργαλεία
+	Drawing file is write-protected ({info}). Opened read-only.	Το αρχείο σχεδίου προστατεύεται από εγγραφή ({info}). Άνοιξε μόνο για ανάγνωση.
+	Open (Read-Only)	Άνοιγμα (μόνο για ανάγνωση)
+	in use by {user} ({time})	σε χρήση από {user} ({time})
+	in use by {user} on {machine} ({time})	σε χρήση από {user} σε {machine} ({time})

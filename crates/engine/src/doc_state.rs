@@ -42,6 +42,13 @@ pub struct DocState {
     /// drawing itself waits in it ([`DocState::drawing`]).
     pub block_edit: Option<blockedit::BlockEdit>,
     /// The user was told that the current UCS is tilted ([`Session::note_tilted_ucs`]).
+    /// Whether this drawing is opened read-only (e.g. write-protected or locked by another user).
+    pub read_only: bool,
+    /// Details about the lock holder if the file was locked when opened.
+    pub lock_info: Option<String>,
+    pub lock_holder: Option<crate::drawing_lock::LockInfo>,
+    /// Active drawing lock guard (`.dwl` / `.dwl2`).
+    pub lock: Option<std::sync::Arc<crate::drawing_lock::DrawingLockGuard>>,
     pub ucs_tilted_noted: bool,
     /// What the last erase removed, for OOPS.
     pub(crate) erased: crate::cmd::Erased,
@@ -74,6 +81,10 @@ impl DocState {
             uid: NEXT_UID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             binary_dxf: false,
             block_edit: None,
+            read_only: false,
+            lock_info: None,
+            lock_holder: None,
+            lock: None,
             ucs_tilted_noted: false,
             erased: Default::default(),
             fonts_noted: String::new(),

@@ -1088,3 +1088,7 @@
 
 # ArtCraft feature naming
 	Additional Tools	Zusätzliche Werkzeuge
+	Drawing file is write-protected ({info}). Opened read-only.	Zeichnungsdatei ist schreibgeschützt ({info}). Schreibgeschützt geöffnet.
+	Open (Read-Only)	Öffnen (schreibgeschützt)
+	in use by {user} ({time})	in Verwendung durch {user} ({time})
+	in use by {user} on {machine} ({time})	in Verwendung durch {user} auf {machine} ({time})

@@ -1496,3 +1496,7 @@ menu	View	Exibir
 
 # ArtCraft feature naming
 	Additional Tools	Ferramentas adicionais
+	Drawing file is write-protected ({info}). Opened read-only.	O arquivo de desenho está protegido contra gravação ({info}). Aberto como somente leitura.
+	Open (Read-Only)	Abrir (somente leitura)
+	in use by {user} ({time})	em uso por {user} ({time})
+	in use by {user} on {machine} ({time})	em uso por {user} em {machine} ({time})

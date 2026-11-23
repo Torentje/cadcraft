@@ -1394,3 +1394,7 @@ menu	View	Görünüm
 
 # ArtCraft feature naming
 	Additional Tools	Ek Araçlar
+	Drawing file is write-protected ({info}). Opened read-only.	Çizim dosyası yazmaya karşı korumalı ({info}). Salt okunur olarak açıldı.
+	Open (Read-Only)	Aç (Salt Okunur)
+	in use by {user} ({time})	kullanımda: {user} ({time})
+	in use by {user} on {machine} ({time})	kullanımda: {user} / {machine} ({time})
