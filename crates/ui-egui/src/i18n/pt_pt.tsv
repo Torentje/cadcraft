@@ -1695,3 +1695,7 @@ menu	Modify	Modificar
 	This library has no drawings or blocks.	Esta biblioteca não tem desenhos nem blocos.
 	Only the first {n} are shown.	Apenas os primeiros {n} são apresentados.
 	Describe Properties	Descrever propriedades
+	Drawing file is write-protected ({info}). Opened read-only.	O ficheiro de desenho está protegido contra escrita ({info}). Aberto apenas para leitura.
+	Open (Read-Only)	Abrir (apenas leitura)
+	in use by {user} ({time})	em utilização por {user} ({time})
+	in use by {user} on {machine} ({time})	em utilização por {user} em {machine} ({time})

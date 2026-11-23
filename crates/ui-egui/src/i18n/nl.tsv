@@ -1695,3 +1695,7 @@ menu	Modify	Wijzigen
 	This library has no drawings or blocks.	Deze bibliotheek bevat geen tekeningen of blokken.
 	Only the first {n} are shown.	Alleen de eerste {n} worden weergegeven.
 	Describe Properties	Eigenschappen beschrijven
+	Drawing file is write-protected ({info}). Opened read-only.	Tekeningbestand is schrijfbeveiligd ({info}). Alleen-lezen geopend.
+	Open (Read-Only)	Openen (alleen-lezen)
+	in use by {user} ({time})	in gebruik door {user} ({time})
+	in use by {user} on {machine} ({time})	in gebruik door {user} op {machine} ({time})

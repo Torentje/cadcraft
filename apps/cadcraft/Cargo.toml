@@ -8,8 +8,16 @@ rust-version = "1.95"
 publish = false
 default-run = "cadcraft"
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+cognitive_complexity = "deny"
+too_many_arguments = "deny"
+wildcard_imports = "deny"
+dbg_macro = "warn"
+todo = "warn"
+type_complexity = "allow"
 
 [dependencies]
 cadcraft-engine = { workspace = true }
@@ -70,10 +78,11 @@ fmv-macos-events = "=0.1.0"
 
 # Rust HID backends: no proprietary SDK or C HID library.
 [target.'cfg(target_os = "windows")'.dependencies]
+raw-window-handle = { workspace = true }
 hidapi = { version = "2.6.7", default-features = false, features = ["windows-native"] }
 # View ▸ Accessibility ▸ Animation Effects ▸ Use System Setting: Windows' Animation effects
 # setting (system_animations.rs). Already in Cargo.lock through wgpu's DirectX 12 backend.
-windows = { version = "0.62", features = ["UI_ViewManagement"] }
+windows = { version = "0.62", features = ["UI_ViewManagement", "Win32_Foundation", "Win32_Graphics_Dwm", "Win32_UI_WindowsAndMessaging"] }
 # One CADCraft per sign-in: later launches hand their files over an AF_UNIX socket
 # (single_instance.rs). Already in Cargo.lock through zbus.
 uds_windows = "1.2.1"

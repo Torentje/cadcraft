@@ -30,19 +30,24 @@ impl Default for Runtime {
 impl CadApp {
     /// Turn on the startup update check (the desktop host does; tests and the web build do not).
     pub fn enable_update_check(&mut self) {
-        self.updates_rt.enabled = true;
+        // Disabled in local/combined-build: never enable background update checks.
+        self.updates_rt.enabled = false;
     }
 }
 
 /// Help ▸ Check for Updates…: check now, and show the result when there is nothing newer.
 pub fn check_now(app: &mut CadApp) {
-    app.updates_rt.check_requested = true;
-    app.updates_rt.result_echoed = false;
+    // Disabled in local/combined-build: never phone home or overwrite custom build.
+    app.updates_rt.check_requested = false;
+    app.session.echo(crate::tl!("Automatic updates are disabled in this local build."));
 }
 
 /// Start the checks and collect the answers.
 pub fn tick(app: &mut CadApp, ctx: &egui::Context) {
     let rt = &mut app.updates_rt;
+    if !rt.enabled && !rt.check_requested {
+        return;
+    }
     if std::mem::take(&mut rt.check_requested) {
         rt.updater.check_now(ctx);
     } else if rt.enabled {
@@ -72,6 +77,9 @@ fn result_window_shows(status: &Status, prompt_open: bool) -> bool {
 
 /// Draw the prompt while there is one and act on its answer.
 pub fn show(app: &mut CadApp, ctx: &egui::Context) {
+    if !app.updates_rt.enabled && !app.updates_rt.check_requested {
+        return;
+    }
     // The close for a ready update waits until no drawing holds unsaved changes.
     let clean = !app.session.docs.iter().any(|d| d.is_dirty());
     let rt = &mut app.updates_rt;

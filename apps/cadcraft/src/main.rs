@@ -31,6 +31,8 @@ mod sheet;
 mod single_instance;
 mod spacemouse;
 mod system_animations;
+#[cfg(target_os = "windows")]
+mod windows_theme;
 mod workspace;
 
 use cadcraft_engine::Session;
@@ -60,6 +62,10 @@ struct App {
     #[cfg(target_os = "macos")]
     apple_events: fmv_macos_events::Inbox,
     current_title: String,
+    #[cfg(target_os = "windows")]
+    hwnd: Option<std::num::NonZeroIsize>,
+    #[cfg(target_os = "windows")]
+    windows_theme_applied: Option<egui::Theme>,
 }
 
 impl App {
@@ -113,11 +119,20 @@ impl eframe::App for App {
         apple_events::poll(&self.apple_events, &mut self.cad, ctx);
         // Consume control/open/screenshot queues and time-based autosave, including hidden ticks.
         self.cad.guarded_logic(ctx);
+        #[cfg(target_os = "windows")]
+        if let Some(hwnd) = self.hwnd {
+            let current = self.cad.shown_theme();
+            if self.windows_theme_applied != Some(current) {
+                windows_theme::apply(hwnd, current != egui::Theme::Light);
+                self.windows_theme_applied = Some(current);
+            }
+        }
         let title = match self.cad.session.state() {
             Ok(st) if !self.cad.ui.start_tab => {
+                let ro = if st.read_only { " [Read-Only]" } else { "" };
                 let lower = st.title.to_ascii_lowercase();
                 let ext = if lower.ends_with(".dwg") || lower.ends_with(".dxf") { "" } else { ".dwg" };
-                format!("CADCraft - {}{ext}", st.title)
+                format!("CADCraft - {}{ext}{ro}", st.title)
             }
             _ => "CADCraft".to_string(),
         };
@@ -403,15 +418,7 @@ fn main() -> eframe::Result {
     cadcraft_io::dwg_worker::use_own_worker();
     // First, so every start-up record is captured; see `logging`.
     let logger = logging::install();
-    // The update helper relaunches this binary after a self-update; it runs and exits here.
-    #[cfg(not(target_arch = "wasm32"))]
-    if let Some(done) = craft_update::self_update::finish(&cadcraft_ui_egui::UPDATE_APP, &std::env::args_os().skip(1).collect::<Vec<_>>()) {
-        if let Err(e) = done {
-            eprintln!("CADCraft update helper failed: {e}");
-            std::process::exit(1);
-        }
-        return Ok(());
-    }
+    // Self-update binary-swap helper intentionally omitted in local/combined-build.
     // `--help` and `--version` print to standard output and exit 0. A usage error (an unknown or
     // repeated flag, a missing or bad value, a bad CADCRAFT_CONTROL_PORT) names the argument on
     // standard error and exits 2 before the window opens.
@@ -543,7 +550,7 @@ fn main() -> eframe::Result {
             // Autosave files (SAVEFILEPATH) default to `<settings dir>/autosave`.
             if let Some(dir) = &vars.config_dir {
                 app.enable_autosave(&dir.join("autosave"));
-                app.enable_update_check();
+                // Startup auto-update check intentionally omitted in local/combined-build.
                 // Startup LISP (acad.lsp, acaddoc.lsp) is read from `<settings>/support`; the
                 // folder is made so it is there to put them in.
                 let support = dir.join("support");
@@ -593,6 +600,20 @@ fn main() -> eframe::Result {
             let desktop_theme = desktop_theme::DesktopTheme::start(move || ctx.request_repaint());
             let ctx = cc.egui_ctx.clone();
             let system_animations = system_animations::SystemAnimations::start(move || ctx.request_repaint());
+            #[cfg(target_os = "windows")]
+            let shown_theme = app.shown_theme();
+            #[cfg(target_os = "windows")]
+            let hwnd = {
+                use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+                let hwnd = cc.window_handle().ok().and_then(|h| match h.as_raw() {
+                    RawWindowHandle::Win32(w) => Some(w.hwnd),
+                    _ => None,
+                });
+                if let Some(h) = hwnd {
+                    windows_theme::apply(h, shown_theme != egui::Theme::Light);
+                }
+                hwnd
+            };
             Ok(Box::new(App {
                 desktop_theme,
                 system_animations,
@@ -610,6 +631,10 @@ fn main() -> eframe::Result {
                 #[cfg(target_os = "macos")]
                 apple_events,
                 current_title: "CADCraft".to_string(),
+                #[cfg(target_os = "windows")]
+                hwnd,
+                #[cfg(target_os = "windows")]
+                windows_theme_applied: Some(shown_theme),
             }))
         }),
     )
