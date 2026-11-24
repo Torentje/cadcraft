@@ -1,4 +1,4 @@
-use super::blocks::{insert, sub_ctx};
+use super::blocks::{insert, proxy, sub_ctx};
 use super::dim_draw::{MAX_FILL_SOLIDS, MAX_FILL_TEXTS, block_text_box, dim_text_fill, dimension, dimension_in, solid_covers, starts_text_marks};
 use super::display::{Kind, NO_LAYER, VIEWPORT_CONTENT};
 use super::props::{resolve, transparency};
@@ -104,7 +104,7 @@ fn entity_parts(b: &mut Builder, ctx: &Ctx, e: &Entity) {
     }
     let own = shown_transparency(b, ctx, e, layer_transparency, fade);
     let orbit = b.active_orbit(ctx);
-    let ent_z = if orbit.is_top() { 0.0 } else { entity_elevation(&e.kind) };
+    let ent_z = if orbit.is_top() { 0.0 } else { let z = entity_elevation(&e.kind); if z.is_finite() { z } else { 0.0 } };
     let ctx_z = Ctx { z_offset: ctx.z_offset + ent_z * ctx.z_scale, ..ctx.clone() };
     let ctx = &ctx_z;
     // A plot style's linetype replaces the object's.
@@ -254,12 +254,7 @@ fn entity_parts(b: &mut Builder, ctx: &Ctx, e: &Entity) {
         }
         EntityKind::MLeader(m) => draw_mleader(b, ctx, e, m, rgb, lw, own),
         EntityKind::Point(p) => draw_point(b, ctx, p, rgb, lw, tol),
-        // An OLE object's content is not drawn; its frame, from its two corner points, is.
-        EntityKind::Unknown(u) if u.is_ole_frame() => {
-            if let Some(q) = cadcraft_doc::ole_frame(&u.tags) {
-                b.polyline(ctx, rgb, lw, &q);
-            }
-        }
+        EntityKind::Unknown(u) if !u.graphics.is_empty() || u.is_ole_frame() => draw_unknown(b, ctx, e, u, rgb, lw, own),
         kind if draw_3d_wire(b, ctx, kind, rgb, lw) => {}
         kind => {
             for prim in kind.prims() {
@@ -355,6 +350,17 @@ fn draw_mleader(b: &mut Builder, ctx: &Ctx, e: &Entity, m: &cadcraft_doc::MLeade
             b.polyline(ctx, rgb, lw, &[land, land + Vec2::new(m.dogleg * dir, 0.0)]);
         }
         insert(b, ctx, e, ins, rgb, own);
+    }
+}
+
+/// A record kept as read that draws something: a proxy its proxy graphics, and an OLE object its
+/// frame, from its two corner points (its content is not drawn). `own`: the proxy's transparency
+/// without its locked-layer fade, for its graphics.
+fn draw_unknown(b: &mut Builder, ctx: &Ctx, e: &Entity, u: &cadcraft_doc::Unknown, rgb: Ink, lw: f32, own: u8) {
+    if !u.graphics.is_empty() {
+        proxy(b, ctx, e, u, own);
+    } else if let Some(q) = cadcraft_doc::ole_frame(&u.tags) {
+        b.polyline(ctx, rgb, lw, &q);
     }
 }
 
