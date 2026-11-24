@@ -8,6 +8,7 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use cadcraft_engine::cmd::clipboard;
+use cadcraft_engine::{CommandSpec, Session};
 
 use crate::CadApp;
 
@@ -60,6 +61,7 @@ pub fn shortcut_commands(app: &mut CadApp, ctx: &egui::Context) -> Vec<&'static 
     });
     let mut out = Vec::new();
     if ctrl_v_key && try_load_os_clipboard_image(app) {
+        app.paste.cancel();
         out.push("pasteclip");
     }
     for e in events {
@@ -67,26 +69,48 @@ pub fn shortcut_commands(app: &mut CadApp, ctx: &egui::Context) -> Vec<&'static 
             egui::Event::Copy => out.push(if shift { "copybase" } else { "copyclip" }),
             egui::Event::Cut => out.push("cutclip"),
             egui::Event::Paste(text) => {
+                // The oldest request sent in an earlier frame and still unanswered gets this
+                // `Paste`. It completes the held command only if the command asked for that
+                // request; otherwise it answers one whose command is gone and pastes nothing. With
+                // no such request it is an ordinary Ctrl+V.
+                let answered = app.paste.sent.first().filter(|r| r.frame < app.paste.frame).map(|r| r.id);
+                if answered.is_some() {
+                    app.paste.sent.remove(0);
+                }
+                let mine = app.paste.wait.as_ref().is_some_and(|(_, id, _)| answered == Some(*id));
+                let held = if mine { app.paste.wait.take().map(|(p, _, _)| p) } else { None };
+                // The text is the system clipboard's either way, so a stale answer still counts.
                 let h = hash(&text);
                 let is_own = ctx.data(|d| d.get_temp::<u64>(text_id())) == Some(h);
                 let is_dxf = !is_own && clipboard::load_system_text(&mut app.session, &text);
                 if is_dxf {
                     ctx.data_mut(|d| d.insert_temp(text_id(), h));
                 }
-                let clean = text.replace("\r\n", " ").replace(['\r', '\n'], " ");
-                let t = clean.trim();
-                let typing_in_cmd = !app.cmd.buffer.is_empty()
-                    || app.session.prompting()
-                    || t.starts_with('(')
-                    || t.starts_with('!')
-                    || cadcraft_engine::is_bare_lisp_prefix(t);
-                let is_img = !is_own && !is_dxf && !typing_in_cmd && try_load_os_clipboard_image(app);
-                let paste_to_cmd = !is_own && !is_dxf && !is_img && !t.is_empty() && (app.session.clipboard.is_empty() || typing_in_cmd);
-                if paste_to_cmd {
-                    app.cmd.buffer.push_str(&clean);
-                    app.cmd.note_typing();
+                if held.is_none() && answered.is_some() {
+                    continue;
+                }
+                if let Some(p) = held {
+                    if p.line.is_some() {
+                        run_now(app, p);
+                    } else {
+                        out.push(p.id);
+                    }
                 } else {
-                    out.push(if shift && !is_img { "pasteblock" } else { "pasteclip" });
+                    let clean = text.replace("\r\n", " ").replace(['\r', '\n'], " ");
+                    let t = clean.trim();
+                    let typing_in_cmd = !app.cmd.buffer.is_empty()
+                        || app.session.prompting()
+                        || t.starts_with('(')
+                        || t.starts_with('!')
+                        || cadcraft_engine::is_bare_lisp_prefix(t);
+                    let is_img = !is_own && !is_dxf && !typing_in_cmd && try_load_os_clipboard_image(app);
+                    let paste_to_cmd = !is_own && !is_dxf && !is_img && !t.is_empty() && (app.session.clipboard.is_empty() || typing_in_cmd);
+                    if paste_to_cmd {
+                        app.cmd.buffer.push_str(&clean);
+                        app.cmd.note_typing();
+                    } else {
+                        out.push(if shift && !is_img { "pasteblock" } else { "pasteclip" });
+                    }
                 }
             }
             _ => {}
@@ -136,16 +160,13 @@ fn store_rgba_in_session(app: &mut CadApp, mut rgba: image::RgbaImage) -> bool {
 pub fn try_load_os_clipboard_image(app: &mut CadApp) -> bool {
     if let Ok(mut cb) = arboard::Clipboard::new()
         && let Ok(img) = cb.get_image()
+        && let (Ok(width), Ok(height)) = (u32::try_from(img.width), u32::try_from(img.height))
+        && width > 0
+        && height > 0
+        && let Some(rgba) = image::RgbaImage::from_raw(width, height, img.bytes.into_owned())
+        && store_rgba_in_session(app, rgba)
     {
-        let width = img.width as u32;
-        let height = img.height as u32;
-        if width > 0
-            && height > 0
-            && let Some(rgba) = image::RgbaImage::from_raw(width, height, img.bytes.into_owned())
-            && store_rgba_in_session(app, rgba)
-        {
-            return true;
-        }
+        return true;
     }
     #[cfg(target_os = "windows")]
     if try_load_windows_clipboard_image(app) {
@@ -181,25 +202,39 @@ fn try_load_windows_clipboard_image(app: &mut CadApp) -> bool {
         return true;
     }
 
+    const MAX_DIB_BYTES: usize = 64 * 1024 * 1024;
     for cf_dib in [8u32, 17u32] {
         if raw::is_format_avail(cf_dib) {
             let mut dib = Vec::new();
-            if raw::get_vec(cf_dib, &mut dib).is_ok() && dib.len() > 40 {
+            if raw::get_vec(cf_dib, &mut dib).is_ok() && dib.len() > 40 && dib.len() <= MAX_DIB_BYTES {
                 let header_size = u32::from_le_bytes([dib[0], dib[1], dib[2], dib[3]]);
+                if header_size < 40 || (header_size as usize) > dib.len() {
+                    continue;
+                }
                 let bpp = u16::from_le_bytes([dib[14], dib[15]]);
+                if bpp > 32 {
+                    continue;
+                }
                 let compression = u32::from_le_bytes([dib[16], dib[17], dib[18], dib[19]]);
                 let clr_used = u32::from_le_bytes([dib[32], dib[33], dib[34], dib[35]]);
                 let palette_bytes = if clr_used > 0 {
-                    clr_used * 4
+                    clr_used.checked_mul(4)
                 } else if bpp <= 8 {
-                    (1u32 << bpp) * 4
+                    1u32.checked_shl(u32::from(bpp)).and_then(|n| n.checked_mul(4))
                 } else if compression == 3 && header_size == 40 {
-                    12
+                    Some(12)
                 } else {
-                    0
+                    Some(0)
                 };
-                let offset = 14u32.saturating_add(header_size).saturating_add(palette_bytes);
-                let file_size = 14u32.saturating_add(dib.len() as u32);
+                let Some(palette_bytes) = palette_bytes else { continue };
+                let Some(offset) = 14u32.checked_add(header_size).and_then(|n| n.checked_add(palette_bytes)) else {
+                    continue;
+                };
+                let Ok(dib_len) = u32::try_from(dib.len()) else { continue };
+                let Some(file_size) = 14u32.checked_add(dib_len) else { continue };
+                if (offset as usize) > (file_size as usize) {
+                    continue;
+                }
                 let mut bmp = Vec::with_capacity(file_size as usize);
                 bmp.extend_from_slice(b"BM");
                 bmp.extend_from_slice(&file_size.to_le_bytes());
@@ -220,4 +255,161 @@ fn try_load_windows_clipboard_image(app: &mut CadApp) -> bool {
 #[cfg(target_arch = "wasm32")]
 pub fn try_load_os_clipboard_image(_app: &mut CadApp) -> bool {
     false
+}
+
+/// How long a menu, context menu or typed paste waits for the window to deliver the system
+/// clipboard before it pastes what this window already holds (the clipboard holds no text, or an
+/// image, and then no `Paste` ever arrives).
+const WAIT_SECS: f64 = 0.5;
+
+/// How long the Wayland backend may take to answer a `RequestPaste`. Its read starts after the
+/// frame that queued the request has been painted and is given 3 s from then (`DELIVERY_BUDGET`,
+/// egui-winit `clipboard_bridge.rs`, counted from `begin_regular`); an answer later than that
+/// never comes. The 2 s of margin over the budget cover that painting and the frame that
+/// delivers the answer, which are not bounded.
+const ANSWER_SECS: f64 = 5.0;
+
+/// Whether this build can ask the window for the system clipboard on demand. The web build gets
+/// a `Paste` only from the browser's own paste gesture, so it keeps pasting what the window holds.
+const ON_DEMAND: bool = cfg!(not(target_arch = "wasm32"));
+
+/// A paste command asked for outside the keyboard, held until the system clipboard has been read.
+struct Pending {
+    id: &'static str,
+    /// The command line text it was typed as, when it was.
+    line: Option<String>,
+}
+
+/// Paste commands waiting for the system clipboard ([`defer`], [`pump`]).
+pub struct Paste {
+    /// Asked for this frame; the window has not been asked for the clipboard yet.
+    request: Option<Pending>,
+    /// Asked for the clipboard; its `Paste` event, or the time to give up.
+    /// The held command, the request it asked for ([`Sent::id`]), and the time to give up.
+    wait: Option<(Pending, u64, f64)>,
+    /// A held command is being run now, and must not be held again.
+    pub(crate) running: bool,
+    /// The `RequestPaste`s that may still be answered, oldest first. A `Paste` answers the oldest,
+    /// so one that arrives after its command was escaped or gave up is not taken for a paste of
+    /// its own, nor for the answer to a newer request.
+    sent: Vec<Sent>,
+    next_id: u64,
+    /// Frames pumped so far.
+    frame: u64,
+    /// Whether the window may answer later than the next frame (native Wayland), see
+    /// [`Self::set_late_answers`].
+    late: bool,
+}
+
+/// A `RequestPaste` that may still be answered.
+struct Sent {
+    id: u64,
+    /// The frame it was sent in; its answer is in a later frame's input.
+    frame: u64,
+    /// When it stops being answerable on a window that answers late.
+    until: f64,
+}
+
+impl Default for Paste {
+    fn default() -> Self {
+        Paste { request: None, wait: None, running: false, sent: Vec::new(), next_id: 0, frame: 0, late: true }
+    }
+}
+
+impl Paste {
+    /// Say whether the window may answer a request later than the next frame. egui-winit reads
+    /// the clipboard when it handles the command, right after the frame that sent it is painted,
+    /// and the text is in the next frame's input (`request_paste`, `begin_regular_clipboard_paste`
+    /// and `take_egui_input`), or nothing comes when there is no text; only its Wayland backend
+    /// reads asynchronously. A request is then answerable for one frame, not for seconds, so a
+    /// Ctrl+V after it is never taken for its answer. On Wayland that Ctrl+V within
+    /// [`ANSWER_SECS`] of a request that got no answer is, once, taken for it.
+    pub fn set_late_answers(&mut self, late: bool) {
+        self.late = late;
+    }
+
+    /// Drop a held paste (Escape, or another command started). A request already sent to the
+    /// window stays in `sent`, so its answer, if it comes, pastes nothing.
+    pub fn cancel(&mut self) {
+        self.request = None;
+        self.wait = None;
+    }
+}
+
+pub(crate) fn paste_id(id: &str) -> Option<&'static str> {
+    ["pasteclip", "pasteblock", "pasteorig"].into_iter().find(|p| *p == id)
+}
+
+/// Whether the menus offer `spec`. The paste commands count as available while a drawing is open
+/// and nothing was copied in this window, since the system clipboard may hold DXF text
+/// copied in another one; they report an empty clipboard when they run and it does not.
+pub fn offered(session: &Session, spec: &CommandSpec) -> bool {
+    (spec.enabled)(session).is_ok() || (ON_DEMAND && paste_id(spec.id).is_some() && session.clipboard.is_empty() && session.doc().is_ok())
+}
+
+/// Hold the paste command `id` (typed as `line`, if it was) until the system clipboard has been
+/// read, so the newest of this window's clipboard and the system's is pasted. `false` when the
+/// command runs right away: not a paste, a build that cannot ask, or already read.
+pub fn defer(app: &mut CadApp, id: &str, line: Option<&str>) -> bool {
+    let Some(id) = paste_id(id).filter(|_| ON_DEMAND && !app.paste.running) else { return false };
+    app.paste.cancel();
+    app.paste.request = Some(Pending { id, line: line.map(str::to_string) });
+    true
+}
+
+/// Run a held command, or `id` from a `Paste` event, without holding it again.
+fn run_now(app: &mut CadApp, p: Pending) {
+    app.paste.running = true;
+    match p.line {
+        Some(line) => {
+            app.cmdline(&line);
+        }
+        None => {
+            app.cmd.buffer.clear();
+            app.start(p.id);
+        }
+    }
+    app.paste.running = false;
+}
+
+/// Run `id`, a paste command whose `Paste` event has been read.
+pub fn run_read(app: &mut CadApp, id: &'static str) {
+    run_now(app, Pending { id, line: None });
+}
+
+/// Once per frame: ask the window for the system clipboard for a newly held paste, and give up on
+/// one it never delivered. The text arrives as a `Paste` event ([`shortcut_commands`]).
+pub fn pump(app: &mut CadApp, ctx: &egui::Context) {
+    let (now, pasted) = ctx.input(|i| (i.time, i.events.iter().any(|e| matches!(e, egui::Event::Paste(_)))));
+    if ctx.current_pass_index() == 0 {
+        app.paste.frame += 1;
+    }
+    let (frame, late) = (app.paste.frame, app.paste.late);
+    app.paste.sent.retain(|r| if late { r.until > now } else { r.frame + 1 >= frame });
+    if let Some(p) = app.paste.request.take() {
+        // A focused text field would take the `Paste` itself.
+        if ctx.egui_wants_keyboard_input() {
+            run_now(app, p);
+        } else {
+            ctx.send_viewport_cmd(egui::ViewportCommand::RequestPaste);
+            let id = app.paste.next_id;
+            app.paste.next_id += 1;
+            app.paste.sent.push(Sent { id, frame, until: now + ANSWER_SECS });
+            ctx.request_repaint_after_secs(WAIT_SECS as f32);
+            app.paste.wait = Some((p, id, now + WAIT_SECS));
+        }
+    }
+    // A request that can no longer be answered, or the time to give up, ends the wait; a `Paste`
+    // in this frame completes the held command first ([`shortcut_commands`]).
+    if pasted && ctx.egui_wants_keyboard_input() {
+        app.paste.wait = None;
+    }
+    let gone = |app: &CadApp| app.paste.wait.as_ref().is_some_and(|(_, id, _)| !app.paste.sent.iter().any(|r| r.id == *id));
+    if (gone(app) || (!pasted && app.paste.wait.as_ref().is_some_and(|(_, _, deadline)| now >= *deadline)))
+        && let Some((p, _, _)) = app.paste.wait.take()
+    {
+        run_now(app, p);
+    } else if app.paste.wait.is_some() && !late {
+        ctx.request_repaint();
+    }
 }

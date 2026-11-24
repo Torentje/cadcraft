@@ -652,6 +652,7 @@ fn handle_options_event(app: &mut CadApp, ev: &egui::Event, keep_space: bool) ->
 pub fn escape(app: &mut CadApp) {
     app.cmd.history_pos = None;
     app.cmd.selected_index = 0;
+    app.paste.cancel();
     app.cmd.buffer.clear();
     app.cmd.preedit.clear();
     app.session.cancel();

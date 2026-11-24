@@ -19,6 +19,7 @@ pub const UPDATE_APP: craft_update::app::App = craft_update::app::App {
 
 pub mod aliasdlg;
 pub mod animation;
+pub mod attentry;
 pub mod autosave;
 pub mod bedit;
 pub mod canvas;
@@ -321,6 +322,8 @@ pub struct CadApp {
     /// Admitted `ui.screenshot` requests, including completed-but-undrained ones.
     pub(crate) shots: capture::Shots,
     pub synthetic: Vec<egui::Event>,
+    /// Paste commands waiting for the system clipboard ([`clipboard::defer`]).
+    pub(crate) paste: clipboard::Paste,
     /// Keys, text and clipboard events a floating panel's own OS window left over, with the
     /// modifiers held there, for the main window's next input ([`Self::forward_native_input`]).
     forwarded: Vec<egui::Event>,
@@ -416,6 +419,7 @@ impl CadApp {
             capture_identity_epoch: 0,
             shots: capture::Shots::default(),
             synthetic: Vec::new(),
+            paste: clipboard::Paste::default(),
             forwarded: Vec::new(),
             forwarded_modifiers: None,
             restore_modifiers: None,
@@ -644,10 +648,18 @@ impl CadApp {
 
     /// Start a command as if typed (interactive when it has prompts).
     pub fn start(&mut self, name: &str) {
+        let resolved = cadcraft_engine::cmd::resolve_alias(&name.to_ascii_lowercase());
+        if clipboard::defer(self, &resolved, None) {
+            return;
+        }
+        // Starting another command drops a paste still waiting for the clipboard.
+        if !self.paste.running {
+            self.paste.cancel();
+        }
         if name.eq_ignore_ascii_case("pasteclip") || name.eq_ignore_ascii_case("paste") {
             crate::clipboard::sync_os_clipboard_for_paste(self);
         }
-        if !self.session.prompting() && !name.contains('.') {
+        if !self.session.prompting() && !name.contains('.') && !self.paste.running {
             self.cmd.push_history(&name.to_ascii_uppercase());
         }
         if menus::run_ui_command(self, name, &Value::Null).is_some() {
@@ -675,9 +687,6 @@ impl CadApp {
         self.sync_bars();
         if !self.session.prompting() {
             let first = text.split_whitespace().next().unwrap_or("");
-            if first.eq_ignore_ascii_case("pasteclip") || first.eq_ignore_ascii_case("paste") {
-                crate::clipboard::sync_os_clipboard_for_paste(self);
-            }
             // `cmd {json}` is a programmatic call: the engine runs it with those parameters.
             let json_form = text.trim_start().get(first.len()..).is_some_and(|rest| rest.trim_start().starts_with('{'));
             // A name typed with the Greek keyboard layout active (ΨΛΟΣΕ for CLOSE) is the Latin name's
@@ -686,8 +695,12 @@ impl CadApp {
             let name = cadcraft_engine::keyboard::latin_keys(first)
                 .filter(|_| !self.session.greek_word_is_a_command(first))
                 .unwrap_or_else(|| first.to_ascii_lowercase());
+            // A typed command drops a paste still waiting for the clipboard (a typed paste is held anew below).
+            if !first.is_empty() && !self.paste.running {
+                self.paste.cancel();
+            }
             if !first.is_empty() && !json_form {
-                if !first.starts_with("ui.") {
+                if !first.starts_with("ui.") && !self.paste.running {
                     self.cmd.push_history(text);
                 }
                 if menus::run_ui_command(self, &name, &Value::Null).is_some() {
@@ -696,6 +709,13 @@ impl CadApp {
                 if lisp_ide::try_run_dotnet_command(self, first) {
                     return None;
                 }
+            }
+            // A bare PASTECLIP, PASTEBLOCK or PASTEORIG reads the system clipboard first.
+            if text.trim() == first && clipboard::defer(self, &cadcraft_engine::cmd::resolve_alias(&name), Some(text)) {
+                return None;
+            }
+            if first.eq_ignore_ascii_case("pasteclip") || first.eq_ignore_ascii_case("paste") {
+                crate::clipboard::sync_os_clipboard_for_paste(self);
             }
         }
         let r = self.session.cmdline(text);
@@ -802,6 +822,12 @@ impl CadApp {
         if let Some(keys) = v.get("shortcuts").filter(|k| k.is_object()) {
             self.ui.shortcuts = keys::from_prefs(keys);
         }
+    }
+
+    /// Whether the window may answer a request for the system clipboard (Edit > Paste) later than
+    /// the next frame, as native Wayland does; elsewhere it never does ([`clipboard::Paste::set_late_answers`]).
+    pub fn set_clipboard_late_answers(&mut self, late: bool) {
+        self.paste.set_late_answers(late);
     }
 
     /// Make the system cursor the interface default (`on`) and turn it on; saved preferences and
