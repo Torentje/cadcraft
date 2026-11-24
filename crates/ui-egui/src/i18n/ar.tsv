@@ -1671,3 +1671,7 @@ menu	View	عرض
 	Units	الوحدات
 	Xref	مرجع خارجي
 	Xref Clip Frame	إطار قص المرجع الخارجي
+	Drawing file is write-protected ({info}). Opened read-only.	ملف الرسم محمي ضد الكتابة ({info}). تم فتحه للقراءة فقط.
+	Open (Read-Only)	فتح (للقراءة فقط)
+	in use by {user} ({time})	قيد الاستخدام بواسطة {user} ({time})
+	in use by {user} on {machine} ({time})	قيد الاستخدام بواسطة {user} على {machine} ({time})

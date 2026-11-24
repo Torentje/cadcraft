@@ -1667,3 +1667,7 @@
 	Units	Einheiten
 	Xref	Xref
 	Xref Clip Frame	Xref-Zuschneiderahmen
+	Drawing file is write-protected ({info}). Opened read-only.	Zeichnungsdatei ist schreibgeschützt ({info}). Schreibgeschützt geöffnet.
+	Open (Read-Only)	Öffnen (schreibgeschützt)
+	in use by {user} ({time})	in Verwendung durch {user} ({time})
+	in use by {user} on {machine} ({time})	in Verwendung durch {user} auf {machine} ({time})

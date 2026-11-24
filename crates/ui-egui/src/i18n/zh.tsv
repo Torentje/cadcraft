@@ -1690,3 +1690,7 @@ menu	View	视图
 	no [CommandMethod] found	未找到 [CommandMethod]
 	New AppID (e.g. CAD_XDATA)	新 AppID (例如 CAD_XDATA)
 	+ Create CAD_XDATA Application	+ 创建 CAD_XDATA 应用程序
+	Drawing file is write-protected ({info}). Opened read-only.	图形文件受写保护（{info}）。以只读方式打开。
+	Open (Read-Only)	打开（只读）
+	in use by {user} ({time})	正由 {user} 使用（{time}）
+	in use by {user} on {machine} ({time})	正由 {user} 在 {machine} 上使用（{time}）

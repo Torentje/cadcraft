@@ -1670,3 +1670,7 @@ menu	Modify	Hiệu chỉnh
 	Units	Đơn vị
 	Xref	Tham chiếu ngoài
 	Xref Clip Frame	Khung xén tham chiếu ngoài
+	Drawing file is write-protected ({info}). Opened read-only.	Tệp bản vẽ được bảo vệ chống ghi ({info}). Đã mở ở chế độ chỉ đọc.
+	Open (Read-Only)	Mở (Chỉ đọc)
+	in use by {user} ({time})	đang được dùng bởi {user} ({time})
+	in use by {user} on {machine} ({time})	đang được dùng bởi {user} trên {machine} ({time})

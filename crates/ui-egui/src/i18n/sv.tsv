@@ -2379,3 +2379,7 @@ menu	Modify	Ändra
 	no [CommandMethod] found	ingen [CommandMethod] hittades
 	New AppID (e.g. CAD_XDATA)	Nytt AppID (t.ex. CAD_XDATA)
 	+ Create CAD_XDATA Application	+ Skapa CAD_XDATA-program
+	Drawing file is write-protected ({info}). Opened read-only.	Ritningsfilen är skrivskyddad ({info}). Öppnad i skrivskyddat läge.
+	Open (Read-Only)	Öppna (skrivskyddad)
+	in use by {user} ({time})	används av {user} ({time})
+	in use by {user} on {machine} ({time})	används av {user} på {machine} ({time})

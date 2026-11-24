@@ -1671,3 +1671,7 @@ menu	Modify	Izmijeni
 	Units	Jedinice
 	Xref	Xref
 	Xref Clip Frame	Okvir izrezivanja Xref-a
+	Drawing file is write-protected ({info}). Opened read-only.	Datoteka crteža je zaštićena od pisanja ({info}). Otvoreno samo za čitanje.
+	Open (Read-Only)	Otvori (Samo za čitanje)
+	in use by {user} ({time})	koristi {user} ({time})
+	in use by {user} on {machine} ({time})	koristi {user} na {machine} ({time})

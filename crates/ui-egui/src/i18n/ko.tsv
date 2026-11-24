@@ -1670,3 +1670,7 @@ menu	Modify	수정
 	Units	단위
 	Xref	외부 참조
 	Xref Clip Frame	외부 참조 자르기 프레임
+	Drawing file is write-protected ({info}). Opened read-only.	도면 파일이 쓰기 금지되어 있습니다({info}). 읽기 전용으로 열렸습니다.
+	Open (Read-Only)	열기(읽기 전용)
+	in use by {user} ({time})	{user} 사용 중({time})
+	in use by {user} on {machine} ({time})	{machine}의 {user} 사용 중({time})

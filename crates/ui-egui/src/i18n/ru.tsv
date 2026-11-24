@@ -1667,3 +1667,7 @@
 	Units	Единицы
 	Xref	Внешняя ссылка
 	Xref Clip Frame	Контур подрезки внешней ссылки
+	Drawing file is write-protected ({info}). Opened read-only.	Файл чертежа защищен от записи ({info}). Открыт только для чтения.
+	Open (Read-Only)	Открыть (только чтение)
+	in use by {user} ({time})	используется {user} ({time})
+	in use by {user} on {machine} ({time})	используется {user} на {machine} ({time})

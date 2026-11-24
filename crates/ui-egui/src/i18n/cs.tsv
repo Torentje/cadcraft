@@ -1670,3 +1670,7 @@ menu	Modify	Modifikace
 	Units	Jednotky
 	Xref	Xref
 	Xref Clip Frame	Rámeček oříznutí Xref
+	Drawing file is write-protected ({info}). Opened read-only.	Soubor výkresu je chráněn proti zápisu ({info}). Otevřeno pouze pro čtení.
+	Open (Read-Only)	Otevřít (pouze pro čtení)
+	in use by {user} ({time})	používá {user} ({time})
+	in use by {user} on {machine} ({time})	používá {user} na {machine} ({time})
