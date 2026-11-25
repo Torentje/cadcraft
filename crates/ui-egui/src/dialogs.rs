@@ -26,6 +26,7 @@ pub fn show(app: &mut CadApp, ctx: &egui::Context) {
         "dsettings" => dsettings(app, ctx, &mut open),
         "units" => units(app, ctx, &mut open),
         "hatch" => crate::hatchdlg::dialog(app, ctx, &mut open),
+        "array" => crate::arraydlg::dialog(app, ctx, &mut open),
         "aliasedit" => crate::aliasdlg::dialog(app, ctx, &mut open),
         "find" => crate::finddlg::dialog(app, ctx, &mut open),
         "vbaide" => crate::lisp_ide::dialog(app, ctx, &mut open),
@@ -33,6 +34,7 @@ pub fn show(app: &mut CadApp, ctx: &egui::Context) {
         crate::keys::DIALOG => crate::keys::dialog(app, ctx, &mut open),
         "about" => about(ctx, &mut open),
         "preview" => crate::exchange::dialog(app, ctx, &mut open),
+        "pdfimport" => crate::exchange::pdf_dialog(app, ctx, &mut open),
         "commands" => commands(app, ctx, &mut open),
         "bedit" => crate::bedit::dialog(app, ctx, &mut open),
         "authoring" => crate::bedit::authoring_dialog(app, ctx, &mut open),
@@ -358,7 +360,8 @@ fn about(ctx: &egui::Context, open: &mut bool) {
                 1 => crate::credits::contributors_ui(ui),
                 2 => crate::credits::models_ui(ui),
                 _ => {
-                    ui.heading(crate::tl!("CADCraft"));
+                    // The channel name, so a Nightly bug report names the channel it came from.
+                    ui.heading(crate::os_window::drawn_name());
                     ui.label(crate::tf!("Version {version}", version = env!("CARGO_PKG_VERSION")));
                     ui.label(crate::tl!("Computer-aided design and drafting: an open-source, clean-room CAD application written in pure Rust."));
                     ui.add_space(6.0);

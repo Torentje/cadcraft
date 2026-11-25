@@ -40,9 +40,17 @@ pub fn mirror(app: &CadApp, ctx: &egui::Context) {
     }
 }
 
-/// The commands the Cut/Copy/Paste events of this frame ask for. Pasted DXF text that isn't our
-/// own last copy (another CADCraft's) becomes the clipboard first.
-pub fn shortcut_commands(app: &mut CadApp, ctx: &egui::Context) -> Vec<&'static str> {
+/// What a Cut/Copy/Paste clipboard event on the canvas asks for.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ShortcutAction {
+    Command(&'static str),
+    PasteTable(String),
+}
+
+/// The actions the Cut/Copy/Paste events of this frame ask for. Pasted DXF text that isn't our
+/// own last copy (another CADCraft's) becomes the clipboard first; non-DXF tab-separated table text
+/// starts `pastetable`.
+pub fn shortcut_actions(app: &mut CadApp, ctx: &egui::Context) -> Vec<ShortcutAction> {
     let (events, shift, ctrl_v_key) = ctx.input(|i| {
         let ev: Vec<egui::Event> =
             i.events.iter().filter(|e| matches!(e, egui::Event::Copy | egui::Event::Cut | egui::Event::Paste(_))).cloned().collect();
@@ -59,15 +67,16 @@ pub fn shortcut_commands(app: &mut CadApp, ctx: &egui::Context) -> Vec<&'static 
             });
         (ev, i.modifiers.shift, ctrl_v)
     });
+    let paste_cmd = || if shift { "pasteblock" } else { "pasteclip" };
     let mut out = Vec::new();
     if ctrl_v_key && try_load_os_clipboard_image(app) {
         app.paste.cancel();
-        out.push("pasteclip");
+        out.push(ShortcutAction::Command("pasteclip"));
     }
     for e in events {
         match e {
-            egui::Event::Copy => out.push(if shift { "copybase" } else { "copyclip" }),
-            egui::Event::Cut => out.push("cutclip"),
+            egui::Event::Copy => out.push(ShortcutAction::Command(if shift { "copybase" } else { "copyclip" })),
+            egui::Event::Cut => out.push(ShortcutAction::Command("cutclip")),
             egui::Event::Paste(text) => {
                 // The oldest request sent in an earlier frame and still unanswered gets this
                 // `Paste`. It completes the held command only if the command asked for that
@@ -82,34 +91,48 @@ pub fn shortcut_commands(app: &mut CadApp, ctx: &egui::Context) -> Vec<&'static 
                 // The text is the system clipboard's either way, so a stale answer still counts.
                 let h = hash(&text);
                 let is_own = ctx.data(|d| d.get_temp::<u64>(text_id())) == Some(h);
-                let is_dxf = !is_own && clipboard::load_system_text(&mut app.session, &text);
-                if is_dxf {
+                let is_dxf = if is_own {
+                    true
+                } else if clipboard::load_system_text(&mut app.session, &text) {
                     ctx.data_mut(|d| d.insert_temp(text_id(), h));
-                }
+                    true
+                } else {
+                    false
+                };
                 if held.is_none() && answered.is_some() {
                     continue;
                 }
-                if let Some(p) = held {
-                    if p.line.is_some() {
-                        run_now(app, p);
-                    } else {
-                        out.push(p.id);
-                    }
-                } else {
-                    let clean = text.replace("\r\n", " ").replace(['\r', '\n'], " ");
-                    let t = clean.trim();
-                    let typing_in_cmd = !app.cmd.buffer.is_empty()
-                        || app.session.prompting()
-                        || t.starts_with('(')
-                        || t.starts_with('!')
-                        || cadcraft_engine::is_bare_lisp_prefix(t);
-                    let is_img = !is_own && !is_dxf && !typing_in_cmd && try_load_os_clipboard_image(app);
-                    let paste_to_cmd = !is_own && !is_dxf && !is_img && !t.is_empty() && (app.session.clipboard.is_empty() || typing_in_cmd);
-                    if paste_to_cmd {
-                        app.cmd.buffer.push_str(&clean);
-                        app.cmd.note_typing();
-                    } else {
-                        out.push(if shift && !is_img { "pasteblock" } else { "pasteclip" });
+                let clean = text.replace("\r\n", " ").replace(['\r', '\n'], " ");
+                let t = clean.trim();
+                let typing_in_cmd = !app.cmd.buffer.is_empty()
+                    || app.session.prompting()
+                    || t.starts_with('(')
+                    || t.starts_with('!')
+                    || cadcraft_engine::is_bare_lisp_prefix(t);
+                if !is_dxf
+                    && !shift
+                    && !typing_in_cmd
+                    && cadcraft_engine::cmd::table::is_tsv_table(&text)
+                    && (held.is_none() || held.as_ref().is_some_and(|p| p.id == "pasteclip"))
+                {
+                    out.push(ShortcutAction::PasteTable(text));
+                    continue;
+                }
+                // A paste asked for from a menu or the command line is the command that was held.
+                match held {
+                    Some(p) if p.line.is_some() => run_now(app, p),
+                    Some(p) => out.push(ShortcutAction::Command(p.id)),
+                    None => {
+                        let is_img = !is_own && !is_dxf && !typing_in_cmd && try_load_os_clipboard_image(app);
+                        let paste_to_cmd = !is_own && !is_dxf && !is_img && !t.is_empty() && (app.session.clipboard.is_empty() || typing_in_cmd);
+                        if paste_to_cmd {
+                            app.cmd.buffer.push_str(&clean);
+                            app.cmd.note_typing();
+                        } else if is_img {
+                            out.push(ShortcutAction::Command("pasteclip"));
+                        } else {
+                            out.push(ShortcutAction::Command(paste_cmd()));
+                        }
                     }
                 }
             }
@@ -278,6 +301,10 @@ struct Pending {
     id: &'static str,
     /// The command line text it was typed as, when it was.
     line: Option<String>,
+    /// The drawing it was asked for in (its `uid`): it pastes there or not at all.
+    doc: Option<u64>,
+    /// The inputs the session had been given when it was asked for (`Session::inputs`).
+    inputs: u64,
 }
 
 /// Paste commands waiting for the system clipboard ([`defer`], [`pump`]).
@@ -336,6 +363,11 @@ impl Paste {
     }
 }
 
+/// The drawing shown now, as a held paste remembers it.
+fn active_doc(app: &CadApp) -> Option<u64> {
+    app.session.state().ok().map(|s| s.uid)
+}
+
 pub(crate) fn paste_id(id: &str) -> Option<&'static str> {
     ["pasteclip", "pasteblock", "pasteorig"].into_iter().find(|p| *p == id)
 }
@@ -353,7 +385,7 @@ pub fn offered(session: &Session, spec: &CommandSpec) -> bool {
 pub fn defer(app: &mut CadApp, id: &str, line: Option<&str>) -> bool {
     let Some(id) = paste_id(id).filter(|_| ON_DEMAND && !app.paste.running) else { return false };
     app.paste.cancel();
-    app.paste.request = Some(Pending { id, line: line.map(str::to_string) });
+    app.paste.request = Some(Pending { id, line: line.map(str::to_string), doc: active_doc(app), inputs: app.session.inputs });
     true
 }
 
@@ -374,11 +406,11 @@ fn run_now(app: &mut CadApp, p: Pending) {
 
 /// Run `id`, a paste command whose `Paste` event has been read.
 pub fn run_read(app: &mut CadApp, id: &'static str) {
-    run_now(app, Pending { id, line: None });
+    run_now(app, Pending { id, line: None, doc: active_doc(app), inputs: app.session.inputs });
 }
 
 /// Once per frame: ask the window for the system clipboard for a newly held paste, and give up on
-/// one it never delivered. The text arrives as a `Paste` event ([`shortcut_commands`]).
+/// one it never delivered. The text arrives as a `Paste` event ([`shortcut_actions`]).
 pub fn pump(app: &mut CadApp, ctx: &egui::Context) {
     let (now, pasted) = ctx.input(|i| (i.time, i.events.iter().any(|e| matches!(e, egui::Event::Paste(_)))));
     if ctx.current_pass_index() == 0 {
@@ -386,6 +418,21 @@ pub fn pump(app: &mut CadApp, ctx: &egui::Context) {
     }
     let (frame, late) = (app.paste.frame, app.paste.late);
     app.paste.sent.retain(|r| if late { r.until > now } else { r.frame + 1 >= frame });
+    // A held paste belongs to the drawing it was asked for in. If another one is shown by now (a
+    // file read in the background finished opening, or the tab was switched), it is dropped
+    // rather than run there.
+    let held = app.paste.request.as_ref().or(app.paste.wait.as_ref().map(|(p, _, _)| p));
+    if held.is_some_and(|p| p.doc != active_doc(app)) {
+        app.paste.cancel();
+        app.session.echo("Paste cancelled: another drawing became active before the clipboard was read.");
+    }
+    // Input that reached the session since it was asked for answered the prompt of the command
+    // still running (a coordinate for LINE), which the paste would now cancel: that input stands,
+    // and the held paste is dropped like one a newly started command replaces.
+    let held = app.paste.request.as_ref().or(app.paste.wait.as_ref().map(|(p, _, _)| p));
+    if held.is_some_and(|p| p.inputs != app.session.inputs) {
+        app.paste.cancel();
+    }
     if let Some(p) = app.paste.request.take() {
         // A focused text field would take the `Paste` itself.
         if ctx.egui_wants_keyboard_input() {
@@ -400,7 +447,7 @@ pub fn pump(app: &mut CadApp, ctx: &egui::Context) {
         }
     }
     // A request that can no longer be answered, or the time to give up, ends the wait; a `Paste`
-    // in this frame completes the held command first ([`shortcut_commands`]).
+    // in this frame completes the held command first ([`shortcut_actions`]).
     if pasted && ctx.egui_wants_keyboard_input() {
         app.paste.wait = None;
     }

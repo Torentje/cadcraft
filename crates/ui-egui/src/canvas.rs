@@ -993,7 +993,7 @@ pub fn show(app: &mut CadApp, ui: &mut egui::Ui) {
             if let Some(f) = dyn_frame
                 && crate::dyninput::parse(&app.cmd.buffer, &f).is_some()
             {
-                app.cmd.buffer.clear();
+                app.cmd.clear_entry();
             }
             // Preserve a snap's viewport origin for DIST, and its deferred curve where needed.
             let result = match app.canvas.snap {
@@ -1079,10 +1079,11 @@ fn track_cursor(
         && !app.session.running.as_ref().is_some_and(|r| r.id.starts_with("zoom"));
     if let Some(w) = raw.filter(|_| !edge_on_work_point) {
         let mut eff = effective_point(app, w, xf, current_orbit, ctx);
-        // A locked Dynamic Input value (`40,` or `40<` typed) holds the cursor and overrides snaps.
+        // A locked Dynamic Input value (`40,` or `40<` typed, or a Tab-locked second value) holds the
+        // cursor and overrides snaps.
         if let Some(f) = dyn_frame
             && let Some(e) = crate::dyninput::parse(&app.cmd.buffer, &f)
-            && e.first_locked().is_some()
+            && crate::dyninput::holds_cursor(&e, app.cmd.second_locked())
         {
             eff = crate::dyninput::constrain(&e, &f, eff, app.cmd.second_locked());
             app.canvas.snap = None;
@@ -1099,7 +1100,10 @@ fn track_cursor(
         app.session.cursor = eff;
         app.session.cursor_deferred = app.canvas.snap.and_then(|h| h.deferred);
         // Typed or menu snap overrides (END, NON…) and Tab cycling; a locked Dynamic Input value wins.
-        if dyn_frame.and_then(|f| crate::dyninput::parse(&app.cmd.buffer, &f)).is_none_or(|e| e.first_locked().is_none()) {
+        if dyn_frame
+            .and_then(|f| crate::dyninput::parse(&app.cmd.buffer, &f))
+            .is_none_or(|e| !crate::dyninput::holds_cursor(&e, app.cmd.second_locked()))
+        {
             override_cursor(app, w, xf, current_orbit);
         }
         // Typed grip dimensions win over snap overrides too.
@@ -1152,7 +1156,7 @@ fn press_at(app: &mut CadApp, xf: &Xf, current_orbit: cadcraft_render::Orbit3d, 
         if let Some(f) = dyn_frame
             && crate::dyninput::parse(&app.cmd.buffer, &f).is_some()
         {
-            app.cmd.buffer.clear();
+            app.cmd.clear_entry();
         }
         // Preserve a snap's viewport origin for DIST, and its deferred curve where needed.
         let result = match app.canvas.snap {
@@ -1317,7 +1321,11 @@ fn paint_canvas(frame: CanvasPaint<'_>) {
     // `xf` is the space being edited: paper space, or model space inside the active viewport.
     let preview_orbit =
         if app.session.running.as_ref().is_some_and(|r| r.id.starts_with("zoom")) { cadcraft_render::Orbit3d::default() } else { current_orbit };
-    let drag = match (app.canvas.cursor, app.canvas.gpu.is_some()) {
+    // While the Array window is open the pointer is over it, so fall back to the last canvas
+    // cursor; every other command keeps today's behavior.
+    let over_array = app.ui.dialog.as_deref() == Some("array") && app.session.cursor.is_finite();
+    let cursor = app.canvas.cursor.or(if over_array { Some(app.session.cursor) } else { None });
+    let drag = match (cursor, app.canvas.gpu.is_some()) {
         (Some(c), true) => app.session.drag(c),
         _ => None,
     };
@@ -1329,7 +1337,7 @@ fn paint_canvas(frame: CanvasPaint<'_>) {
             let list = rebuilt_preview(&st.doc, extra.iter(), scale, preview_orbit);
             draw_list(painter, &xf, &list, bg, false);
         }
-    } else if let (Some(c), true) = (app.canvas.cursor, app.session.prompting()) {
+    } else if let (Some(c), true) = (cursor, app.session.prompting()) {
         let ents = app.session.preview(c);
         if !ents.is_empty()
             && let Ok(st) = app.session.state()
