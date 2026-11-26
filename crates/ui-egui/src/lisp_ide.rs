@@ -793,7 +793,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                 }
 
                 ui.separator();
-                craft_ui::ComboBox::from_id_salt("lisp_template_combo").selected_text(crate::tl!("Template...")).show_ui(ui, |ui| {
+                egui::ComboBox::from_id_salt("lisp_template_combo").selected_text(crate::tl!("Template...")).show_ui(ui, |ui| {
                     if ui.selectable_label(false, crate::tl!("0. Empty file (New)")).clicked() {
                         ide.file_name = match ide.lang {
                             IdeLang::Lisp => "Nieuw.lsp".into(),

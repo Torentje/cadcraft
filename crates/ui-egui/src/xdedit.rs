@@ -651,7 +651,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                                     ui.label(RichText::new(format!("{vis_num}")).monospace().color(t.text_dim));
 
                                     let code_label = CODES.iter().find(|(c, _)| *c == r.code).map(|(_, l)| *l).unwrap_or("Custom");
-                                    craft_ui::ComboBox::from_id_salt(("xd_code", i)).selected_text(code_label).width(105.0).show_ui(ui, |ui| {
+                                    egui::ComboBox::from_id_salt(("xd_code", i)).selected_text(code_label).width(105.0).show_ui(ui, |ui| {
                                         for &(c, lbl) in CODES {
                                             let prev_code = r.code;
                                             if ui.selectable_value(&mut r.code, c, lbl).changed() {
@@ -767,7 +767,7 @@ pub fn dialog(app: &mut CadApp, ctx: &egui::Context, open: &mut bool) {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new(crate::tl!("Add Row:")).strong());
                         let new_code_lbl = CODES.iter().find(|(c, _)| *c == st.new_code).map(|(_, l)| *l).unwrap_or("1000 String");
-                        craft_ui::ComboBox::from_id_salt("xd_new_code").selected_text(new_code_lbl).width(105.0).show_ui(ui, |ui| {
+                        egui::ComboBox::from_id_salt("xd_new_code").selected_text(new_code_lbl).width(105.0).show_ui(ui, |ui| {
                             for &(c, lbl) in CODES {
                                 ui.selectable_value(&mut st.new_code, c, lbl);
                             }

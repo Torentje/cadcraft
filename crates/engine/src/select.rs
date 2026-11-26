@@ -444,6 +444,9 @@ struct OrbitIndex {
 /// Snap a tessellation tolerance to its power-of-two band so hover, click and cycling reuse the
 /// same cached projected primitives within a zoom band.
 fn orbit_tol_band(tol: f64) -> (i32, f64) {
+    if !tol.is_finite() {
+        return (0, 1.0);
+    }
     let band = tol.clamp(1e-18, 1e18).log2().floor() as i32;
     (band, 2f64.powi(band))
 }
@@ -455,7 +458,7 @@ impl OrbitIndex {
             && self.tol_band == tol_band
             && self.blocks.len() == d.blocks.len()
             && self.blocks.iter().zip(&d.blocks).all(|((ka, a), (kb, b))| ka == kb && std::sync::Arc::ptr_eq(a, b))
-            && self.layers == d.layers
+            && self.layers == *d.layers
             && self.linetypes == d.linetypes
             && self.text_styles == d.text_styles
             && self.dim_styles == d.dim_styles
@@ -516,8 +519,8 @@ impl OrbitIndex {
         }
         OrbitIndex {
             store: store.clone(),
-            blocks: d.blocks.clone(),
-            layers: d.layers.clone(),
+            blocks: (*d.blocks).clone(),
+            layers: d.layers.to_vec(),
             linetypes: d.linetypes.clone(),
             text_styles: d.text_styles.clone(),
             dim_styles: d.dim_styles.clone(),

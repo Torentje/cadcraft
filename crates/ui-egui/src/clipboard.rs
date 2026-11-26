@@ -50,30 +50,37 @@ pub enum ShortcutAction {
 /// The actions the Cut/Copy/Paste events of this frame ask for. Pasted DXF text that isn't our
 /// own last copy (another CADCraft's) becomes the clipboard first; non-DXF tab-separated table text
 /// starts `pastetable`.
-pub fn shortcut_actions(app: &mut CadApp, ctx: &egui::Context) -> Vec<ShortcutAction> {
-    let (events, shift, ctrl_v_key) = ctx.input(|i| {
-        let ev: Vec<egui::Event> =
-            i.events.iter().filter(|e| matches!(e, egui::Event::Copy | egui::Event::Cut | egui::Event::Paste(_))).cloned().collect();
-        let has_paste_ev = ev.iter().any(|e| matches!(e, egui::Event::Paste(_)));
+///
+/// `fired` holds the events a floating panel's window ran as framework commands ([`CadApp::queue_fired_edits`]); they
+/// come before this window's own.
+pub fn shortcut_actions(app: &mut CadApp, ctx: &egui::Context, fired: Vec<egui::Event>) -> Vec<ShortcutAction> {
+    // Each event with its Shift: the fired chords have none, whatever is held by the time this window reads them.
+    let (events, ctrl_v_key) = ctx.input(|i| {
+        let own = i.events.iter().filter(|e| matches!(e, egui::Event::Copy | egui::Event::Cut | egui::Event::Paste(_)));
+        let events: Vec<(egui::Event, bool)> =
+            fired.iter().cloned().map(|e| (e, false)).chain(own.map(|e| (e.clone(), i.modifiers.shift))).collect();
+        let has_paste_ev = events.iter().any(|(e, _)| matches!(e, egui::Event::Paste(_)));
         // egui-winit 0.36 swallows Key::V(pressed: true) on Ctrl+V when the OS clipboard holds an
         // image without text, emitting only Key::V(pressed: false) on key release.
         let ctrl_v = !has_paste_ev
             && i.events.iter().any(|e| match e {
-                egui::Event::Key { key: egui::Key::V, modifiers, .. } => {
+                egui::Event::Key { key: egui::Key::V, pressed: false, repeat: false, modifiers, .. } => {
                     modifiers.command || modifiers.ctrl || i.modifiers.command || i.modifiers.ctrl
                 }
-                egui::Event::Key { key: egui::Key::Insert, modifiers, .. } => modifiers.shift || i.modifiers.shift,
+                egui::Event::Key { key: egui::Key::Insert, pressed: true, repeat: false, modifiers, .. } => {
+                    modifiers.shift || i.modifiers.shift
+                }
                 _ => false,
             });
-        (ev, i.modifiers.shift, ctrl_v)
+        (events, ctrl_v)
     });
-    let paste_cmd = || if shift { "pasteblock" } else { "pasteclip" };
     let mut out = Vec::new();
     if ctrl_v_key && try_load_os_clipboard_image(app) {
         app.paste.cancel();
         out.push(ShortcutAction::Command("pasteclip"));
     }
-    for e in events {
+    for (e, shift) in events {
+        let paste_cmd = || if shift { "pasteblock" } else { "pasteclip" };
         match e {
             egui::Event::Copy => out.push(ShortcutAction::Command(if shift { "copybase" } else { "copyclip" })),
             egui::Event::Cut => out.push(ShortcutAction::Command("cutclip")),
@@ -88,20 +95,11 @@ pub fn shortcut_actions(app: &mut CadApp, ctx: &egui::Context) -> Vec<ShortcutAc
                 }
                 let mine = app.paste.wait.as_ref().is_some_and(|(_, id, _)| answered == Some(*id));
                 let held = if mine { app.paste.wait.take().map(|(p, _, _)| p) } else { None };
-                // The text is the system clipboard's either way, so a stale answer still counts.
-                let h = hash(&text);
-                let is_own = ctx.data(|d| d.get_temp::<u64>(text_id())) == Some(h);
-                let is_dxf = if is_own {
-                    true
-                } else if clipboard::load_system_text(&mut app.session, &text) {
-                    ctx.data_mut(|d| d.insert_temp(text_id(), h));
-                    true
-                } else {
-                    false
-                };
                 if held.is_none() && answered.is_some() {
                     continue;
                 }
+                let h = hash(&text);
+                let is_own = ctx.data(|d| d.get_temp::<u64>(text_id())) == Some(h);
                 let clean = text.replace("\r\n", " ").replace(['\r', '\n'], " ");
                 let t = clean.trim();
                 let typing_in_cmd = !app.cmd.buffer.is_empty()
@@ -109,7 +107,7 @@ pub fn shortcut_actions(app: &mut CadApp, ctx: &egui::Context) -> Vec<ShortcutAc
                     || t.starts_with('(')
                     || t.starts_with('!')
                     || cadcraft_engine::is_bare_lisp_prefix(t);
-                if !is_dxf
+                if !is_own
                     && !shift
                     && !typing_in_cmd
                     && cadcraft_engine::cmd::table::is_tsv_table(&text)
@@ -118,6 +116,15 @@ pub fn shortcut_actions(app: &mut CadApp, ctx: &egui::Context) -> Vec<ShortcutAc
                     out.push(ShortcutAction::PasteTable(text));
                     continue;
                 }
+                // The text is the system clipboard's either way, so a stale answer still counts.
+                let is_dxf = if is_own {
+                    true
+                } else if clipboard::load_system_text(&mut app.session, &text) {
+                    ctx.data_mut(|d| d.insert_temp(text_id(), h));
+                    true
+                } else {
+                    false
+                };
                 // A paste asked for from a menu or the command line is the command that was held.
                 match held {
                     Some(p) if p.line.is_some() => run_now(app, p),
@@ -435,7 +442,7 @@ pub fn pump(app: &mut CadApp, ctx: &egui::Context) {
     }
     if let Some(p) = app.paste.request.take() {
         // A focused text field would take the `Paste` itself.
-        if ctx.egui_wants_keyboard_input() {
+        if crate::framework::widget_has_keyboard(ctx) {
             run_now(app, p);
         } else {
             ctx.send_viewport_cmd(egui::ViewportCommand::RequestPaste);
@@ -448,7 +455,7 @@ pub fn pump(app: &mut CadApp, ctx: &egui::Context) {
     }
     // A request that can no longer be answered, or the time to give up, ends the wait; a `Paste`
     // in this frame completes the held command first ([`shortcut_actions`]).
-    if pasted && ctx.egui_wants_keyboard_input() {
+    if pasted && crate::framework::widget_has_keyboard(ctx) {
         app.paste.wait = None;
     }
     let gone = |app: &CadApp| app.paste.wait.as_ref().is_some_and(|(_, id, _)| !app.paste.sent.iter().any(|r| r.id == *id));
