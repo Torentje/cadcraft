@@ -3,6 +3,7 @@ use super::{
     Accept, Entity, EntityKind, Handle, Input, Interactive, Mat3, Prompt, Result, SelectKind, SelectMode, Session, Step, Value, Vec2, bad, json,
     line, points_param,
 };
+use cadcraft_geom::Arc;
 
 /// The 2D shape of a STRETCH selection area in projected view coordinates.
 #[derive(Clone)]
@@ -59,8 +60,30 @@ fn add_mline_vertex_hits(s: &Session, area: &StretchArea, hs: &mut Vec<Handle>) 
     }
 }
 
+/// The bulge that keeps an arc's height (bulge * chord / 2) when its chord changes length; none
+/// once the chord collapses to a point or overflows, which has no valid arc left to keep.
+fn keep_height(bulge: f64, old_chord: f64, new_chord: f64) -> f64 {
+    if !bulge.is_finite() || !new_chord.is_finite() || new_chord <= 1e-12 {
+        0.0
+    } else if old_chord.is_finite() {
+        let scaled = bulge * (old_chord / new_chord);
+        if scaled.is_finite() { scaled } else { 0.0 }
+    } else {
+        bulge
+    }
+}
+
 /// Move the vertices of `e` that lie inside any of the areas `wins` by `d` (STRETCH).
 fn stretch_entity(e: &mut Entity, wins: &[StretchArea], d: Vec2) {
+    stretch_entity_with_mode(e, wins, d, false);
+}
+
+/// Interactive preview variant of [`stretch_entity`] that caps costly spline refits on large splines.
+fn stretch_entity_preview(e: &mut Entity, wins: &[StretchArea], d: Vec2) {
+    stretch_entity_with_mode(e, wins, d, true);
+}
+
+fn stretch_entity_with_mode(e: &mut Entity, wins: &[StretchArea], d: Vec2, for_preview: bool) {
     let inside3 = |p: cadcraft_geom::Vec3| wins.iter().any(|a| a.contains(p));
     let mv = |p: &mut cadcraft_geom::Vec3| {
         if inside3(*p) {
@@ -75,9 +98,33 @@ fn stretch_entity(e: &mut Entity, wins: &[StretchArea], d: Vec2) {
         }
         EntityKind::LwPolyline(pl) => {
             let elev = pl.elevation;
+            let has_bulge = pl.vertices.iter().any(|v| v.bulge != 0.0);
+            let old: Vec<Vec2> = if has_bulge { pl.vertices.iter().map(|v| v.p).collect() } else { Vec::new() };
+            let mut moved = if has_bulge { Vec::with_capacity(pl.vertices.len()) } else { Vec::new() };
             for v in &mut pl.vertices {
-                if inside3(v.p.to3(elev)) {
+                let m = inside3(v.p.to3(elev));
+                if m {
                     v.p += d;
+                }
+                if has_bulge {
+                    moved.push(m);
+                }
+            }
+            if has_bulge {
+                // An arc segment keeps its height (bulge * chord / 2) when one endpoint moves.
+                let n = pl.vertices.len();
+                let segs = if pl.closed { n } else { n.saturating_sub(1) };
+                for i in 0..segs {
+                    let j = (i + 1) % n;
+                    if !(moved.get(i).copied().unwrap_or(false) ^ moved.get(j).copied().unwrap_or(false)) {
+                        continue;
+                    }
+                    let (Some(a0), Some(b0), Some(b1)) = (old.get(i), old.get(j), pl.vertices.get(j).map(|v| v.p)) else { continue };
+                    if let Some(v) = pl.vertices.get_mut(i)
+                        && v.bulge != 0.0
+                    {
+                        v.bulge = keep_height(v.bulge, a0.dist(*b0), v.p.dist(b1));
+                    }
                 }
             }
         }
@@ -86,10 +133,38 @@ fn stretch_entity(e: &mut Entity, wins: &[StretchArea], d: Vec2) {
             pl.points.iter_mut().for_each(mv);
         }
         EntityKind::Arc(a) => {
-            // Arcs keep their shape: move when the centre is inside.
-            if inside3(a.center) {
-                a.center.x += d.x;
-                a.center.y += d.y;
+            // Move endpoints inside the area while preserving arc height (bulge * chord / 2);
+            // the centre alone moves nothing. Collapsing one end onto the other leaves the arc unchanged.
+            let g = Arc::new(a.center.xy(), a.radius, a.start, a.end);
+            let (s0, e0) = (g.start_point(), g.end_point());
+            let (s_in, e_in) = (inside3(s0.to3(a.center.z)), inside3(e0.to3(a.center.z)));
+            let (s1, e1) = (if s_in { s0 + d } else { s0 }, if e_in { e0 + d } else { e0 });
+            if s_in && e_in {
+                // Both ends move: the arc moves whole (a full sweep has no chord to rebuild from).
+                (a.center.x, a.center.y) = (a.center.x + d.x, a.center.y + d.y);
+            } else if (s_in || e_in)
+                && s0.dist(e0) > 1e-12
+                && let Some((r, _)) =
+                    cadcraft_geom::bulge_to_arc(s1, e1, keep_height(cadcraft_geom::arc_to_bulge(g.sweep()), s0.dist(e0), s1.dist(e1)))
+                && r.center.is_finite()
+                && r.radius.is_finite()
+                && r.start.is_finite()
+                && r.end.is_finite()
+            {
+                (a.center.x, a.center.y) = (r.center.x, r.center.y);
+                (a.radius, a.start, a.end) = (r.radius, r.start, r.end);
+            }
+        }
+        // Control points inside the area move.
+        EntityKind::Spline(sp) if sp.fit.is_empty() => sp.control.iter_mut().filter(|p| inside3(p.to3(0.0))).for_each(|p| *p += d),
+        // A spline built from fit points: move fit points inside the area and refit (keeping fit data),
+        // or translate whole when all fit points lie inside. Cap O(N^3) refit during interactive preview.
+        EntityKind::Spline(sp) => {
+            if sp.fit.iter().all(|p| inside3(p.to3(0.0))) {
+                sp.transform(&Mat3::translate(d));
+            } else if sp.fit.iter().any(|p| inside3(p.to3(0.0))) && (!for_preview || sp.fit.len() <= 200) {
+                let fit: Vec<Vec2> = sp.fit.iter().map(|p| if inside3(p.to3(0.0)) { *p + d } else { *p }).collect();
+                *sp = sp.refit(&fit, sp.closed);
             }
         }
         EntityKind::Solid(so) | EntityKind::Trace(so) => so.corners.iter_mut().for_each(mv),
@@ -435,7 +510,7 @@ impl Interactive for StretchM {
                         if self.whole.contains(&e.handle) {
                             e.kind.transform(&m);
                         } else {
-                            stretch_entity(&mut e, &self.windows, c - base);
+                            stretch_entity_preview(&mut e, &self.windows, c - base);
                         }
                         e.kind
                     })

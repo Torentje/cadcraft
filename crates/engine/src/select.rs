@@ -459,9 +459,9 @@ impl OrbitIndex {
             && self.blocks.len() == d.blocks.len()
             && self.blocks.iter().zip(&d.blocks).all(|((ka, a), (kb, b))| ka == kb && std::sync::Arc::ptr_eq(a, b))
             && self.layers == *d.layers
-            && self.linetypes == d.linetypes
-            && self.text_styles == d.text_styles
-            && self.dim_styles == d.dim_styles
+            && self.linetypes == *d.linetypes
+            && self.text_styles == *d.text_styles
+            && self.dim_styles == *d.dim_styles
             && self.mleader_styles == d.mleader_styles
             && self.table_styles == d.table_styles
             && self.mline_styles == d.mline_styles
@@ -521,9 +521,9 @@ impl OrbitIndex {
             store: store.clone(),
             blocks: (*d.blocks).clone(),
             layers: d.layers.to_vec(),
-            linetypes: d.linetypes.clone(),
-            text_styles: d.text_styles.clone(),
-            dim_styles: d.dim_styles.clone(),
+            linetypes: d.linetypes.to_vec(),
+            text_styles: d.text_styles.to_vec(),
+            dim_styles: d.dim_styles.to_vec(),
             mleader_styles: d.mleader_styles.clone(),
             table_styles: d.table_styles.clone(),
             mline_styles: d.mline_styles.clone(),
