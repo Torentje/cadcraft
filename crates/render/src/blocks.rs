@@ -56,6 +56,9 @@ pub(crate) fn sub_ctx<'a>(ctx: &Ctx<'a>, e: &Entity, m: Mat3) -> Ctx<'a> {
             },
         vp_xf: ctx.vp_xf,
         vp_xf_inv: ctx.vp_xf_inv,
+        // Proxy graphics are drawn as part of the block they are in; a block reference or a
+        // dimension sets its own block instead.
+        block: ctx.block,
     }
 }
 
@@ -97,7 +100,7 @@ pub(crate) fn insert(b: &mut Builder, ctx: &Ctx, e: &Entity, ins: &cadcraft_doc:
                 }
                 let off = Vec2::new(ins.col_spacing * f64::from(c), ins.row_spacing * f64::from(r)).rotate(ins.rotation);
                 let m = Mat3::translate(off).then_before(ins.transform(blk.base.xy()));
-                let sub = Ctx { block_pstyle: b.named, block_transparency: own, ..sub_ctx(ctx, e, m) };
+                let sub = Ctx { block: Some(blk), block_pstyle: b.named, block_transparency: own, ..sub_ctx(ctx, e, m) };
                 // XCLIP: the copy is drawn on its own, then cut to the boundary.
                 let clip = xclip_region(ins, &sub.xf);
                 let mut part = clip.as_ref().map(|_| b.part());
@@ -123,6 +126,7 @@ pub(crate) fn insert(b: &mut Builder, ctx: &Ctx, e: &Entity, ins: &cadcraft_doc:
                 if let (Some(part), Some((region, inverted))) = (part, &clip) {
                     b.list.expanded = part.list.expanded;
                     b.list.truncated |= part.list.truncated;
+                    b.list.undashed = b.list.undashed.saturating_add(part.list.undashed);
                     append_clipped_keep(&mut b.list, &part.list, &if *inverted { Clip::Outside(region) } else { Clip::Poly(region) });
                     xclip_frame(b, ctx, region, rgb);
                 }

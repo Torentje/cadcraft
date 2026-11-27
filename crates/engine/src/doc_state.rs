@@ -57,6 +57,11 @@ pub struct DocState {
     pub(crate) fonts_noted: String,
     /// 3D Orbit orientation of model space (`Orbit3d::default()` = Top 2D plan view).
     pub orbit: cadcraft_render::Orbit3d,
+    /// The files the user linked with DATALINK since the drawing was opened, as the file system
+    /// resolves them, each with when it was last chosen (a larger number is later):
+    /// DATALINKUPDATE reads these also outside the drawing's folder ([`crate::doc_path`]). Kept
+    /// with the open drawing only, never saved.
+    pub(crate) chosen_links: std::collections::HashMap<std::path::PathBuf, u64>,
 }
 
 static NEXT_UID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -91,6 +96,7 @@ impl DocState {
             erased: Default::default(),
             fonts_noted: String::new(),
             orbit: cadcraft_render::Orbit3d::default(),
+            chosen_links: Default::default(),
         }
     }
     /// The drawing has changes not saved to its file, or the Block Editor has changes not yet
