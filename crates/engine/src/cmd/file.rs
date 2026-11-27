@@ -936,6 +936,11 @@ fn commit_save(s: &mut Session, path: &str, bytes: &[u8], store: impl FnOnce(&st
     if !is_same_file || st.lock.is_none() {
         // Drop previous lock and acquire lock for the saved path
         st.lock = None;
+        if !is_same_file {
+            st.read_only = false;
+            st.lock_info = None;
+            st.lock_holder = None;
+        }
         if is_lockable_drawing(path)
             && crate::file_access::check_write(crate::drawing_lock::dwl_path(std::path::Path::new(path))).is_ok()
             && crate::file_access::check_write(crate::drawing_lock::dwl2_path(std::path::Path::new(path))).is_ok()

@@ -47,9 +47,15 @@ pub struct Orbit3d {
 }
 
 impl Orbit3d {
-    /// True when looking straight down `-Z` with zero twist (the standard 2D Top plan view).
+    /// True when looking straight down `-Z` with zero twist (the standard 2D Top plan view),
+    /// or when any orbit parameter is non-finite (falling back safely to 2D Top).
     pub fn is_top(&self) -> bool {
-        self.yaw.abs() <= 1e-9 && self.pitch.abs() <= 1e-9
+        !(self.yaw.is_finite()
+            && self.pitch.is_finite()
+            && self.pivot.x.is_finite()
+            && self.pivot.y.is_finite()
+            && self.pivot.z.is_finite())
+            || (self.yaw.abs() <= 1e-9 && self.pitch.abs() <= 1e-9)
     }
 
     /// Orthographically project a 3D world point `p` onto the 2D view plane around `self.pivot`.
@@ -608,7 +614,15 @@ impl<'a> Builder<'a> {
         self.list.verts.push(self.project_pt(ctx, base, 0.0));
         let d2 = ctx.xf.apply_vec(dir);
         let orbit = self.active_orbit(ctx);
-        let d_proj = if orbit.is_top() { d2.normalized() } else { orbit.project_vec(cadcraft_geom::Vec3::new(d2.x, d2.y, 0.0)).normalized() };
+        let d_proj = if orbit.is_top() {
+            d2.normalized()
+        } else if ctx.top == VIEWPORT_CONTENT {
+            let m = ctx.vp_xf_inv.apply_vec(d2);
+            let m_proj = orbit.project_vec(cadcraft_geom::Vec3::new(m.x, m.y, 0.0));
+            ctx.vp_xf.apply_vec(m_proj).normalized()
+        } else {
+            orbit.project_vec(cadcraft_geom::Vec3::new(d2.x, d2.y, 0.0)).normalized()
+        };
         self.list.verts.push(d_proj);
         self.list.prims.push(DPrim {
             handle: ctx.top,

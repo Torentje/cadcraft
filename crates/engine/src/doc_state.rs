@@ -41,14 +41,15 @@ pub struct DocState {
     /// The Block Editor (BEDIT), when it is open: `doc` is then the editor's drawing, and the
     /// drawing itself waits in it ([`DocState::drawing`]).
     pub block_edit: Option<blockedit::BlockEdit>,
-    /// The user was told that the current UCS is tilted ([`Session::note_tilted_ucs`]).
     /// Whether this drawing is opened read-only (e.g. write-protected or locked by another user).
     pub read_only: bool,
     /// Details about the lock holder if the file was locked when opened.
     pub lock_info: Option<String>,
+    /// Parsed lock holder details when the file was locked on open.
     pub lock_holder: Option<crate::drawing_lock::LockInfo>,
     /// Active drawing lock guard (`.dwl` / `.dwl2`).
     pub lock: Option<std::sync::Arc<crate::drawing_lock::DrawingLockGuard>>,
+    /// The user was told that the current UCS is tilted ([`Session::note_tilted_ucs`]).
     pub ucs_tilted_noted: bool,
     /// What the last erase removed, for OOPS.
     pub(crate) erased: crate::cmd::Erased,

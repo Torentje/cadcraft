@@ -45,13 +45,16 @@ pub(crate) fn sub_ctx<'a>(ctx: &Ctx<'a>, e: &Entity, m: Mat3) -> Ctx<'a> {
             + match &e.kind {
                 EntityKind::Insert(ins) => {
                     let base_z = ctx.d.block(&ins.block).map_or(0.0, |b| b.base.z);
-                    (ins.insert.z - base_z * ins.scale.z) * ctx.z_scale
+                    let base_z = if base_z.is_finite() { base_z } else { 0.0 };
+                    let ins_z = if ins.insert.z.is_finite() { ins.insert.z } else { 0.0 };
+                    let scale_z = if ins.scale.z.is_finite() { ins.scale.z } else { 1.0 };
+                    (ins_z - base_z * scale_z) * ctx.z_scale
                 }
                 _ => 0.0,
             },
         z_scale: ctx.z_scale
             * match &e.kind {
-                EntityKind::Insert(ins) => ins.scale.z,
+                EntityKind::Insert(ins) if ins.scale.z.is_finite() => ins.scale.z,
                 _ => 1.0,
             },
         vp_xf: ctx.vp_xf,
